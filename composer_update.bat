@@ -1,0 +1,1 @@
+php -c C:\ms4w\ms4w\Apache\cgi-bin composer.phar update

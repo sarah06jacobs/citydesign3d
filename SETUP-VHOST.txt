@@ -1,0 +1,27 @@
+# add virtual host
+
+<VirtualHost *:80> 
+   ServerName nigata-3d.com
+   DocumentRoot C:\ms4w\ms4w\Apache\htdocs\nigata\public
+   SetEnv FUEL_ENV “development”
+   
+   <Directory C:\ms4w\ms4w\Apache\htdocs\nigata\public> 
+      Order Allow,Deny
+        Allow from All
+        AllowOverride All
+        DirectoryIndex index.php index.html
+   </Directory> 
+</VirtualHost>
+
+<VirtualHost *:80>
+    ServerName localhost
+    DocumentRoot C:\ms4w\ms4w\Apache\htdocs
+</VirtualHost>
+
+
+# set Listen
+Listen *:80
+
+# set hosts file
+127.0.0.1	nigata-3d.com
+127.0.0.1       localhost

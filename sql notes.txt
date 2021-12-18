@@ -1,0 +1,23 @@
+CREATE TABLE tatemono_1 ( 
+  gid serial NOT NULL, 
+  tname varchar(255),
+  ttype INTEGER DEFAULT 0,
+  floornum INTEGER DEFAULT 1,
+  floorht INTEGER DEFAULT 3,
+  designid INTEGER DEFAULT 0,
+  wallid INTEGER DEFAULT 0,
+  create_date date not null default CURRENT_DATE
+);
+
+SELECT AddGeometryColumn('tatemono_1', 'wkb_geometry', 4612, 'POLYGON', 2 );
+
+CREATE INDEX tatemono_1_geom_idx ON tatemono_1 USING gist (wkb_geometry);
+
+
+INSERT INTO tatemono_1 (tname,floornum,wkb_geometry) VALUES ('test1', 10,ST_GeomFromText('POLYGON((139.76 35.68,139.76 35.686,139.766 35.686,139.766 35.68,139.76 35.68))',4612));
+
+select * from tatemono_1 where wkb_geometry &&
+ST_MakeEnvelope (
+        xmin, ymin, -- bounding 
+        xmax, ymax, -- box limits
+        4612)
