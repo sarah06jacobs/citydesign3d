@@ -521,13 +521,9 @@ color:#F6FEFE;
 		</tr>
                 <tr>
 			<td>
-				壁画像：
+				Design：
 			</td>
 			<td>
-                            <select id="designidselect" name="designidselect" onchange="">
-                                <option value="3"> design spec 1 </option>
-                            </select>
-                            <br>
                             <input type="button" onclick="createNewDesign();" value="create new design" />
                         </td>
                 </tr>

@@ -15,12 +15,12 @@
 
         var cell1 = row.insertCell(0);
         cell1.innerHTML = "壁" + wallct;
-        cell1.appendChild(element1);
 
         var cell2 = row.insertCell(1);
         var element1 = document.createElement("input");
         element1.type = "file";
-        element2.name = "walltex" + wallct;
+        element1.name = "walltex" + wallct;
+        cell2.appendChild(element1);
 
         var cell3 = row.insertCell(2);
         var element2 = document.createElement("input");
@@ -37,36 +37,15 @@
         element3.size = "5";
         cell3.appendChild(element3);
 
-        var cell4 = row.insertCell(3);
-        var element4 = document.createElement("input");
-        element4.type = "button";
-        element4.value = "-";
-        element4.onoclick = "deleteRow('dataTable','"+(wallct)+"');";
-        cell4.appendChild(element4);
+        ////var cell4 = row.insertCell(3);
+        ////var element4 = document.createElement("input");
+        ////element4.type = "button";
+        ////element4.value = "-";
+        ////element4.setAttribute("onclick","deleteRow('dataTable' , "+wallct+");");
+        //element4.onclick = deleteRow('dataTable',wallct);
+        ////cell4.appendChild(element4);
     }
 
-    function deleteRow(tableID, ix) {
-        try {
-            var table = document.getElementById(tableID);
-            var rowCount = table.rows.length;
-            table.deleteRow(2+(ix-1));
-            
-            wallct = wallct - 1;
-            
-            for( u=0; u<wallct; u++ ) {
-                var row = table.rows[u+2];
-                row.cells[0].innerHMTL = "壁" + (u+1);
-                
-                row.cells[1].childNodes[0].name = "walltex" + (u+1);
-                row.cells[2].childNodes[0].name = "wallw" + (u+1);
-                row.cells[2].childNodes[1].name = "wallh" + (u+1);
-            }
-            // var row = table.rows[i];
-            // var chkbox = row.cells[0].childNodes[0];
-        } catch(e) {
-            alert(e);
-        }
-    }
     
     function init() {
         var opener = window.opener;
@@ -88,7 +67,6 @@
             <td> <input type="text" name="wallw0" value="" size="5" />
                 <input type="text" name="wallh0" value="" size="5" />
             </td>
-            <td>&nbsp;</td>
         </TR>
         <TR>
             <TD> 屋根 </TD>
@@ -97,11 +75,10 @@
                 <input type="text" name="roofh" value="" size="5" />
                 <input type="text" name="roofr" value="" size="5" />
             </td>
-            <td>&nbsp;</td>
         </TR>
         <tr>
-            <td colspan="4">
-                <input type="button" value="壁を追加" onlick="addRow('dataTable')" />
+            <td colspan="3">
+                <input type="button" value="壁を追加" onclick="addRow('dataTable')" />
             </td>
         </tr>
     </TABLE>

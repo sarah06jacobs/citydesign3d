@@ -50,23 +50,34 @@ class Controller_Hawkeye extends Controller
             $post = Input::post();
             $get = Input::get();
             $post = array_merge($get, $post);
-            $design_id = isset( $post["design_id"] ) ? ($post["design_id"] + 0) : "1";
+            $design_id = isset( $post["design_id"] ) ? ($post["design_id"] + 0) : -1;
             $action = isset( $post["action"] ) ? $post["action"] : "";
             
             $dname = "";
             $default_wall = "";
             $roof = "";
+
+            $walls = array();
             
             if ( $action == "save" ) {
+            	$config = array(
+				    'path' => APPPATH.'data',
+				    'ext_whitelist' => array('png')
+				);
+				Upload::process($config);
+				Upload::save();
+
+            	$dname = $post['dname'];
                 if ( $design_id == -1 ) {
                     // add to db
                     $query = DB::insert('design_base');
-                    $query->set(array("dname" => ''));
-                    $design_id = $query -> execute();
-                    
+                    $query->set(array("dname" => $dname , "create_ts" => time()));
+                    $design_obj = $query -> execute();
+                    $design_id = $design_obj[0];
                 }
                 
                 $dfolder = DOCROOT.'/assets/design/rc_' . $design_id . '/';
+                mkdir($dfolder , 0777, true);
                 // save files to fol
                 
                 $wtex_ix = 0;
@@ -77,27 +88,63 @@ class Controller_Hawkeye extends Controller
                     }
                     $wallw = $post["wallw" .$wtex_ix];
                     $wallh = $post["wallh" .$wtex_ix];
-                    $file = $_FILES['walltex'.$wtex_ix]['name'];
-                    echo "file : $file <br>";
-                    /*
-                    $filepath = APPPATH.'data/images/' . $file;
-
-                    $info = getimagesize($filepath);
-                    if ($info === FALSE || ($info[2] !== IMAGETYPE_PNG)) {
-                        unlink($filepath);
-                    } else {
-                        if( file_exists($dfolder . 'wall' . $wtex_ix . ".png") )
-                        {
-                            unlink($dfolder . 'wall' . $wtex_ix . ".png");
-                        }
-                        File::rename( $filepath , $dfolder . 'wall' . $wtex_ix . ".png");
-                    }
-                     */
-                    $wtex_ix = $wtex_ix + 1;
+                    $file = Upload::get_files('walltex'.$wtex_ix);
+                    if( count($file) > 0 ) {
+	                    $filepath = APPPATH.'data/' . $file['name'];
+	                    $info = getimagesize($filepath);
+	                    if ($info === FALSE || ($info[2] !== IMAGETYPE_PNG)) {
+	                        unlink($filepath);
+	                    } else {
+	                        if( file_exists($dfolder . 'wall' . $wtex_ix . ".png") )
+	                        {
+	                            unlink($dfolder . 'wall' . $wtex_ix . ".png");
+	                        }
+	                        File::rename( $filepath , $dfolder . 'wall' . $wtex_ix . ".png");
+	                    
+		                    $wtex_ix = $wtex_ix + 1;
+		                    // add to item
+		                    $dstr = $wtex_ix . ":0";
+		                    if ( $wallw !== "" && $wallh !== "" )
+		                    {
+		                    	$dstr = $dstr . ":" . $wallw . ":" . $wallh;
+		                    }
+		                    $query = DB::insert('design_item');
+		                    $query->set(array("design_id" => $design_id , "dtype" => "0", "dvalue" => $dstr , "idx" => $wtex_ix));
+		                    $query -> execute();
+	                	}
+                	}
                 }
                     
-                $rooffiles =  $_FILES['rooftex']['name'];
-                echo "roof : $rooffiles <br>";
+                $rooffile = Upload::get_files('rooftex');
+                if( count($rooffile) > 0 ) {
+                	$roofw = $post["roofw"];
+	                $roofh = $post["roofh"];
+	                $roofr = $post["roofh"];
+	                $filepath = APPPATH.'data/' . $rooffile['name'];
+	                $info = getimagesize($filepath);
+	                if ($info === FALSE || ($info[2] !== IMAGETYPE_PNG)) {
+	                    unlink($filepath);
+	                } else {
+	                	if( file_exists($dfolder . "roof.png") )
+	                    {
+	                        unlink($dfolder . "roof.png");
+	                    }
+	                    File::rename( $filepath , $dfolder . "roof.png");
+	                
+	                    $wtex_ix = $wtex_ix + 1;
+	                    // add to item
+	                    $dstr = $wtex_ix . ":0";
+	                    if ( $wallw !== "" && $wallh !== "" )
+	                    {
+	                    	$dstr = $dstr . ":" . $wallw . ":" . $wallh;
+	                    }
+	                    $query = DB::insert('design_item');
+	                    $query->set(array("design_id" => $design_id , "dtype" => "2", "dvalue" => $dstr , "idx" => $wtex_ix));
+	                    $query -> execute();
+	                }
+                }
+                
+
             }
             
             if($design_id >= 0) {
@@ -109,7 +156,7 @@ class Controller_Hawkeye extends Controller
                     $dname = $dresult[0]['dname'];
                     
                     $query = DB::select('*');
-                    $query -> from('design_items');
+                    $query -> from('design_item');
                     $query -> where('design_id' , $design_id);
                     $query -> order_by('idx' , 'asc');
                     $ditems = $query->execute()->as_array();
@@ -140,8 +187,7 @@ class Controller_Hawkeye extends Controller
             $views["default_wall"] = $default_wall;
             $views["walls"] = $walls;
             $views["roof"] = $roof;
-            
-            return Response::forge(View::forge('app/design') , $views);
+            return Response::forge(View::forge('app/design', $views));
         }
 
 	/**
