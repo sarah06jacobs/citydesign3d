@@ -1,7 +1,7 @@
 <HTML>
 <HEAD>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<TITLE>New Page</TITLE>
+<TITLE>City Design</TITLE>
 <LINK REL="StyleSheet" HREF="/css/style.css" TYPE="text/css">
 <script type="text/javascript" src="/js/jquery.js" ></script>
 <script language="javascript">
@@ -62,10 +62,6 @@ function testButton() {
 function init(){
 	openTab('tablink1', 'tabdiv1');
 	openPanel('addobjectdiv');
-}
-
-function newDesignGeom() {
-
 }
 
 function newGeom() {
@@ -348,6 +344,10 @@ function changeWallImg(obj, imgid) {
 	document.getElementById(imgid).src = "/assets/walls/dm2_" + obj.value + ".png";
 }
 
+function createNewDesign() {
+    window.open('design');
+}
+
 </script>
 
 <style>
@@ -456,8 +456,7 @@ color:#F6FEFE;
 <table>
 		<tr>
 		<td colspan="9999">
-		<input type="button" onclick="newGeom()" value="New(Normal)" /><br>
-		<input type="button" onclick="newDesignGeom()" value="New(Design)" />
+		<input type="button" onclick="newGeom()" value="New" /><br>
 	</td>
 </tr>
 </table>
@@ -486,6 +485,7 @@ color:#F6FEFE;
 			<option value=3>wall 3</option>
 		</select>
 		<img id="newwallimage" src="/assets/walls/dm2_1.png" width="20" height="20"/>
+                </tr>
 		<tr>
 			<td colspan="2">
 				<input type="button" onclick="stopEdit()" value="キャンセル" />
@@ -519,6 +519,18 @@ color:#F6FEFE;
 				<img id="wallimage" src="/assets/walls/dm2_1.png" width="20" height="20"/>
 			</td>
 		</tr>
+                <tr>
+			<td>
+				壁画像：
+			</td>
+			<td>
+                            <select id="designidselect" name="designidselect" onchange="">
+                                <option value="3"> design spec 1 </option>
+                            </select>
+                            <br>
+                            <input type="button" onclick="createNewDesign();" value="create new design" />
+                        </td>
+                </tr>
 		<tr>
 			<td colspan="2">&nbsp;
 			</td>

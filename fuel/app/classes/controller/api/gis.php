@@ -25,7 +25,7 @@ class Controller_Api_Gis extends Controller_Apibase {
         $bbox = isset($post['bbox']) ? $post['bbox'] : "139.7,35.6,139.8,35.7";
         //$bbox = "139.7,35.6,139.8,35.7";
 
-        $ATTRIBUTE_LENGTH = 128;
+        $ATTRIBUTE_LENGTH = 32;
 
         $layer_arr = explode(':' , $layers);
         $bbox_arr = explode("," , $bbox);
@@ -156,6 +156,66 @@ class Controller_Api_Gis extends Controller_Apibase {
         for($j=0;$j<count($shpbin);$j++) {
         	echo $shpbin[$j];
         }
+    }
+    
+    // images will be upladed to design folder,  DESIGNFOLDER
+    // %s/rc_%d/%s%d.%s\0",symname,objid,ot,number,symext
+    // ot is wall or roof, fileext is png
+    // objid is the design_id from design_attribute
+    
+    // table,  design_base -> design_id,dname , create_date
+    // design_item -> dtype, dvalue, idx
+    
+    public function action_getdesign() {
+        $post = Input::post();
+        $get = Input::get();
+        $post = array_merge($get, $post);
+
+        $design_id = isset($post['design_id']) ? $post['design_id'] : "0";
+        
+        $query = DB::select('design_item.*');
+        $query->from('design_base');
+        $query->join('design_item' , 'left') -> on('design_base.design_id' , '=' , 'design_item.design_id');
+        $query->where('design_base.design_id',$design_id);
+        $designs = $query->execute()->as_array();
+        
+        header("Content-type: text/plain");
+        
+        echo "TATEMONO\n";
+        echo "    WALLS\n";
+        echo "        TEXTURES\n";
+        for($i=0;$i<count($designs);$i++) {
+            if( $designs['dtype'] == 0 ) {
+        echo "            TEX ".$designs['dvalue']."\n";
+            }
+        }
+        echo "        END\n";
+        echo "        COLORS\n";
+        for($i=0;$i<count($designs);$i++) {
+            if( $designs['dtype'] == 1 ) {
+        echo "            COL ".$designs['dvalue']."\n";
+            }
+        }
+        echo "        END\n";
+        echo "    END\n";
+        echo "    ROOF\n";
+        echo "        COLORS\n";
+        for($i=0;$i<count($designs);$i++) {
+            if( $designs['dtype'] == 3 ) {
+        echo "            COL ".$designs['dvalue']."\n";
+            }
+        }
+        echo "        END\n";
+        echo "        TEXTURES\n";
+        for($i=0;$i<count($designs);$i++) {
+            if( $designs['dtype'] == 2 ) {
+        echo "            TEX ".$designs['dvalue']."\n";
+            }
+        }
+        echo "        END\n";
+        echo "    END\n";
+        echo "END\n";
+        return "";
     }
 
     
