@@ -1,0 +1,9 @@
+﻿NAME 衛星
+
+ JP2DATA
+  DATA  /maps/jsat15m/
+  DEFAULT        default.jp2
+  PREFIX        00
+ END
+
+END

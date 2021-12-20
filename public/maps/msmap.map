@@ -1,0 +1,49 @@
+MAP
+  NAME "vectormaps"
+  STATUS ON
+  SIZE 300 300
+  EXTENT 139 35 140 36
+  UNITS DD
+  SHAPEPATH "/ms4w/ms4w/Apache/htdocs/maps/shape"
+  IMAGECOLOR 200 200 255
+
+  LAYER
+    NAME "L0017"
+    TYPE LINE
+    STATUS ON
+    DATA "L0017.shp"
+    CLASS
+      STYLE
+        COLOR 255 0 0
+        WIDTH 3
+      END
+    END
+  END
+
+  LAYER
+    NAME "L0018"
+    TYPE LINE
+    STATUS ON
+    DATA "L0018.shp"
+    CLASS
+      STYLE
+        COLOR 255 255 0
+        WIDTH 2
+      END
+    END
+  END
+
+  LAYER
+    NAME "L0021"
+    TYPE LINE
+    STATUS ON
+    DATA "L0021.shp"
+    CLASS
+      STYLE
+        COLOR 255 0 255
+        WIDTH 2
+      END
+    END
+  END
+
+END

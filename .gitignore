@@ -18,7 +18,8 @@ desktop.ini
 /composer.lock
 /fuel/vendor
 
-public/maps
+public/maps/shape
+public/maps/legacy
 
 # any of the fuel packages installed by default
 /docs/
@@ -33,3 +34,4 @@ public/maps
 /fuel/app/logs/*/*/*
 /fuel/app/cache/*/*
 /fuel/app/config/crypt.php
+/fuel/app/data
