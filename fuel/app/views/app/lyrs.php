@@ -6,9 +6,9 @@
 <script type="text/javascript" src="/js/jquery.js" ></script>
 <script language="javascript">
 
-function openPanel( pname ) {
+function openPanel( pname , clname ) {
 	var i, pcontent;
-	pcontent = document.getElementsByClassName("panelcontent");
+	pcontent = document.getElementsByClassName(clname);
 	for (i = 0; i < pcontent.length; i++) {
     	pcontent[i].style.display = "none";
   	}
@@ -45,7 +45,7 @@ function setMapStatus(lid){
 	["top_line","aza_polygon", "oaza_polygon"] ,
 	["middle_road_line","city_road_0","city_road_1","city_road_2"] ,
 	["middle_railway","city_railway"],
-	["tatemono_1"] ];
+	["tatemono_1" , "tatemono_2"] ];
 
 	for(i=0;i<lyrswitch[lid].length;i++) {
 		parent.frames["dragonfmap"].dragonfly.setShapeLayerProperty(lyrswitch[lid][i],"status",setstr);
@@ -61,11 +61,12 @@ function testButton() {
 
 function init(){
 	openTab('tablink1', 'tabdiv1');
-	openPanel('addobjectdiv');
+	openPanel('addobjectdiv', 'panelcontent');
 }
 
-function newGeom() {
-	openPanel('newobjectdiv');
+function newGeom(lyr) {
+        editlayer = lyr;
+	openPanel('newobjectdiv', 'panelcontent');
 	var dragonfly = parent.frames["dragonfmap"].dragonfly;
 	parent.frames["dragonfmap"].dragonfly.sendParameterString(" -newgeometry BUILDING CREATED_0");
 	parent.frames["dragonfmap"].dragonfly.setShapeLayerProperty("CREATED_0","STROKE","180:180:190:255");
@@ -80,6 +81,13 @@ function newGeom() {
 	parent.frames["dragonfmap"].dragonfly.sendParameterString(" -seteditgeometry CREATED_0");
 
 	clickmode = 2;
+        
+        if( lyr == "tatemono_1" ) {
+            openPanel('newbldpanel1' , 'newpanelcontent');
+        }
+        else {
+            openPanel('newbldpanel2' , 'newpanelcontent');
+        }
 }
 
 var points = [];
@@ -142,7 +150,7 @@ function itemClicked(id,layerid,inclusive) {
             	var objects = json_data['objects'];
             	if(objects.length > 0) {
             		openTab('tablink2', 'tabdiv2');
-            		openPanel('editobjectdiv');
+            		openPanel('editobjectdiv', 'panelcontent');
 
             		points = objects[0]['geom'];
             		setWallImage(objects[0]['wallid']);
@@ -150,6 +158,14 @@ function itemClicked(id,layerid,inclusive) {
             		bld_ht = objects[0]['floorht'] * objects[0]['floornum'];
 	            	var geomstr = objects[0]['geomstr'];
 	            	editlayer = json_data['layer'];
+                        
+                        if( editlayer == "tatemono_1" ) {
+                            openPanel('editbldpanel1' , 'editpanelcontent');
+                        }
+                        else {
+                            openPanel('editbldpanel2' , 'editpanelcontent');
+                        }
+        
 	            	setEditShape( id, geomstr );
             	}
             }
@@ -207,7 +223,7 @@ function setEditTool(tool) {
 function deleteObject() {
 	var data = {
 		id: edit_id,
-        layer: "tatemono_1"
+        layer: editlayer
     }
 
     $.ajax({
@@ -244,7 +260,7 @@ function saveEditObject() {
 		tname: document.getElementById("edittname").value,
         coords: points,
         ht: bld_ht,
-        layer: "tatemono_1",
+        layer: editlayer,
         wallid: document.getElementById("wallidselect").value
     };
 
@@ -284,7 +300,7 @@ function saveObject() {
         ht: bld_ht,
         tname: document.getElementById("newtname").value,
         wallid: document.getElementById("newwallidselect").value,
-        layer: "tatemono_1"
+        layer: editlayer
     };
 
 	$.ajax({
@@ -327,11 +343,11 @@ function mapOutputCoords(outx,  alt, outy, li, si, pi, isadd, iscw) {
 
 function stopEdit() {
 	var dragonfly = parent.frames["dragonfmap"].dragonfly;
-	openPanel('addobjectdiv');
+	openPanel('addobjectdiv', 'panelcontent');
 	dragonfly.sendParameterString(" -deletegeometry CREATED_0");
 	dragonfly.setShapeLayerProperty(editlayer,"HIDEOBJECT","0");
 	if( clickmode > 0 ) {
-		dragonfly.setShapeLayerProperty("tatemono_1","RELOADLAYER", "1");
+		dragonfly.setShapeLayerProperty(editlayer,"RELOADLAYER", "1");
 	}
 	clickmode = 0;
 	points = [];
@@ -346,6 +362,10 @@ function changeWallImg(obj, imgid) {
 
 function createNewDesign() {
     window.open('design');
+}
+
+function editDesign(editid) {
+    window.open('design?design_id=' + document.getElementById(editid).value);
 }
 
 </script>
@@ -396,7 +416,13 @@ color:#F6FEFE;
 }
 
 .panelcontent {
-	display: none;
+    display: none;
+}
+.newpanelcontent {
+    display: none;
+}
+.editpanelcontent {
+    display: none;
 }
 
 </style>
@@ -456,7 +482,8 @@ color:#F6FEFE;
 <table>
 		<tr>
 		<td colspan="9999">
-		<input type="button" onclick="newGeom()" value="New" /><br>
+		<input type="button" onclick="newGeom('tatemono_1')" value="New Regular" />
+                <input type="button" onclick="newGeom('tatemono_2')" value="New Design" /><br>
 	</td>
 </tr>
 </table>
@@ -479,19 +506,26 @@ color:#F6FEFE;
 				壁画像：
 			</td>
 			<td>
+                            
+                <div id="newbldpanel1" class="newpanelcontent" >
 		<select id="newwallidselect" name="newwallidselect" onchange="changeWallImg(this,'newwallimage');">
 			<option value=1>wall 1</option>
 			<option value=2>wall 2</option>
 			<option value=3>wall 3</option>
 		</select>
 		<img id="newwallimage" src="/assets/walls/dm2_1.png" width="20" height="20"/>
+                </div>
+                <div id="newbldpanel2" class="newpanelcontent" >
+                    <input type="text" name="new_design_id" id="new_design_id" value="" readonly="readonly"/>
+                    <input type="button" onclick="createNewDesign();" value="create new design" />
+                </div>
                 </tr>
 		<tr>
-			<td colspan="2">
-				<input type="button" onclick="stopEdit()" value="キャンセル" />
-				&nbsp;&nbsp;
-				<input type="button" onclick="saveObject()" value="保存" />
-			</td>
+                    <td colspan="2">
+                            <input type="button" onclick="stopEdit()" value="キャンセル" />
+                            &nbsp;&nbsp;
+                            <input type="button" onclick="saveObject()" value="保存" />
+                    </td>
 		</tr>
 	</table>
 </div>
@@ -510,23 +544,20 @@ color:#F6FEFE;
 				壁画像：
 			</td>
 			<td>
-				wallid: 
+                            <div id="editbldpanel1" class="editpanelcontent" >
 				<select id="wallidselect" name="wallidselect" onchange="changeWallImg(this,'wallimage');">
 					<option value=1>wall 1</option>
 					<option value=2>wall 2</option>
 					<option value=3>wall 3</option>
 				</select>
 				<img id="wallimage" src="/assets/walls/dm2_1.png" width="20" height="20"/>
+                            </div>
+                            <div id="editbldpanel2" class="editpanelcontent" >
+                                <input type="text" name="edit_design_id" id="edit_design_id" value="" readonly="readonly"/>
+                                <input type="button" onclick="editDesign('edit_design_id');" value="create new design" />
+                            </div>
 			</td>
 		</tr>
-                <tr>
-			<td>
-				Design：
-			</td>
-			<td>
-                            <input type="button" onclick="createNewDesign();" value="create new design" />
-                        </td>
-                </tr>
 		<tr>
 			<td colspan="2">&nbsp;
 			</td>
