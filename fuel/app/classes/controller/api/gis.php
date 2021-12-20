@@ -165,6 +165,9 @@ class Controller_Api_Gis extends Controller_Apibase {
     
     // table,  design_base -> design_id,dname , create_date
     // design_item -> dtype, dvalue, idx
+    public function action_getd() {
+            return "OK";
+    }
     
     public function action_getdesign() {
         $post = Input::post();
@@ -185,15 +188,15 @@ class Controller_Api_Gis extends Controller_Apibase {
         echo "    WALLS\n";
         echo "        TEXTURES\n";
         for($i=0;$i<count($designs);$i++) {
-            if( $designs['dtype'] == 0 ) {
-        echo "            TEX ".$designs['dvalue']."\n";
+            if( $designs[$i]['dtype'] == 0 ) {
+        echo "            TEX ".$designs[$i]['dvalue']."\n";
             }
         }
         echo "        END\n";
         echo "        COLORS\n";
         for($i=0;$i<count($designs);$i++) {
-            if( $designs['dtype'] == 1 ) {
-        echo "            COL ".$designs['dvalue']."\n";
+            if( $designs[$i]['dtype'] == 1 ) {
+        echo "            COL ".$designs[$i]['dvalue']."\n";
             }
         }
         echo "        END\n";
@@ -201,15 +204,15 @@ class Controller_Api_Gis extends Controller_Apibase {
         echo "    ROOF\n";
         echo "        COLORS\n";
         for($i=0;$i<count($designs);$i++) {
-            if( $designs['dtype'] == 3 ) {
-        echo "            COL ".$designs['dvalue']."\n";
+            if( $designs[$i]['dtype'] == 3 ) {
+        echo "            COL ".$designs[$i]['dvalue']."\n";
             }
         }
         echo "        END\n";
         echo "        TEXTURES\n";
         for($i=0;$i<count($designs);$i++) {
-            if( $designs['dtype'] == 2 ) {
-        echo "            TEX ".$designs['dvalue']."\n";
+            if( $designs[$i]['dtype'] == 2 ) {
+        echo "            TEX ".$designs[$i]['dvalue']."\n";
             }
         }
         echo "        END\n";

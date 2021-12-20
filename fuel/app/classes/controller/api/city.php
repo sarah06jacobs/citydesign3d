@@ -57,6 +57,8 @@ class Controller_Api_City extends Controller_Apibase {
         	'floornum' => $floors , 
             'wallid' => $wallid,
             'tname' => $tname,
+            'create_ts' => time(),
+            'update_ts' => time(),
         	'wkb_geometry' => db::expr("ST_GeomFromText('POLYGON(( ".$cstr." ))',4612)") ));
         $query->execute();
 
@@ -174,6 +176,7 @@ class Controller_Api_City extends Controller_Apibase {
             'floornum' => $floors , 
             'wallid' => $wallid,
             'tname' => $tname,
+            'update_ts' => time(),
             'wkb_geometry' => db::expr("ST_GeomFromText('POLYGON(( ".$cstr." ))',4612)") ));
         $query -> where('gid' , $id);
         $query->execute();
