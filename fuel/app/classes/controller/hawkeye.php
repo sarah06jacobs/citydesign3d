@@ -36,7 +36,9 @@ class Controller_Hawkeye extends Controller
 	public function action_map()
 	{
             $get = Input::get();
-            return Response::forge(View::forge('app/map'));
+            $views = array();
+            $views['host'] = $_SERVER['SERVER_ADDR'];
+            return Response::forge(View::forge('app/map' , $views));
 	}
 
 	public function action_lyrs()
