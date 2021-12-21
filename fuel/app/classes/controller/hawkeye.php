@@ -116,7 +116,7 @@ class Controller_Hawkeye extends Controller
 	                        {
 	                            unlink($dfolder . 'wall' . $wtex_ix . ".png");
 	                        }
-	                        File::rename( $filepath , $dfolder . 'wall' . $wtex_ix . ".png");
+	                        File::copy( $filepath , $dfolder . 'wall' . $wtex_ix . ".png");
 	                    
 		                    // add to item
 		                    $dstr = $wtex_ix . ":0";
@@ -135,7 +135,6 @@ class Controller_Hawkeye extends Controller
                 }
                     
                 $rooffile = Upload::get_files('rooftex');
-                echo $rooffile['name'] . "<br>";
                 if( count($rooffile) > 0 ) {
                 	$roofw = $post["roofw"];
 	                $roofh = $post["roofh"];
@@ -145,26 +144,26 @@ class Controller_Hawkeye extends Controller
 	                if ($info === FALSE || ($info[2] !== IMAGETYPE_PNG)) {
 	                    unlink($filepath);
 	                } else {
-	                	if( file_exists($dfolder . "roof.png") )
+	                	if( file_exists($dfolder . "roof0.png") )
 	                    {
-	                        unlink($dfolder . "roof.png");
+	                        unlink($dfolder . "roof0.png");
 	                    }
-	                    File::rename( $filepath , $dfolder . "roof.png");
+	                    File::copy( $filepath , $dfolder . "roof0.png");
 	                
 	                    // add to item
-	                    $dstr = $wtex_ix . ":0";
-	                    if ( $wallw !== "" && $wallh !== "" )
+	                    $dstr = "0:0";
+	                    if ( $roofw !== "" && $roofh !== "" )
 	                    {
-	                    	$dstr = $dstr . ":" . $wallw . ":" . $wallh;
+	                    	$dstr = $dstr . ":" . $roofw . ":" . $roofh;
 	                    }
 	                    $query = DB::insert('design_item');
 	                    $query->set(array("design_id" => $design_id , "dtype" => "2", "dvalue" => $dstr , "idx" => $wtex_ix));
 	                    $query -> execute();
-
-	                    $wtex_ix = $wtex_ix + 1;
 	                    //unlink($filepath);
 	                }
                 }
+                // now delete all temp files
+                
                 $result = "complete";
                 
 

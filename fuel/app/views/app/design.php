@@ -53,7 +53,7 @@
             // set design id if saved.
             <? if ( $result === "complete" ) { ?>
             opener.setDesign( <?= $design_id; ?> );
-            //window.close();
+            window.close();
             <? } ?>
         }
     }
