@@ -64,6 +64,11 @@ function init(){
 	openPanel('addobjectdiv', 'panelcontent');
 }
 
+function setDesign( design_id ) {
+	document.getElementById('new_design_id').value=design_id;
+	document.getElementById('edit_design_id').value=design_id;
+}
+
 function newGeom(lyr) {
         editlayer = lyr;
 	openPanel('newobjectdiv', 'panelcontent');
@@ -122,7 +127,6 @@ function itemClicked(id,layerid,inclusive) {
 	if( clickmode > 0 ) {
 		return;
 	}
-
 	stopEdit();
 
 	var dragonfly = parent.frames["dragonfmap"].dragonfly;
@@ -155,6 +159,7 @@ function itemClicked(id,layerid,inclusive) {
             		points = objects[0]['geom'];
             		setWallImage(objects[0]['wallid']);
             		document.getElementById("edittname").value = objects[0]['tname'];
+            		document.getElementById("edit_design_id").value = objects[0]['designid'];
             		bld_ht = objects[0]['floorht'] * objects[0]['floornum'];
 	            	var geomstr = objects[0]['geomstr'];
 	            	editlayer = json_data['layer'];
@@ -261,6 +266,7 @@ function saveEditObject() {
         coords: points,
         ht: bld_ht,
         layer: editlayer,
+        designid: document.getElementById("edit_design_id").value,
         wallid: document.getElementById("wallidselect").value
     };
 
@@ -300,6 +306,7 @@ function saveObject() {
         ht: bld_ht,
         tname: document.getElementById("newtname").value,
         wallid: document.getElementById("newwallidselect").value,
+        designid: document.getElementById("new_design_id").value,
         layer: editlayer
     };
 
@@ -361,11 +368,13 @@ function changeWallImg(obj, imgid) {
 }
 
 function createNewDesign() {
-    window.open('design');
+	let params = "scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=600,height=500,left=100,top=100";
+    window.open('design' , 'design',params);
 }
 
 function editDesign(editid) {
-    window.open('design?design_id=' + document.getElementById(editid).value);
+	let params = "scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=600,height=500,left=100,top=100";
+    window.open('design?design_id=' + document.getElementById(editid).value , 'design', params);
 }
 
 </script>

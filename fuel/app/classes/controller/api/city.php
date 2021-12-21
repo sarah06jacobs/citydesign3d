@@ -28,7 +28,13 @@ class Controller_Api_City extends Controller_Apibase {
         $layer = $json['layer'];
         $wallid = $json['wallid'];
         $tname = $json['tname'];
-
+        $designid = $json['designid'];
+        if( $designid === "" ) {
+            $designid = "0";
+        }
+        else if ( $designid + 0 > 0) {
+            $wallid = "0";
+        }
         $cstr = "";
         for($i=0;$i<count($coords);$i++) {
         	if ($i == 0) {
@@ -59,6 +65,7 @@ class Controller_Api_City extends Controller_Apibase {
             'tname' => $tname,
             'create_ts' => time(),
             'update_ts' => time(),
+            'designid' => $designid,
         	'wkb_geometry' => db::expr("ST_GeomFromText('POLYGON(( ".$cstr." ))',4612)") ));
         $query->execute();
 
@@ -155,7 +162,13 @@ class Controller_Api_City extends Controller_Apibase {
         $layer = $json['layer'];
         $wallid = $json['wallid'];
         $tname = $json['tname'];
-
+        $designid = $json['designid'];
+        if( $designid === "" ) {
+            $designid = "0";
+        }
+        else if ( $designid + 0 > 0) {
+            $wallid = "0";
+        }
         $cstr = "";
         for($i=0;$i<count($coords);$i++) {
             if ($i == 0) {
@@ -177,6 +190,7 @@ class Controller_Api_City extends Controller_Apibase {
             'wallid' => $wallid,
             'tname' => $tname,
             'update_ts' => time(),
+            'designid' => $designid,
             'wkb_geometry' => db::expr("ST_GeomFromText('POLYGON(( ".$cstr." ))',4612)") ));
         $query -> where('gid' , $id);
         $query->execute();

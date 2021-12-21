@@ -59,6 +59,8 @@ class Controller_Hawkeye extends Controller
             $default_wall = "";
             $roof = "";
 
+            $result = "";
+
             $walls = array();
             
             if ( $action == "save" ) {
@@ -69,9 +71,15 @@ class Controller_Hawkeye extends Controller
 				Upload::process($config);
 				Upload::save();
 
+				// clear prev
+				
             	$dname = $post['dname'];
                 if ( $design_id == -1 ) {
                     // add to db
+                    $query = db::delete('design_base');
+					$query -> where('design_id' , $design_id);
+					$query -> execute();
+
                     $query = DB::insert('design_base');
                     $query->set(array("dname" => $dname , "create_ts" => time()));
                     $design_obj = $query -> execute();
@@ -79,11 +87,17 @@ class Controller_Hawkeye extends Controller
                 }
                 
                 $dfolder = DOCROOT.'/assets/design/rc_' . $design_id . '/';
-                mkdir($dfolder , 0777, true);
+                if( !file_exists($dfolder) )
+	            {
+	            	mkdir($dfolder , 0777, true);
+	            }
                 // save files to fol
                 
+                $query = db::delete('design_item');
+				$query -> where('design_id' , $design_id);
+				$query -> execute();
+
                 $wtex_ix = 0;
-                
                 while( 0==0 ) {
                     if(!isset( $post["wallw" .$wtex_ix] )) {
                         break;
@@ -91,6 +105,7 @@ class Controller_Hawkeye extends Controller
                     $wallw = $post["wallw" .$wtex_ix];
                     $wallh = $post["wallh" .$wtex_ix];
                     $file = Upload::get_files('walltex'.$wtex_ix);
+                    echo $file['name'] . "<br>";
                     if( count($file) > 0 ) {
 	                    $filepath = APPPATH.'data/' . $file['name'];
 	                    $info = getimagesize($filepath);
@@ -103,7 +118,6 @@ class Controller_Hawkeye extends Controller
 	                        }
 	                        File::rename( $filepath , $dfolder . 'wall' . $wtex_ix . ".png");
 	                    
-		                    $wtex_ix = $wtex_ix + 1;
 		                    // add to item
 		                    $dstr = $wtex_ix . ":0";
 		                    if ( $wallw !== "" && $wallh !== "" )
@@ -113,11 +127,15 @@ class Controller_Hawkeye extends Controller
 		                    $query = DB::insert('design_item');
 		                    $query->set(array("design_id" => $design_id , "dtype" => "0", "dvalue" => $dstr , "idx" => $wtex_ix));
 		                    $query -> execute();
+
+		                    $wtex_ix = $wtex_ix + 1;
+		                    //unlink($filepath);
 	                	}
                 	}
                 }
                     
                 $rooffile = Upload::get_files('rooftex');
+                echo $rooffile['name'] . "<br>";
                 if( count($rooffile) > 0 ) {
                 	$roofw = $post["roofw"];
 	                $roofh = $post["roofh"];
@@ -133,7 +151,6 @@ class Controller_Hawkeye extends Controller
 	                    }
 	                    File::rename( $filepath , $dfolder . "roof.png");
 	                
-	                    $wtex_ix = $wtex_ix + 1;
 	                    // add to item
 	                    $dstr = $wtex_ix . ":0";
 	                    if ( $wallw !== "" && $wallh !== "" )
@@ -143,8 +160,12 @@ class Controller_Hawkeye extends Controller
 	                    $query = DB::insert('design_item');
 	                    $query->set(array("design_id" => $design_id , "dtype" => "2", "dvalue" => $dstr , "idx" => $wtex_ix));
 	                    $query -> execute();
+
+	                    $wtex_ix = $wtex_ix + 1;
+	                    //unlink($filepath);
 	                }
                 }
+                $result = "complete";
                 
 
             }
@@ -185,6 +206,7 @@ class Controller_Hawkeye extends Controller
             $views = array();
             $views["design_id"] = $design_id;
             $views["dname"] = $dname;
+            $views['result'] = $result;
             
             $views["default_wall"] = $default_wall;
             $views["walls"] = $walls;
