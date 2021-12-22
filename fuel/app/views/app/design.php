@@ -3,7 +3,7 @@
 <meta http-equiv=Content-Type content="text/html; charset=utf-8">
 <TITLE>City</TITLE>
 <SCRIPT language="javascript">
-    var wallct = 0;
+    var wallct = <?= count($walls); ?>;
     function addRow(tableID) {
         
         wallct = wallct+1;
@@ -21,6 +21,11 @@
         element1.type = "file";
         element1.name = "walltex" + wallct;
         cell2.appendChild(element1);
+
+        var elementx = document.createElement("input");
+        elementx.type = "hidden";
+        elementx.name = "wallidx" + wallct;
+        cell2.appendChild(elementx);
 
         var cell3 = row.insertCell(2);
         var element2 = document.createElement("input");
@@ -67,22 +72,49 @@
     <TABLE id="dataTable" width="350px" border="1">
         <TR>
             <TD> 壁D </TD>
-            <TD> <input name="walltex0" type="file" /> </TD>
-            <td> <input type="text" name="wallw0" value="" size="5" />
-                <input type="text" name="wallh0" value="" size="5" />
+            <TD> <input name="walltex0" type="file" /> 
+                <? if ($default_wall["img"] !== "") { ?>
+                    <img src="<?= $default_wall["img"]; ?>" width="30" height="30" />
+                <? } ?>
+                <input type="hidden" name="wallidx0" value="<?= $default_wall["idx"]; ?>" />
+            </TD>
+            <td> <input type="text" name="wallw0" value="<?= $default_wall["w"]; ?>" size="5" />
+                <input type="text" name="wallh0" value="<?= $default_wall["h"]; ?>" size="5" />
             </td>
         </TR>
         <TR>
             <TD> 屋根 </TD>
-            <TD> <input name="rooftex" type="file" /> </TD>
-            <td> <input type="text" name="roofw" value="" size="5" />
-                <input type="text" name="roofh" value="" size="5" />
-                <input type="text" name="roofr" value="" size="5" />
+            <TD> <input name="rooftex" type="file" /> 
+                <? if ($roof["img"] !== "") { ?>
+                    <img src="<?= $roof["img"]; ?>" width="30" height="30" />
+                <? } ?>
+                <input type="hidden" name="roofidx" value="<?= $roof["idx"]; ?>" />
+            </TD>
+            <td> <input type="text" name="roofw" value="<?= $roof["w"]; ?>" size="5" />
+                <input type="text" name="roofh" value="<?= $roof["h"]; ?>" size="5" />
+                <input type="text" name="roofr" value="<?= $roof["r"]; ?>" size="5" />
             </td>
         </TR>
+        <? foreach ($walls as $wall) { ?>
+        
+        <TR>
+            <TD> 壁<?= $wall["idx"]; ?> </TD>
+            <TD> <input name="walltex" type="file" /> 
+                <? if ($wall["img"] !== "") { ?>
+                    <img src="<?= $wall["img"]; ?>" width="30" height="30" />
+                <? } ?>
+                <input type="hidden" name="wallidx<?= $wall["idx"]; ?>" value="<?= $wall["idx"]; ?>" />
+            </TD>
+            <td> <input type="text" name="wallw<?= $wall["idx"]; ?>" value="<?= $wall["w"]; ?>" size="5" />
+                <input type="text" name="wallh<?= $wall["idx"]; ?>" value="<?= $wall["h"]; ?>" size="5" />
+            </td>
+        </TR>
+
+
+        <? } ?>
         <tr>
             <td colspan="3">
-                <input type="button" value="壁を追加" onclick="addRow('dataTable')" />
+                <input type="button" value="+ 追加" onclick="addRow('dataTable')" />
             </td>
         </tr>
     </TABLE>

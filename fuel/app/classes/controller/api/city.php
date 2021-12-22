@@ -212,6 +212,30 @@ class Controller_Api_City extends Controller_Apibase {
         $id = $json['id'];
         $layer = $json['layer'];
 
+        $query = DB::select('*');
+        $query->from($layer);
+        $query -> where('gid' , $id);
+        $result = $query->execute()->as_array();
+        if( count( $result ) > 0 ) {
+            // design?
+            $designid = $result[0]["designid"]+0;
+            if($designid > 0) {
+                $query = db::delete('design_base');
+                $query -> where('design_id' , $designid);
+                $query -> execute();
+
+                $query = db::delete('design_item');
+                $query -> where('design_id' , $designid);
+                $query -> execute();
+
+                $dfolder = DOCROOT.'/assets/design/rc_' . $designid . '/';
+                if( file_exists($dfolder) )
+                {
+                    File::delete_dir($dfolder);
+                }
+            }
+        }
+
         $query = DB::delete($layer);
         $query -> where('gid' , $id);
         $query->execute();
