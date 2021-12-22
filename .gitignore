@@ -20,6 +20,8 @@ desktop.ini
 
 public/maps/shape
 public/maps/legacy
+public/assets/design
+public/assets/walls
 
 # any of the fuel packages installed by default
 /docs/
