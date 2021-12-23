@@ -199,7 +199,10 @@ class Controller_Hawkeye extends Controller
             foreach(Upload::get_files() as $file)
 			{
 				$filepath = APPPATH.'data/' . $file['name'];
-				unlink($filepath);
+				if( file_exists($filepath) )
+            	{
+					unlink($filepath);
+				}	
 			}
             $result = "complete";
             
