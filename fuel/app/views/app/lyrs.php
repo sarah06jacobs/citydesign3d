@@ -253,6 +253,7 @@ function deleteObject() {
             alert("Server Error. Please try again later.");
         },
         complete: function() {      // 成功・失敗に関わらず通信が終了した際の処理
+        	clickmode = 3;
         	stopEdit();
             //button.attr("disabled", false);  // ボタンを再び enableにする
         }
