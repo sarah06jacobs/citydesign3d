@@ -274,6 +274,15 @@ class Controller_Hawkeye extends Controller
     	return $info;
     }
 
+    public function action_overlay() {
+    	$get = Input::get();
+    	$views = array();
+    	header("Content-type: text/plain");
+    	$views['shaperoot'] = str_replace("\\","/",DOCROOT) . "maps/shape/";
+    	$views['wallcount'] = Config::get('wallcount'); 
+    	$views['walltexw'] = Config::get('walltexw');
+    	return Response::forge(View::forge('app/overlay', $views));
+    }
 	/**
 	 * The 404 action for the application.
 	 *

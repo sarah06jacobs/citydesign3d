@@ -221,5 +221,10 @@ class Controller_Api_Gis extends Controller_Apibase {
         return "";
     }
 
+    public function action_overlay() {
+
+        
+    }
+
     
 }

@@ -10,7 +10,7 @@ function init(){
 	  pstr += " -dserversrc ";
 	  //pstr += "127.0.0.1 /maps/jsat15m.glm ";
 	  pstr += "<?= $host; ?> /maps/legacy/kkc.glm ";
-	  pstr += " -shapeserversrc <?= $host; ?> /maps/overlay.txt ";
+	  pstr += " -shapeserversrc <?= $host; ?> /hawkeye/overlay/ ";
 	  
 	  pstr += " -basescale 3200 ";
 	  pstr += " -numlayers 7 ";
