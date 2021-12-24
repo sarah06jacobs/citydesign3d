@@ -44,7 +44,9 @@ class Controller_Hawkeye extends Controller
 	public function action_lyrs()
 	{
             $get = Input::get();
-            return Response::forge(View::forge('app/lyrs'));
+            $views = array();
+            $views["wallcount"] = Config::get('wallcount') + 0;
+            return Response::forge(View::forge('app/lyrs', $views));
 	}
         
     public function action_design()

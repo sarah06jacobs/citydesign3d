@@ -519,9 +519,9 @@ color:#F6FEFE;
                             
                 <div id="newbldpanel1" class="newpanelcontent" >
 		<select id="newwallidselect" name="newwallidselect" onchange="changeWallImg(this,'newwallimage');">
-			<option value=1>wall 1</option>
-			<option value=2>wall 2</option>
-			<option value=3>wall 3</option>
+			<? for ($r=1;$r<=$wallcount;$r++) { ?>
+				<option value=<?= $r; ?>>wall <?= $r; ?></option>
+			<? } ?>
 		</select>
 		<img id="newwallimage" src="/assets/walls/dm2_1.png" width="20" height="20"/>
                 </div>
@@ -556,9 +556,9 @@ color:#F6FEFE;
 			<td>
                             <div id="editbldpanel1" class="editpanelcontent" >
 				<select id="wallidselect" name="wallidselect" onchange="changeWallImg(this,'wallimage');">
-					<option value=1>wall 1</option>
-					<option value=2>wall 2</option>
-					<option value=3>wall 3</option>
+					<? for ($r=1;$r<=$wallcount;$r++) { ?>
+						<option value=<?= $r; ?>>wall <?= $r; ?></option>
+					<? } ?>
 				</select>
 				<img id="wallimage" src="/assets/walls/dm2_1.png" width="20" height="20"/>
                             </div>

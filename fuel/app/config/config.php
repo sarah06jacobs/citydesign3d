@@ -12,7 +12,7 @@
 
 return array(
 	'wallcount' => '3',
-	'walltexw' => '5',
+	'walltexw' => '10',
 	/**
 	 * -------------------------------------------------------------------------
 	 *  The base URL of the application

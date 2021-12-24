@@ -276,7 +276,9 @@ SRID 4612
 	BWALLFLHT floorht
 	BWALLATTRIBUTE wallid
 	BWALLCOUNT <?= $wallcount; ?>
+
 	BWALLTEXW <?= $walltexw; ?>
+
 	DESIGNATTRIBUTE designid
 	DESIGNFOLDER /assets/design
 	DESIGNSERVLET /api/gis/getdesign?design_id=
@@ -304,6 +306,7 @@ SRID 4612
 	BWALLATTRIBUTE wallid
 	BWALLCOUNT 1
 	BWALLTEXW <?= $walltexw; ?>
+    
 	DESIGNATTRIBUTE designid
 	DESIGNFOLDER /assets/design
 	DESIGNSERVLET /api/gis/getdesign?design_id=
