@@ -60,6 +60,11 @@
             opener.setDesign( <?= $design_id; ?> );
             window.close();
             <? } ?>
+
+            <? if ( $result === "remove" ) { ?>
+            opener.setDesign("-1");
+            window.close();
+            <? } ?>
         }
     }
 </SCRIPT>
@@ -67,14 +72,16 @@
 <body onload="init();">
     <form action="" method="post" enctype="multipart/form-data">
     <input type="hidden" name="design_id" value="<?= $design_id; ?>" />
+    <input type="hidden" name="layer" value="<?= $layer; ?>" />
     <input type="hidden" name="action" value="save" />
-    名称：<input type="text" name="dname" value=""/>
+    名称：<input type="text" name="dname" value="<?= $dname; ?>"/>
     <TABLE id="dataTable" width="350px" border="1">
         <TR>
             <TD> 壁D </TD>
             <TD> <input name="walltex0" type="file" /> 
                 <? if ($default_wall["img"] !== "") { ?>
                     <img src="<?= $default_wall["img"]; ?>" width="30" height="30" />
+                    削除：<input type="checkbox" name="wallrem0" value="1" />
                 <? } ?>
                 <input type="hidden" name="wallidx0" value="<?= $default_wall["idx"]; ?>" />
             </TD>
@@ -86,7 +93,8 @@
             <TD> 屋根 </TD>
             <TD> <input name="rooftex" type="file" /> 
                 <? if ($roof["img"] !== "") { ?>
-                    <img src="<?= $roof["img"]; ?>" width="30" height="30" />
+                    <img src="<?= $roof["img"]; ?>?t=<?= time(); ?>" width="30" height="30" />
+                    削除：<input type="checkbox" name="roofrem" value="1" />
                 <? } ?>
                 <input type="hidden" name="roofidx" value="<?= $roof["idx"]; ?>" />
             </TD>
@@ -99,9 +107,10 @@
         
         <TR>
             <TD> 壁<?= $wall["idx"]; ?> </TD>
-            <TD> <input name="walltex" type="file" /> 
+            <TD> <input name="walltex<?= $wall["idx"]; ?>" type="file" /> 
                 <? if ($wall["img"] !== "") { ?>
-                    <img src="<?= $wall["img"]; ?>" width="30" height="30" />
+                    <img src="<?= $wall["img"]; ?>?t=<?= time(); ?>" width="30" height="30" />
+                    削除：<input type="checkbox" name="wallrem<?= $wall["idx"]; ?>" value="1" />
                 <? } ?>
                 <input type="hidden" name="wallidx<?= $wall["idx"]; ?>" value="<?= $wall["idx"]; ?>" />
             </TD>
@@ -119,7 +128,7 @@
         </tr>
     </TABLE>
     
-    <input type="submit" value="作成" />
+    <input type="submit" value="保存" name="submit" /> &nbsp; <input type="submit" value="クリア" name="submit" />
         
         
     </form>

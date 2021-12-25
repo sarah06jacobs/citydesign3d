@@ -375,7 +375,7 @@ function createNewDesign() {
 
 function editDesign(editid) {
 	let params = "scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=600,height=500,left=100,top=100";
-    window.open('design?design_id=' + document.getElementById(editid).value , 'design', params);
+    window.open('design?design_id=' + document.getElementById(editid).value + '&layer=tatemono_2' , 'design', params);
 }
 
 </script>
@@ -492,8 +492,8 @@ color:#F6FEFE;
 <table>
 		<tr>
 		<td colspan="9999">
-		<input type="button" onclick="newGeom('tatemono_1')" value="New Regular" />
-                <input type="button" onclick="newGeom('tatemono_2')" value="New Design" /><br>
+		<input type="button" onclick="newGeom('tatemono_1')" value="一般建物作成" />
+                <input type="button" onclick="newGeom('tatemono_2')" value="壁テキスチャー登録建物作成" /><br>
 	</td>
 </tr>
 </table>
@@ -527,7 +527,7 @@ color:#F6FEFE;
                 </div>
                 <div id="newbldpanel2" class="newpanelcontent" >
                     <input type="text" name="new_design_id" id="new_design_id" value="" readonly="readonly"/>
-                    <input type="button" onclick="createNewDesign();" value="create new design" />
+                    <input type="button" onclick="createNewDesign();" value="壁テキスチャー登録" />
                 </div>
                 </tr>
 		<tr>
@@ -564,7 +564,7 @@ color:#F6FEFE;
                             </div>
                             <div id="editbldpanel2" class="editpanelcontent" >
                                 <input type="text" name="edit_design_id" id="edit_design_id" value="" readonly="readonly"/>
-                                <input type="button" onclick="editDesign('edit_design_id');" value="create new design" />
+                                <input type="button" onclick="editDesign('edit_design_id');" value="壁テキスチャー編集" />
                             </div>
 			</td>
 		</tr>

@@ -169,6 +169,11 @@ class Controller_Api_City extends Controller_Apibase {
         else if ( $designid + 0 > 0) {
             $wallid = "0";
         }
+
+        if( $wallid === "" ) {
+            $wallid = "0";
+        }
+
         $cstr = "";
         for($i=0;$i<count($coords);$i++) {
             if ($i == 0) {
