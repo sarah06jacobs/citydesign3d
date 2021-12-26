@@ -379,6 +379,12 @@ function editDesign(editid) {
 }
 
 function changePref(obj) {
+	if (obj.value == -1) {
+		removeSelectOpts('oazaselect');
+		removeSelectOpts('cityselect');
+		return;
+	}
+
     var data = {
         pref_code: obj.value
     };
@@ -397,15 +403,8 @@ function changePref(obj) {
             }
             else {
                 var select = document.getElementById('cityselect');
-                var i, L = select.options.length - 1;
-                for(i = L; i >= 0; i--) {
-                   select.remove(i);
-                }
-                var oazaselect = document.getElementById('oazaselect');
-                var i, L = oazaselect.options.length - 1;
-                for(i = L; i >= 0; i--) {
-                   oazaselect.remove(i);
-                }
+                removeSelectOpts('cityselect');
+                removeSelectOpts('oazaselect');
    
                 var list = json_data['list'];
                 for ( i=0; i<list.length; i++ ) {
@@ -430,7 +429,20 @@ function changePref(obj) {
     });
 }
 
+function removeSelectOpts(name)
+{
+	var select = document.getElementById(name);
+    var i, L = select.options.length - 1;
+    for(i = L; i >= 1; i--) {
+       select.remove(i);
+    }
+}
+
 function changeCity(obj) {
+	if (obj.value == -1) {
+		removeSelectOpts('oazaselect');
+		return;
+	}
     var data = {
         pref_code: document.getElementById('prefselect').value,
         city_code: document.getElementById('cityselect').value
@@ -450,10 +462,7 @@ function changeCity(obj) {
             }
             else {
                 var select = document.getElementById('oazaselect');
-                var i, L = select.options.length - 1;
-                for(i = L; i >= 0; i--) {
-                   select.remove(i);
-                }
+                removeSelectOpts('oazaselect');
    
                 var list = json_data['list'];
                 for ( i=0; i<list.length; i++ ) {
@@ -479,6 +488,10 @@ function changeCity(obj) {
 }
 
 function changeOaza(obj) {
+	if (obj.value == -1) {
+		return;
+	}
+
     var data = {
         pref_code: document.getElementById('prefselect').value,
         city_code: document.getElementById('cityselect').value,
@@ -736,6 +749,7 @@ color:#F6FEFE;
         <tr>
             <td>
                 <select id="prefselect" name="prefselect" onchange="changePref(this);">
+                	<option value=-1>選択してください</option>
                     <? foreach ($prefecture as $pref) { ?>
                     <option value="<?= $pref["pref_code"] ?>"><?= $pref["pref_name"] ?></option>
                     <? } ?>
@@ -745,14 +759,14 @@ color:#F6FEFE;
         <tr>
             <td>
                 <select id="cityselect" name="cityselect" onchange="changeCity(this);">
-                    
+                    <option value=-1>選択してください</option>
                 </select>
             </td>
         </tr>
         <tr>
             <td>
                 <select id="oazaselect" name="oazaselect" onchange="changeOaza(this);">
-                    
+                    <option value=-1>選択してください</option>
                 </select>
             </td>
         </tr>
