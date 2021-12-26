@@ -45,6 +45,14 @@ class Controller_Hawkeye extends Controller
 	{
             $get = Input::get();
             $views = array();
+            
+            
+            $query = DB::select('*');
+            $query -> from('addr_pref');
+            $query -> order_by('pref_code' , 'asc');
+            $prefecture = $query->execute()->as_array();
+            
+            $views["prefecture"] = $prefecture;
             $views["wallcount"] = Config::get('wallcount') + 0;
             return Response::forge(View::forge('app/lyrs', $views));
 	}

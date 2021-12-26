@@ -250,5 +250,72 @@ class Controller_Api_City extends Controller_Apibase {
         $jresp['errors'] = $errors;
         return Response::forge(json_encode($jresp) , 200);
     }
+    
+    public function action_addrcity() {
+        $pref_code = $post["pref_code"];
+        
+        $query = DB::select('*');
+        $query -> from('addr_pref');
+        $query -> where('pref_code' , $pref_code);
+        $pref = $query->execute()->as_array();
+        
+        $query = DB::select('*');
+        $query -> from('addr_city');
+        $query -> where('pref_code' , $pref_code);
+        $query -> order_by('city_code' , 'asc');
+        $city = $query->execute()->as_array();
+        
+        $jresp = array();
+        $jresp['list'] = $city;
+        
+        $jresp['lat'] = $pref[0]['lat1'];
+        $jresp['lon'] = $pref[0]['lon1'];
+        
+        return Response::forge(json_encode($jresp) , 200);
+    }
+    
+    public function action_addroaza() {
+        $pref_code = $post["pref_code"];
+        $city_code = $post["city_code"];
+        
+        $query = DB::select('*');
+        $query -> from('addr_city');
+        $query -> where('pref_code' , $pref_code);
+        $query -> where('city_code' , $pref_code);
+        $city = $query->execute()->as_array();
+        
+        $query = DB::select('*');
+        $query -> from('addr_oaza');
+        $query -> where('pref_code' , $pref_code);
+        $query -> where('city_code' , $pref_code);
+        $query -> order_by('oaza_code' , 'asc');
+        $oaza = $query->execute()->as_array();
+        
+        $jresp = array();
+        $jresp['list'] = $oaza;
+        $jresp['lat'] = $city[0]['lat1'];
+        $jresp['lon'] = $city[0]['lon1'];
+        
+        return Response::forge(json_encode($jresp) , 200);
+    }
+    
+    public function action_addraza() {
+        $pref_code = $post["pref_code"];
+        $city_code = $post["city_code"];
+        $oaza_code = $post["oaza_code"];
+        
+        $query = DB::select('*');
+        $query -> from('addr_oaza');
+        $query -> where('pref_code' , $pref_code);
+        $query -> where('city_code' , $pref_code);
+        $query -> where('oaza_code' , $oaza_code);
+        $oaza = $query->execute()->as_array();
+        
+        $jresp = array();
+        $jresp['lat'] = $oaza[0]['lat1'];
+        $jresp['lon'] = $oaza[0]['lon1'];
+        
+        return Response::forge(json_encode($jresp) , 200);
+    }
 
 }

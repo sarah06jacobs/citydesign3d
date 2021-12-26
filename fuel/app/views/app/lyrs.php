@@ -378,6 +378,140 @@ function editDesign(editid) {
     window.open('design?design_id=' + document.getElementById(editid).value + '&layer=tatemono_2' , 'design', params);
 }
 
+function changePref(obj) {
+    var data = {
+        pref_code: obj.value
+    };
+
+    $.ajax({
+        type:"post",                // method = "POST"
+        url:"/api/city/addrcity",        // POST送信先のURL
+        data:JSON.stringify(data),  // JSONデータ本体
+        contentType: 'application/json', // リクエストの Content-Type
+        dataType: "json",           // レスポンスをJSONとしてパースする
+        success: function(json_data) {   // 200 OK時
+            // JSON Arrayの先頭が成功フラグ、失敗の場合2番目がエラーメッセージ
+            if (!json_data['list']) {    // サーバが失敗を返した場合
+                alert("Transaction error. ");
+                return;
+            }
+            else {
+                var select = document.getElementById('cityselect');
+                var i, L = select.options.length - 1;
+                for(i = L; i >= 0; i--) {
+                   select.remove(i);
+                }
+                var oazaselect = document.getElementById('oazaselect');
+                var i, L = oazaselect.options.length - 1;
+                for(i = L; i >= 0; i--) {
+                   oazaselect.remove(i);
+                }
+   
+                var list = json_data['list'];
+                for ( i=0; i<list.length; i++ ) {
+                    var lobj = list[i];
+                    var option = document.createElement('option');
+                    option.setAttribute('value', lobj['city_code']);
+                    option.appendChild(document.createTextNode(lobj['city_name']));
+                    select.appendChild(option);
+                }
+                var lat = json_data['lat'];
+                var lon = json_data['lon'];
+                var dragonfly = parent.frames["dragonfmap"].dragonfly;
+                dragonfly.addAutoFly(" -dest "+lon+" 10000 "+ lat +" -etilt -90 -delay 0" );
+            }
+            // 成功時処理
+        },
+        error: function() {         // HTTPエラー時
+            alert("Server Error. Please try again later.");
+        },
+        complete: function() {      // 成功・失敗に関わらず通信が終了した際の処理
+        }
+    });
+}
+
+function changeCity(obj) {
+    var data = {
+        pref_code: obj.value,
+        city_code: document.getElementById('cityselect').value
+    };
+
+    $.ajax({
+        type:"post",                // method = "POST"
+        url:"/api/city/addroaza",        // POST送信先のURL
+        data:JSON.stringify(data),  // JSONデータ本体
+        contentType: 'application/json', // リクエストの Content-Type
+        dataType: "json",           // レスポンスをJSONとしてパースする
+        success: function(json_data) {   // 200 OK時
+            // JSON Arrayの先頭が成功フラグ、失敗の場合2番目がエラーメッセージ
+            if (!json_data['list']) {    // サーバが失敗を返した場合
+                alert("Transaction error. ");
+                return;
+            }
+            else {
+                var select = document.getElementById('oazaselect');
+                var i, L = select.options.length - 1;
+                for(i = L; i >= 0; i--) {
+                   select.remove(i);
+                }
+   
+                var list = json_data['list'];
+                for ( i=0; i<list.length; i++ ) {
+                    var lobj = list[i];
+                    var option = document.createElement('option');
+                    option.setAttribute('value', lobj['oaza_code']);
+                    option.appendChild(document.createTextNode(lobj['oaza_name']));
+                    select.appendChild(option);
+                }
+                var lat = json_data['lat'];
+                var lon = json_data['lon'];
+                var dragonfly = parent.frames["dragonfmap"].dragonfly;
+                dragonfly.addAutoFly(" -dest "+lon+" 5000 "+ lat +" -etilt -90 -delay 0" );
+            }
+            // 成功時処理
+        },
+        error: function() {         // HTTPエラー時
+            alert("Server Error. Please try again later.");
+        },
+        complete: function() {      // 成功・失敗に関わらず通信が終了した際の処理
+        }
+    });
+}
+
+function changeOaza(obj) {
+    var data = {
+        pref_code: obj.value,
+        city_code: document.getElementById('cityselect').value
+    };
+
+    $.ajax({
+        type:"post",                // method = "POST"
+        url:"/api/city/addroaza",        // POST送信先のURL
+        data:JSON.stringify(data),  // JSONデータ本体
+        contentType: 'application/json', // リクエストの Content-Type
+        dataType: "json",           // レスポンスをJSONとしてパースする
+        success: function(json_data) {   // 200 OK時
+            // JSON Arrayの先頭が成功フラグ、失敗の場合2番目がエラーメッセージ
+            if (!json_data['lat']) {    // サーバが失敗を返した場合
+                alert("Transaction error. ");
+                return;
+            }
+            else {
+                var lat = json_data["lat"];
+                var lon = json_data["lon"];
+                var dragonfly = parent.frames["dragonfmap"].dragonfly;
+                dragonfly.addAutoFly(" -dest "+lon+" 2500 "+ lat +" -etilt -90 -delay 0" );
+            }
+            // 成功時処理
+        },
+        error: function() {         // HTTPエラー時
+            alert("Server Error. Please try again later.");
+        },
+        complete: function() {      // 成功・失敗に関わらず通信が終了した際の処理
+        }
+    });
+}
+
 </script>
 
 <style>
@@ -596,7 +730,35 @@ color:#F6FEFE;
 </div>
 
 <div id="tabdiv3" class="tabcontent">
-		Tokyo
+    
+    <table>
+        <tr>
+            <td>
+                <select id="prefselect" name="prefselect" onchange="changePref(this);">
+                    <? foreach ($prefecture as $pref) { ?>
+                    <option value="<?= $pref["pref_code"] ?>"><?= $pref["pref_name"] ?></option>
+                    <? } ?>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <select id="cityselect" name="cityselect" onchange="changeCity(this);">
+                    
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <select id="oazaselect" name="oazaselect" onchange="changeOaza(this);">
+                    
+                </select>
+            </td>
+        </tr>
+        
+    </table>
+ 
+	
 </div>
 
 </form>
