@@ -252,7 +252,13 @@ class Controller_Api_City extends Controller_Apibase {
     }
     
     public function action_addrcity() {
-        $pref_code = $post["pref_code"];
+        $post = Input::post();
+        $get = Input::get();
+        $post = array_merge($get, $post);
+
+        $json = Input::json();
+
+        $pref_code = $json["pref_code"];
         
         $query = DB::select('*');
         $query -> from('addr_pref');
@@ -275,19 +281,25 @@ class Controller_Api_City extends Controller_Apibase {
     }
     
     public function action_addroaza() {
-        $pref_code = $post["pref_code"];
-        $city_code = $post["city_code"];
+        $post = Input::post();
+        $get = Input::get();
+        $post = array_merge($get, $post);
+
+        $json = Input::json();
+
+        $pref_code = $json["pref_code"];
+        $city_code = $json["city_code"];
         
         $query = DB::select('*');
         $query -> from('addr_city');
         $query -> where('pref_code' , $pref_code);
-        $query -> where('city_code' , $pref_code);
+        $query -> where('city_code' , $city_code);
         $city = $query->execute()->as_array();
         
         $query = DB::select('*');
         $query -> from('addr_oaza');
         $query -> where('pref_code' , $pref_code);
-        $query -> where('city_code' , $pref_code);
+        $query -> where('city_code' , $city_code);
         $query -> order_by('oaza_code' , 'asc');
         $oaza = $query->execute()->as_array();
         
@@ -300,9 +312,15 @@ class Controller_Api_City extends Controller_Apibase {
     }
     
     public function action_addraza() {
-        $pref_code = $post["pref_code"];
-        $city_code = $post["city_code"];
-        $oaza_code = $post["oaza_code"];
+        $post = Input::post();
+        $get = Input::get();
+        $post = array_merge($get, $post);
+
+        $json = Input::json();
+
+        $pref_code = $json["pref_code"];
+        $city_code = $json["city_code"];
+        $oaza_code = $json["oaza_code"];
         
         $query = DB::select('*');
         $query -> from('addr_oaza');

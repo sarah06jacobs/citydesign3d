@@ -279,11 +279,6 @@ SRID 4612
 
 	BWALLTEXW <?= $walltexw; ?>
 
-	DESIGNATTRIBUTE designid
-	DESIGNFOLDER /assets/design
-	DESIGNSERVLET /api/gis/getdesign?design_id=
-	DESIGNOBJECTMAX 200
-	DESIGNTEXTUREMAX 2000
   END
 
   LAYER

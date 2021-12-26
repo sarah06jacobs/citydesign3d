@@ -418,7 +418,7 @@ function changePref(obj) {
                 var lat = json_data['lat'];
                 var lon = json_data['lon'];
                 var dragonfly = parent.frames["dragonfmap"].dragonfly;
-                dragonfly.addAutoFly(" -dest "+lon+" 10000 "+ lat +" -etilt -90 -delay 0" );
+                dragonfly.addAutoFly(" -dest "+lon+" 7000 "+ lat +" -etilt -90 -delay 0" );
             }
             // 成功時処理
         },
@@ -432,7 +432,7 @@ function changePref(obj) {
 
 function changeCity(obj) {
     var data = {
-        pref_code: obj.value,
+        pref_code: document.getElementById('prefselect').value,
         city_code: document.getElementById('cityselect').value
     };
 
@@ -466,7 +466,7 @@ function changeCity(obj) {
                 var lat = json_data['lat'];
                 var lon = json_data['lon'];
                 var dragonfly = parent.frames["dragonfmap"].dragonfly;
-                dragonfly.addAutoFly(" -dest "+lon+" 5000 "+ lat +" -etilt -90 -delay 0" );
+                dragonfly.addAutoFly(" -dest "+lon+" 3000 "+ lat +" -etilt -90 -delay 0" );
             }
             // 成功時処理
         },
@@ -480,8 +480,9 @@ function changeCity(obj) {
 
 function changeOaza(obj) {
     var data = {
-        pref_code: obj.value,
-        city_code: document.getElementById('cityselect').value
+        pref_code: document.getElementById('prefselect').value,
+        city_code: document.getElementById('cityselect').value,
+        oaza_code: document.getElementById('oazaselect').value
     };
 
     $.ajax({
@@ -500,7 +501,7 @@ function changeOaza(obj) {
                 var lat = json_data["lat"];
                 var lon = json_data["lon"];
                 var dragonfly = parent.frames["dragonfmap"].dragonfly;
-                dragonfly.addAutoFly(" -dest "+lon+" 2500 "+ lat +" -etilt -90 -delay 0" );
+                dragonfly.addAutoFly(" -dest "+lon+" 1000 "+ lat +" -etilt -90 -delay 0" );
             }
             // 成功時処理
         },
