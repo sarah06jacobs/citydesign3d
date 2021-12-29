@@ -3,7 +3,12 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <TITLE>City Design</TITLE>
 <LINK REL="StyleSheet" HREF="/css/style.css" TYPE="text/css">
+
+
 <script type="text/javascript" src="/js/jquery.js" ></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script language="javascript">
 
 function openPanel( pname , clname ) {
@@ -651,6 +656,40 @@ color:#F6FEFE;
 </div>
 
 <div id="tabdiv2" class="tabcontent">
+
+<table>
+    <tr>
+        <td> range
+        </td>
+    </tr>
+    <tr>
+        <td> 
+            <input type="text" name="frombld" id="frombld" />
+        </td>
+    </tr>
+</table>
+<script>
+    var example = flatpickr('#frombld',{
+      dateFormat: 'Y-m-d',
+      allowInput: false,
+      defaultHour: 12, 
+      defaultMinute: 0, 
+      disableMobile: false,
+      mode: "range",
+      prevArrow: '&lt;',
+      nextArrow: '&gt;',
+      parseDate: false,
+      time_24hr: true,
+      onChange: function() {
+        //alert("onChange.");
+      },
+      onClose: function() {
+        //alert("onClose.");
+      }
+    });
+</script>
+<hr>
+
 <div id="addobjectdiv" class="panelcontent">
 <table>
 		<tr>
