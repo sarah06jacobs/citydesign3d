@@ -124,6 +124,10 @@ function setNewPolyCoord(outx, alt, outy, pi, isadd, iscw) {
 
 function itemClicked(id,layerid,inclusive) {
 
+    if ( (layerid-0) > 2000 ) {
+        return;
+    }
+
 	if( clickmode > 0 ) {
 		return;
 	}
@@ -300,6 +304,16 @@ function saveEditObject() {
     });
 }
 
+function resetForms() {
+	document.getElementById("newwallidselect").selectedIndex = 0;
+	document.getElementById("wallidselect").selectedIndex = 0;
+	document.getElementById("new_design_id").value = "";
+	document.getElementById("edit_design_id").value = "";
+	document.getElementById("newtname").value = "";
+	document.getElementById("edittname").value = "";
+	
+}
+
 function saveObject() {
 
 	var data = {
@@ -362,6 +376,7 @@ function stopEdit() {
 	bld_ht = 3;
 	edit_id = -1;
 	editlayer = "";
+	resetForms();
 }
 
 function changeWallImg(obj, imgid) {

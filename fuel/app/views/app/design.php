@@ -85,8 +85,8 @@
                 <? } ?>
                 <input type="hidden" name="wallidx0" value="<?= $default_wall["idx"]; ?>" />
             </TD>
-            <td> <input type="text" name="wallw0" value="<?= $default_wall["w"]; ?>" size="5" />
-                <input type="text" name="wallh0" value="<?= $default_wall["h"]; ?>" size="5" />
+            <td> w:<input type="text" name="wallw0" value="<?= $default_wall["w"]; ?>" size="5" />
+                h:<input type="text" name="wallh0" value="<?= $default_wall["h"]; ?>" size="5" />
             </td>
         </TR>
         <TR>
@@ -98,9 +98,9 @@
                 <? } ?>
                 <input type="hidden" name="roofidx" value="<?= $roof["idx"]; ?>" />
             </TD>
-            <td> <input type="text" name="roofw" value="<?= $roof["w"]; ?>" size="5" />
-                <input type="text" name="roofh" value="<?= $roof["h"]; ?>" size="5" />
-                <input type="text" name="roofr" value="<?= $roof["r"]; ?>" size="5" />
+            <td> w:<input type="text" name="roofw" value="<?= $roof["w"]; ?>" size="5" />
+                h:<input type="text" name="roofh" value="<?= $roof["h"]; ?>" size="5" />
+                rot:<input type="text" name="roofr" value="<?= $roof["r"]; ?>" size="5" />
             </td>
         </TR>
         <? foreach ($walls as $wall) { ?>

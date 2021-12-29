@@ -105,7 +105,7 @@ class Controller_Hawkeye extends Controller
         	else {
 	        	$config = array(
 				    'path' => APPPATH.'data',
-				    'ext_whitelist' => array('png')
+				    'ext_whitelist' => array('png','jpg','jpeg','gif')
 				);
 				Upload::process($config);
 				Upload::save();
@@ -138,21 +138,28 @@ class Controller_Hawkeye extends Controller
 	                if(!isset( $post["wallw" .$wtex_ix] )) {
 	                    break;
 	                }
+
 	                $wallw = $post["wallw" .$wtex_ix];
 	                $wallh = $post["wallh" .$wtex_ix];
 	                $file = Upload::get_files('walltex'.$wtex_ix);
 	                if( count($file) > 0 ) {
 	                    $filepath = APPPATH.'data/' . $file['name'];
 	                    $info = getimagesize($filepath);
-	                    if ($info === FALSE || ($info[2] !== IMAGETYPE_PNG)) {
+	                    if ($info === FALSE ) {
 	                        unlink($filepath);
 	                    } else {
 	                        if( file_exists($dfolder . 'wall' . $wtex_ix . ".png") )
 	                        {
 	                            unlink($dfolder . 'wall' . $wtex_ix . ".png");
 	                        }
-	                        File::copy( $filepath , $dfolder . 'wall' . $wtex_ix . ".png");
-	                    
+	                        if( ($info[2] !== IMAGETYPE_PNG) ) {
+	                    		$binary = imagecreatefromstring(file_get_contents($filepath));
+								ImagePNG($binary, $dfolder . 'wall' . $wtex_ix . ".png", 0);
+	                    	}
+	                    	else {
+	                        	File::copy( $filepath , $dfolder . 'wall' . $wtex_ix . ".png");
+	                    	}
+
 		                    // add to item
 		                    $dstr = $wtex_ix . ":0";
 		                    if ( $wallw !== "" && $wallh !== "" )
@@ -169,14 +176,18 @@ class Controller_Hawkeye extends Controller
 	            		// no file
 	            		$wallidx = $post["wallidx" .$wtex_ix];
 	            		if( $wallidx !== "" ) {
-		            		$query = DB::insert('design_item');
-		            		$dstr = $wtex_ix . ":0";
-		                    if ( $wallw !== "" && $wallh !== "" )
-		                    {
-		                    	$dstr = $dstr . ":" . $wallw . ":" . $wallh;
-		                    }
-		                    $query->set(array("design_id" => $design_id , "dtype" => "0", "dvalue" => $dstr , "idx" => $wtex_ix));
-		                    $query -> execute();
+	            			// check for image
+	            			if( file_exists($dfolder . 'wall' . $wtex_ix . ".png") )
+	                        {
+			            		$query = DB::insert('design_item');
+			            		$dstr = $wtex_ix . ":0";
+			                    if ( $wallw !== "" && $wallh !== "" )
+			                    {
+			                    	$dstr = $dstr . ":" . $wallw . ":" . $wallh;
+			                    }
+			                    $query->set(array("design_id" => $design_id , "dtype" => "0", "dvalue" => $dstr , "idx" => $wtex_ix));
+			                    $query -> execute();
+		                	}
 	                	}
 
 	                	if (isset($post["wallrem" . $wtex_ix]) ) {
@@ -203,15 +214,22 @@ class Controller_Hawkeye extends Controller
 	            if( count($rooffile) > 0 ) {
 	                $filepath = APPPATH.'data/' . $rooffile['name'];
 	                $info = getimagesize($filepath);
-	                if ($info === FALSE || ($info[2] !== IMAGETYPE_PNG)) {
+	                if ($info === FALSE) {
 	                    unlink($filepath);
 	                } else {
 	                	if( file_exists($dfolder . "roof0.png") )
 	                    {
 	                        unlink($dfolder . "roof0.png");
 	                    }
-	                    File::copy( $filepath , $dfolder . "roof0.png");
-	                
+	                    if( ($info[2] !== IMAGETYPE_PNG) ) {
+                    		$binary = imagecreatefromstring(file_get_contents($filepath));
+							ImagePNG($binary, $dfolder . "roof0.png", 0);
+                    	}
+                    	else {
+	                    	File::copy( $filepath , $dfolder . "roof0.png");
+	                	}
+
+
 	                    // add to item
 	                    $dstr = "0:0";
 	                    if ( $roofw !== "" && $roofh !== "" )
@@ -228,15 +246,18 @@ class Controller_Hawkeye extends Controller
 					// no file
 	        		$roofidx = $post["roofidx"];
 	        		if( $roofidx !== "" ) {
-	            		$query = DB::insert('design_item');
-	            		$dstr = "0:0";
-	                    if ( $roofw !== "" && $roofh !== "" )
+	        			if( file_exists($dfolder . "roof0.png") )
 	                    {
-	                    	$dstr = $dstr . ":" . $roofw . ":" . $roofh;
-	                    }
-	                    $query = DB::insert('design_item');
-	                    $query->set(array("design_id" => $design_id , "dtype" => "2", "dvalue" => $dstr , "idx" => "0"));
-	                    $query -> execute();
+		            		$query = DB::insert('design_item');
+		            		$dstr = "0:0";
+		                    if ( $roofw !== "" && $roofh !== "" )
+		                    {
+		                    	$dstr = $dstr . ":" . $roofw . ":" . $roofh;
+		                    }
+		                    $query = DB::insert('design_item');
+		                    $query->set(array("design_id" => $design_id , "dtype" => "2", "dvalue" => $dstr , "idx" => "0"));
+		                    $query -> execute();
+	                	}
 	            	}
 
 	            	if (isset($post["roofrem"]) ) {
@@ -278,7 +299,15 @@ class Controller_Hawkeye extends Controller
                 $query -> where('design_id' , $design_id);
                 $query -> order_by('idx' , 'asc');
                 $ditems = $query->execute()->as_array();
-                
+                // need to add up to n walls
+                $lastwall = 0;
+                if( count($ditems) > 0 ) {
+                	$lastwall = $ditems[count($ditems)-1]["idx"] + 0;
+                }
+                for( $u=1; $u < $lastwall; $u++ ) {
+                	$walls[] = array("img" => "" , "w" => "", "h" => "", "r" => "", "idx" => $u);
+                }
+
                 for( $u=0; $u<count($ditems); $u++ ) {
                     $di = $ditems[$u];
                     $dtype = $di['dtype'] + 0;
@@ -287,7 +316,8 @@ class Controller_Hawkeye extends Controller
                             $default_wall = $this->getWallInfo($di['dvalue'] , $webfolder , 'wall');
                         }
                         else {
-                            $walls[] = $this->getWallInfo($di['dvalue'] , $webfolder , 'wall');
+                        	$walls[$di['idx']-1] = $this->getWallInfo($di['dvalue'] , $webfolder , 'wall');
+                            //$walls[] = $this->getWallInfo($di['dvalue'] , $webfolder , 'wall');
                         }
                     }
                     else if( $dtype == 2 ) {
