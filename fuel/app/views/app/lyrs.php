@@ -546,6 +546,39 @@ function changeOaza(obj) {
     });
 }
 
+var date_filter_from = "";
+var date_filter_to = "";
+function setDataRange(  ) {
+    var dragonfly = parent.frames["dragonfmap"].dragonfly;
+    var dstr = document.getElementById("frombld").value;
+    
+    if( dstr.trim() === "" ) {
+        date_filter_from = "";
+        date_filter_to = "";
+        
+        dragonfly.setShapeLayerProperty("tatemono_1","CGIREQUEST", "/api/gis/getlayer?pool=hawk");
+        dragonfly.setShapeLayerProperty("tatemono_1","RELOADLAYER", "1");
+        dragonfly.setShapeLayerProperty("tatemono_2","CGIREQUEST", "/api/gis/getlayer?pool=hawk");
+        dragonfly.setShapeLayerProperty("tatemono_2","RELOADLAYER", "1");
+    }
+    
+    var dateArray = text.split("to");
+    if( dateArray.length > 1 ) {
+        var fromts = dateArray[0].trim();
+        var tots = dateArray[1].trim();
+        //CGIREQUEST /api/gis/getlayer?pool=hawk
+        if( date_filter_from !== fromts || date_filter_to !== tots ) { 
+            date_filter_from = fromts;
+            date_filter_to = tots;
+            
+            dragonfly.setShapeLayerProperty("tatemono_1","CGIREQUEST", "/api/gis/getlayer?pool=hawk&fromts="+fromts+"$tots="+tots);
+            dragonfly.setShapeLayerProperty("tatemono_1","RELOADLAYER", "1");
+            dragonfly.setShapeLayerProperty("tatemono_2","CGIREQUEST", "/api/gis/getlayer?pool=hawk&fromts="+fromts+"$tots="+tots);
+            dragonfly.setShapeLayerProperty("tatemono_2","RELOADLAYER", "1");
+        }
+    }
+}
+
 </script>
 
 <style>
@@ -685,6 +718,7 @@ color:#F6FEFE;
       },
       onClose: function() {
         //alert("onClose.");
+        setDataRange();
       }
     });
 </script>

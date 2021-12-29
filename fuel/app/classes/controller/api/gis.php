@@ -23,6 +23,9 @@ class Controller_Api_Gis extends Controller_Apibase {
 
         $layers = isset($post['layers']) ? $post['layers'] : "tatemono_1:floornum:floorht";
         $bbox = isset($post['bbox']) ? $post['bbox'] : "139.7,35.6,139.8,35.7";
+        
+        $fromts = isset($post['fromts']) ? $post['fromts']+0 : 0;
+        $tots = isset($post['tots']) ? $post['tots']+0 : 0;
         //$bbox = "139.7,35.6,139.8,35.7";
 
         $ATTRIBUTE_LENGTH = 32;
@@ -38,6 +41,12 @@ class Controller_Api_Gis extends Controller_Apibase {
 
         $query = DB::select('*' , db::expr("ST_AsGeoJSON(wkb_geometry) gjson"));
         $query->from($layer_arr[0]);
+        
+        if( $fromts > 0 && $tots > 0 ) {
+            $query->where('create_ts' , '>=' , $fromts);
+            $query->where('create_ts' , '<=' , $tots);
+        }
+        
         $query->where('wkb_geometry','&&' ,db::expr(' ST_MakeEnvelope ('.$bbox_arr[0].', '.$bbox_arr[1].','.$bbox_arr[2].', '.$bbox_arr[3].',4612)'));
         $result = $query->execute()->as_array();
 
