@@ -74,10 +74,21 @@ function setDesign( design_id ) {
 	document.getElementById('edit_design_id').value=design_id;
 }
 
+function datestr() {
+    var d = new Date();
+    var yyyy = d.getFullYear();
+    var mm = d.getMonth() < 9 ? "0" + (d.getMonth() + 1) : (d.getMonth() + 1);
+    var dd = d.getDate() < 10 ? "0" + d.getDate() : d.getDate();
+    return yyyy + "-" + mm + "-" + dd;
+}
+
 function newGeom(lyr) {
-        editlayer = lyr;
+    editlayer = lyr;
 	openPanel('newobjectdiv', 'panelcontent');
-	var dragonfly = parent.frames["dragonfmap"].dragonfly;
+	
+    document.getElementById("newdate").value = datestr();
+
+    var dragonfly = parent.frames["dragonfmap"].dragonfly;
 	parent.frames["dragonfmap"].dragonfly.sendParameterString(" -newgeometry BUILDING CREATED_0");
 	parent.frames["dragonfmap"].dragonfly.setShapeLayerProperty("CREATED_0","STROKE","180:180:190:255");
 	parent.frames["dragonfmap"].dragonfly.setShapeLayerProperty("CREATED_0","DRAWTOOL","POINT"); 
@@ -92,12 +103,12 @@ function newGeom(lyr) {
 
 	clickmode = 2;
         
-        if( lyr == "tatemono_1" ) {
-            openPanel('newbldpanel1' , 'newpanelcontent');
-        }
-        else {
-            openPanel('newbldpanel2' , 'newpanelcontent');
-        }
+    if( lyr == "tatemono_1" ) {
+        openPanel('newbldpanel1' , 'newpanelcontent');
+    }
+    else {
+        openPanel('newbldpanel2' , 'newpanelcontent');
+    }
 }
 
 var points = [];
@@ -167,6 +178,7 @@ function itemClicked(id,layerid,inclusive) {
 
             		points = objects[0]['geom'];
             		setWallImage(objects[0]['wallid']);
+                    document.getElementById("editdate").value = objects[0]['create_date'];
             		document.getElementById("edittname").value = objects[0]['tname'];
             		document.getElementById("edit_design_id").value = objects[0]['designid'];
             		bld_ht = objects[0]['floorht'] * objects[0]['floornum'];
@@ -273,6 +285,7 @@ function saveEditObject() {
 	var data = {
 		id: edit_id,
 		tname: document.getElementById("edittname").value,
+        date: document.getElementById("editdate").value,
         coords: points,
         ht: bld_ht,
         layer: editlayer,
@@ -324,6 +337,7 @@ function saveObject() {
 	var data = {
         coords: points,
         ht: bld_ht,
+        date: document.getElementById("newdate").value,
         tname: document.getElementById("newtname").value,
         wallid: document.getElementById("newwallidselect").value,
         designid: document.getElementById("new_design_id").value,
@@ -373,7 +387,7 @@ function stopEdit() {
 	openPanel('addobjectdiv', 'panelcontent');
 	dragonfly.sendParameterString(" -deletegeometry CREATED_0");
 	dragonfly.setShapeLayerProperty(editlayer,"HIDEOBJECT","0");
-	if( clickmode > 0 ) {
+	if( clickmode > 0 && editlayer !== "") {
 		dragonfly.setShapeLayerProperty(editlayer,"RELOADLAYER", "1");
 	}
 	clickmode = 0;
@@ -552,7 +566,27 @@ function setDataRange(  ) {
     var dragonfly = parent.frames["dragonfmap"].dragonfly;
     var dstr = document.getElementById("frombld").value;
     
-    if( dstr.trim() === "" ) {
+    var dateArray = dstr.split("to");
+    if( dateArray.length > 1 ) {
+        var fromts = dateArray[0].trim();
+        var tots = dateArray[1].trim();
+        //CGIREQUEST /api/gis/getlayer?pool=hawk
+        if( date_filter_from !== fromts || date_filter_to !== tots ) {
+            date_filter_from = fromts;
+            date_filter_to = tots;
+            pm_filter_from = getTimeStamp(fromts);
+            pm_filter_to = getTimeStamp(tots);
+            
+            dragonfly.setShapeLayerProperty("tatemono_1","CGIREQUEST", "/api/gis/getlayer?pool=hawk&fromts="+pm_filter_from+"&tots="+pm_filter_to);
+            dragonfly.setShapeLayerProperty("tatemono_1","RELOADLAYER", "1");
+            dragonfly.setShapeLayerProperty("tatemono_2","CGIREQUEST", "/api/gis/getlayer?pool=hawk&fromts="+pm_filter_from+"&tots="+pm_filter_to);
+            dragonfly.setShapeLayerProperty("tatemono_2","RELOADLAYER", "1");
+
+            editlayer = "";
+            stopEdit();
+        }
+    }
+    else {
         date_filter_from = "";
         date_filter_to = "";
         
@@ -561,21 +595,11 @@ function setDataRange(  ) {
         dragonfly.setShapeLayerProperty("tatemono_2","CGIREQUEST", "/api/gis/getlayer?pool=hawk");
         dragonfly.setShapeLayerProperty("tatemono_2","RELOADLAYER", "1");
     }
-    
-    var dateArray = text.split("to");
-    if( dateArray.length > 1 ) {
-        var fromts = dateArray[0].trim();
-        var tots = dateArray[1].trim();
-        //CGIREQUEST /api/gis/getlayer?pool=hawk
-        if( date_filter_from !== fromts || date_filter_to !== tots ) { 
-            date_filter_from = fromts;
-            date_filter_to = tots;
-            
-            dragonfly.setShapeLayerProperty("tatemono_1","CGIREQUEST", "/api/gis/getlayer?pool=hawk&fromts="+fromts+"$tots="+tots);
-            dragonfly.setShapeLayerProperty("tatemono_1","RELOADLAYER", "1");
-            dragonfly.setShapeLayerProperty("tatemono_2","CGIREQUEST", "/api/gis/getlayer?pool=hawk&fromts="+fromts+"$tots="+tots);
-            dragonfly.setShapeLayerProperty("tatemono_2","RELOADLAYER", "1");
-        }
+
+    function getTimeStamp(myDate) {
+        myDate = myDate.split("-");
+        var newDate = new Date( myDate[0], myDate[1] - 1, myDate[2]);
+        return (newDate.getTime()/1000);
     }
 }
 
@@ -690,9 +714,11 @@ color:#F6FEFE;
 
 <div id="tabdiv2" class="tabcontent">
 
+<div id="addobjectdiv" class="panelcontent">
+
 <table>
     <tr>
-        <td> range
+        <td> 表示範囲：タイム
         </td>
     </tr>
     <tr>
@@ -723,8 +749,6 @@ color:#F6FEFE;
     });
 </script>
 <hr>
-
-<div id="addobjectdiv" class="panelcontent">
 <table>
 		<tr>
 		<td colspan="9999">
@@ -745,6 +769,23 @@ color:#F6FEFE;
 				<input type="text" id="newtname" name="newtname" value="" />
 			</td>
 		</tr>
+        <tr>
+            <td>
+                作成日：
+            </td>
+            <td>
+                <input type="text" id="newdate" name="newdate" value="" />
+            </td>
+        </tr>
+<script>
+    var example = flatpickr('#newdate',{
+      dateFormat: 'Y-m-d',
+      allowInput: true,
+      time_24hr: true,
+      onClose: function() {
+      }
+    });
+</script>
 		<tr>
 		<td colspan="9999">
 		<tr>
@@ -785,23 +826,40 @@ color:#F6FEFE;
 				<input type="text" id="edittname" name="edittname" value="" />
 			</td>
 		</tr>
+        <tr>
+            <td>
+                作成日：
+            </td>
+            <td>
+                <input type="text" id="editdate" name="editdate" value="" />
+<script>
+    var example = flatpickr('#editdate',{
+      dateFormat: 'Y-m-d',
+      allowInput: true,
+      time_24hr: true,
+      onClose: function() {
+      }
+    });
+</script>
+            </td>
+        </tr>
 		<tr>
 			<td>
 				壁画像：
 			</td>
 			<td>
-                            <div id="editbldpanel1" class="editpanelcontent" >
+                <div id="editbldpanel1" class="editpanelcontent" >
 				<select id="wallidselect" name="wallidselect" onchange="changeWallImg(this,'wallimage');">
 					<? for ($r=1;$r<=$wallcount;$r++) { ?>
 						<option value=<?= $r; ?>>wall <?= $r; ?></option>
 					<? } ?>
 				</select>
 				<img id="wallimage" src="/assets/walls/dm2_1.png" width="20" height="20"/>
-                            </div>
-                            <div id="editbldpanel2" class="editpanelcontent" >
-                                <input type="text" name="edit_design_id" id="edit_design_id" value="" readonly="readonly"/>
-                                <input type="button" onclick="editDesign('edit_design_id');" value="壁テキスチャー編集" />
-                            </div>
+                </div>
+                <div id="editbldpanel2" class="editpanelcontent" >
+                    <input type="text" name="edit_design_id" id="edit_design_id" value="" readonly="readonly"/>
+                    <input type="button" onclick="editDesign('edit_design_id');" value="壁テキスチャー編集" />
+                </div>
 			</td>
 		</tr>
 		<tr>
