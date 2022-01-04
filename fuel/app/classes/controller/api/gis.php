@@ -26,6 +26,7 @@ class Controller_Api_Gis extends Controller_Apibase {
         
         $fromts = isset($post['fromts']) ? $post['fromts']+0 : 0;
         $tots = isset($post['tots']) ? $post['tots']+0 : 0;
+        $geomtype = isset($post['gty']) ? $post['gty'] : "POLYGON";
         //$bbox = "139.7,35.6,139.8,35.7";
 
         $ATTRIBUTE_LENGTH = 32;
@@ -68,7 +69,7 @@ class Controller_Api_Gis extends Controller_Apibase {
         $shape_type = 1;
         if ( $rcount > 0 ) {
         	$geom_obj = json_decode($result[0]['gjson'], true);
-        	$shape_type = $this -> getShapeType("POLYGON");
+        	$shape_type = $this -> getShapeType($geomtype);
         }
 
         //stype = reader->read();
