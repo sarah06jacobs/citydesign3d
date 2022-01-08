@@ -38,8 +38,7 @@ function openTab(tabname, cityName) {
 
 var layer_map = { lyr_1000: "tatemono_1" ,
 				lyr_1001: "tatemono_2" ,
-				lyr_1002: "tatemono_3" ,
-				lyr_1003: "tatemono_4" ,
+				lyr_2000: "tatemono_v"
 			};
 
 function setMapStatus(lid){
@@ -50,7 +49,7 @@ function setMapStatus(lid){
 	["top_line","aza_polygon", "oaza_polygon"] ,
 	["middle_road_line","city_road_0","city_road_1","city_road_2"] ,
 	["middle_railway","city_railway"],
-	["tatemono_1" , "tatemono_2"] ];
+	["tatemono_1" , "tatemono_2", "tatemono_v"] ];
 
 	for(i=0;i<lyrswitch[lid].length;i++) {
 		parent.frames["dragonfmap"].dragonfly.setShapeLayerProperty(lyrswitch[lid][i],"status",setstr);
@@ -80,6 +79,33 @@ function datestr() {
     var mm = d.getMonth() < 9 ? "0" + (d.getMonth() + 1) : (d.getMonth() + 1);
     var dd = d.getDate() < 10 ? "0" + d.getDate() : d.getDate();
     return yyyy + "-" + mm + "-" + dd;
+}
+
+var vrmlobj_id = -1;
+var vrmlobj_file = "";
+function setVrml(objid , vrmlfile, layer, tname, cdate, points) {
+    vrmlobj_id = objid;
+    vrmlobj_file = vrmlfile;
+    editlayer = layer;
+
+    var dragonfly = parent.frames["dragonfmap"].dragonfly;
+    var wx = dragonfly.getWorldX();
+    var wy = dragonfly.getWorldY();
+    var geom = vrmlobj_id + ";" + wx + "," + wy + ";" + vrmlobj_file + ";" + vrmlobj_file;
+    openTab('tablink2', 'tabdiv2');
+    openPanel('editobjectdiv', 'panelcontent');
+
+    document.getElementById("editwrlfile").value = vrmlobj_file;
+    document.getElementById("edittname").value = tname;
+    document.getElementById("editdate").value = cdate;
+
+    openPanel('editbldpanelv' , 'editpanelcontent');
+    setEditVrml(vrmlobj_id, geom);
+}
+
+function uploadVrml() {
+    let params = "scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=600,height=500,left=100,top=100";
+    window.open('vrmlup?vrmlid='+vrmlobj_id , 'design',params);
 }
 
 function newGeom(lyr) {
@@ -140,7 +166,7 @@ function setNewPolyCoord(outx, alt, outy, pi, isadd, iscw) {
 
 function itemClicked(id,layerid,inclusive) {
 
-    if ( (layerid-0) > 2000 ) {
+    if ( (layerid-0) > 3000 ) {
         return;
     }
 
@@ -176,23 +202,30 @@ function itemClicked(id,layerid,inclusive) {
             		openTab('tablink2', 'tabdiv2');
             		openPanel('editobjectdiv', 'panelcontent');
 
+                    editlayer = json_data['layer'];
             		points = objects[0]['geom'];
-            		setWallImage(objects[0]['wallid']);
                     document.getElementById("editdate").value = objects[0]['create_date'];
             		document.getElementById("edittname").value = objects[0]['tname'];
-            		document.getElementById("edit_design_id").value = objects[0]['designid'];
-            		bld_ht = objects[0]['floorht'] * objects[0]['floornum'];
-	            	var geomstr = objects[0]['geomstr'];
-	            	editlayer = json_data['layer'];
-                        
+
+                    if ( layerid < 2000 ) {
+                        setWallImage(objects[0]['wallid']);
+                		document.getElementById("edit_design_id").value = objects[0]['designid'];
+                		bld_ht = objects[0]['floorht'] * objects[0]['floornum'];
+    	            	var geomstr = objects[0]['geomstr'];
                         if( editlayer == "tatemono_1" ) {
                             openPanel('editbldpanel1' , 'editpanelcontent');
                         }
-                        else {
+                        else if( editlayer == "tatemono_2" ) {
                             openPanel('editbldpanel2' , 'editpanelcontent');
                         }
-        
-	            	setEditShape( id, geomstr );
+                        setEditShape( id, geomstr );
+                    }
+                    else {
+                        // vrml
+                        if( editlayer == "tatemono_v" ) {
+
+                        }
+                    }
             	}
             }
             // 成功時処理
@@ -203,13 +236,31 @@ function itemClicked(id,layerid,inclusive) {
         complete: function() {      // 成功・失敗に関わらず通信が終了した際の処理
             //button.attr("disabled", false);  // ボタンを再び enableにする
         }
-    });
-	
+    });	
 }
 
 function setWallImage(v) {
 	document.getElementById("wallidselect").value = v;
 	document.getElementById("wallimage").src = "/assets/walls/dm2_" + v + ".png";
+}
+
+function setEditVrml(id, geom) {
+    var dragonfly = parent.frames["dragonfmap"].dragonfly;
+    dragonfly.setShapeLayerProperty(editlayer,"HIDEOBJECT",id);
+    dragonfly.sendParameterString(" -newgeometry POINT CREATED_0");
+    dragonfly.setShapeLayerProperty("CREATED_0","STROKE","15:240:200:255");
+    dragonfly.setShapeLayerProperty("CREATED_0","DRAWTOOL","POINT"); //POINT, 
+    dragonfly.setShapeLayerProperty("CREATED_0","SRID","4612");
+    dragonfly.setShapeLayerProperty("CREATED_0","MAXSCALE","0");
+    dragonfly.setShapeLayerProperty("CREATED_0","LIFTHT","0");
+    dragonfly.setShapeLayerProperty("CREATED_0","DLSHAPECOUNT","1");
+    dragonfly.setShapeLayerProperty("CREATED_0","DLSETEDITSHAPEINDEX","0");
+    dragonfly.setShapeLayerProperty("CREATED_0","DLSETHLPOINTINDEX","-1");
+    dragonfly.setShapeLayerProperty("CREATED_0","DLINSERTSHAPE",geom);
+    dragonfly.setShapeLayerProperty("CREATED_0","DEPTH","OFF");
+    dragonfly.setShapeLayerProperty("CREATED_0","SYMBOLFILETYPE","VRML");
+    dragonfly.setShapeLayerProperty("CREATED_0","SYMBOLS", "/cgi-bin/DFCgi.exe?vrml=");
+
 }
 
 function setEditShape( id, geom ) {
@@ -226,6 +277,8 @@ function setEditShape( id, geom ) {
 	dragonfly.setShapeLayerProperty("CREATED_0","DLSETHLPOINTINDEX","-1");
 	dragonfly.setShapeLayerProperty("CREATED_0","DLINSERTSHAPE",geom);
 	dragonfly.setShapeLayerProperty("CREATED_0","DEPTH","OFF");
+    dragonfly.setShapeLayerProperty("CREATED_0","SYMBOLATTDESC","NAME");
+    dragonfly.setShapeLayerProperty("CREATED_0","MAXLABELS","1");
 	
 	//dragonfly.sendParameterString(" -seteditgeometry CREATED_0");
 	
@@ -752,8 +805,9 @@ color:#F6FEFE;
 <table>
 		<tr>
 		<td colspan="9999">
-		<input type="button" onclick="newGeom('tatemono_1')" value="一般建物作成" />
-                <input type="button" onclick="newGeom('tatemono_2')" value="壁テキスチャー登録建物作成" /><br>
+		<input type="button" onclick="newGeom('tatemono_1')" value="一般建物作成" /><br>
+        <input type="button" onclick="newGeom('tatemono_2')" value="壁テキスチャー登録建物作成" /><br>
+        <input type="button" onclick="uploadVrml()" value="VRMLオブジェクト登録" /><br>
 	</td>
 </tr>
 </table>
@@ -789,24 +843,22 @@ color:#F6FEFE;
 		<tr>
 		<td colspan="9999">
 		<tr>
-			<td>
-				壁画像：
-			</td>
-			<td>
-                            
+			<td colspan="999">
+				
                 <div id="newbldpanel1" class="newpanelcontent" >
-		<select id="newwallidselect" name="newwallidselect" onchange="changeWallImg(this,'newwallimage');">
-			<? for ($r=1;$r<=$wallcount;$r++) { ?>
-				<option value=<?= $r; ?>>wall <?= $r; ?></option>
-			<? } ?>
-		</select>
-		<img id="newwallimage" src="/assets/walls/dm2_1.png" width="20" height="20"/>
+            		壁画像：<select id="newwallidselect" name="newwallidselect" onchange="changeWallImg(this,'newwallimage');">
+            			<? for ($r=1;$r<=$wallcount;$r++) { ?>
+            				<option value=<?= $r; ?>>wall <?= $r; ?></option>
+            			<? } ?>
+            		</select>
+		              <img id="newwallimage" src="/assets/walls/dm2_1.png" width="20" height="20"/>
                 </div>
                 <div id="newbldpanel2" class="newpanelcontent" >
-                    <input type="text" name="new_design_id" id="new_design_id" value="" readonly="readonly"/>
+                    ID:<input type="text" name="new_design_id" id="new_design_id" value="" size="2" readonly="readonly"/>
                     <input type="button" onclick="createNewDesign();" value="壁テキスチャー登録" />
                 </div>
-                </tr>
+            </td>
+        </tr>
 		<tr>
                     <td colspan="2">
                             <input type="button" onclick="stopEdit()" value="キャンセル" />
@@ -844,12 +896,9 @@ color:#F6FEFE;
             </td>
         </tr>
 		<tr>
-			<td>
-				壁画像：
-			</td>
-			<td>
+			<td colspan="3">
                 <div id="editbldpanel1" class="editpanelcontent" >
-				<select id="wallidselect" name="wallidselect" onchange="changeWallImg(this,'wallimage');">
+				壁画像：<select id="wallidselect" name="wallidselect" onchange="changeWallImg(this,'wallimage');">
 					<? for ($r=1;$r<=$wallcount;$r++) { ?>
 						<option value=<?= $r; ?>>wall <?= $r; ?></option>
 					<? } ?>
@@ -857,8 +906,37 @@ color:#F6FEFE;
 				<img id="wallimage" src="/assets/walls/dm2_1.png" width="20" height="20"/>
                 </div>
                 <div id="editbldpanel2" class="editpanelcontent" >
-                    <input type="text" name="edit_design_id" id="edit_design_id" value="" readonly="readonly"/>
+                    ID:<input type="text" name="edit_design_id" id="edit_design_id" value="" size=2 readonly="readonly"/>
                     <input type="button" onclick="editDesign('edit_design_id');" value="壁テキスチャー編集" />
+                </div>
+                <div id="editbldpanelv" class="editpanelcontent" >
+                    <table>
+                        <tr>
+                            <td>
+                                WRL:<input type="text" name="editwrlfile" id="editwrlfile" value="" readonly="readonly"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Scale
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Xrot
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Yrot
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Zrot
+                            </td>
+                        </tr>
+                    </table>
                 </div>
 			</td>
 		</tr>

@@ -340,6 +340,73 @@ class Controller_Hawkeye extends Controller
         return Response::forge(View::forge('app/design', $views));
     }
 
+    public function action_vrmlup()
+	{
+        $post = Input::post();
+        $get = Input::get();
+        $post = array_merge($get, $post);
+        $result = "";
+        $layer = isset( $post["layer"] ) ? $post["layer"] : "tatemono_v";
+        $action = isset( $post["action"] ) ? $post["action"] : "";
+        $vrml_id = isset( $post["vrmlid"] ) ? $post["vrmlid"] : "-1";
+        $vfname = "";
+        $points = "";
+        $cdate = "";
+        $tname = "upload0";
+
+        if ($action === "upload") {
+        	$config = array(
+			    'path' => APPPATH.'data',
+			    'ext_whitelist' => array('png','jpg','jpeg','gif','wrl')
+			);
+			Upload::process($config);
+			Upload::save();
+
+			$vrmlfile = Upload::get_files('vrmlfile');
+	            
+            if( count($vrmlfile) > 0 ) {
+                $filepath = APPPATH.'data/' . $vrmlfile['name'];
+                $dfolder = DOCROOT.'/maps/shape/vrml/';
+
+              	$cdate = date('Y-m-d H:i');
+                $query = DB::insert($layer);
+	            $query -> set(array( 'tname' => 'upload' ,
+		            'create_date' => $cdate,
+		            'create_ts' => strtotime($cdate),
+		            'update_ts' => time(),
+		        	'wkb_geometry' => db::expr("ST_GeomFromText('POINT(100.0 5.0)',4612)") ));
+	            $vrmlobj = $query->execute();
+	            $vrml_id = $vrmlobj[0];
+
+	            $vfname = "obj_" . $vrml_id . ".wrl";
+
+            	if( file_exists($dfolder . $vfname) )
+                {
+                    unlink($dfolder . $vfname);
+                }
+                File::copy( $filepath , $dfolder . $vfname);
+
+                $query = DB::update($layer);
+                $query -> set(array( 'wrl' => $vfname));
+                $query -> where('gid' , $vrml_id);
+                $query->execute();
+            	$result = "complete";
+            }
+
+        }
+
+        $views = array();
+        $views['result'] = $result;
+        $views['vrml_id'] = $vrml_id;
+        $views['vfname'] = $vfname;
+        $views['layer'] = $layer;
+
+        $views['tname'] = $tname;
+        $views['cdate'] = $cdate;
+        $views['points'] = $points;
+        return Response::forge(View::forge('app/vrmlup', $views));
+    }
+
     public function getWallInfo($str , $dfolder, $imgname) {
     	$arr = explode(":" , $str);
     	if (count($arr) < 2) {

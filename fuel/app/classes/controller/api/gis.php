@@ -8,7 +8,9 @@
  */
 
 // http://127.0.0.1/api/gis/getlayer?pool=hawk&stores=C:/ms4w/ms4w/Apache/htdocs/nigata/public/maps/shape/&layers=tatemono_1:floornum:floorht&bbox=139.740000000,35.660000000,139.760000000,35.680000000&gz=0
+// http://127.0.0.1/api/gis/getlayer?pool=hawk&stores=C:/ms4w/ms4w/Apache/htdocs/nigata/public/maps/shape/&layers=tatemono_v&bbox=139.740000000,35.660000000,139.760000000,35.680000000&gz=0&gty=POINT
 
+// http://127.0.0.1/cgi-bin/DFCgi.exe?vrml=apartment_4.wrl
 class Controller_Api_Gis extends Controller_Apibase {
     public function before() {
         $this->auth = false;
@@ -59,10 +61,8 @@ class Controller_Api_Gis extends Controller_Apibase {
         	$content_length = 9;// shaptype clen numshapes
         }
 
-        //int sig = reader->readLongLSB();  9850 
         $sig = $this->pack_int32s_le(9850);
         $out_content_size = $out_content_size + 4;
-        //numLayers = reader->readLongLSB();
         $numlayers = $this->pack_int32s_le(1);
         $out_content_size = $out_content_size + 4;
 
@@ -72,88 +72,88 @@ class Controller_Api_Gis extends Controller_Apibase {
         	$shape_type = $this -> getShapeType($geomtype);
         }
 
-        //stype = reader->read();
         $out_stype = $this->pack_byte($shape_type);
         $out_content_size = $out_content_size + 1;
-		//clen = reader->readLongLSB();
-		//  content len  take off 5 for shape type and clen
-		//memcpy(hdr+1,&altdl,4);
         $out_clen = $this->pack_int32s_le($content_length); 
         $out_content_size = $out_content_size + 4;
         
-        // numshapes = reader->readLongLSB();
         $out_numshape = $this->pack_int32s_le($rcount);
         $out_content_size = $out_content_size + 4;
-		// _nAtts = reader->readLongLSB();
         $out_att_count = $this->pack_int32s_le($att_count);
         $out_content_size = $out_content_size + 4;
-        //for(j=0;j<_nAtts;j++){
-		//	_att_size[j] = reader->readLongLSB(); reader->memCopy(_atts[j][k], 0 , _att_size[k]);
-		//}
         $out_att_sizes = array();
         for($j=0;$j<$att_count;$j++){
         	$out_att_sizes[] = $this->pack_int32s_le($ATTRIBUTE_LENGTH);
         	$out_content_size = $out_content_size + 4;
         }
 		
-		//for(j=0;j<numshapes;j++){
-		$shpbin = array();
-		for($j=0;$j<$rcount;$j++){
-			//	_shapeIds[j] = reader->readLongLSB();
-			$shpbin[] = $this->pack_int32s_le($result[$j]['gid'] + 0);
-			$out_content_size = $out_content_size + 4;
+        $shpbin = array();
+        if ( $shape_type == 1 || $shape_type == 11 ) {
+            for($j=0;$j<$rcount;$j++){
+                $shpbin[] = $this->pack_int32s_le($result[$j]['gid'] + 0);
+                $out_content_size = $out_content_size + 4;
 
-			$geom_obj = json_decode($result[$j]['gjson'], true);
-			$coords = $geom_obj['coordinates'];
-			$bounds = $this -> getShapeBounds($coords);
-			//	_sbounds[j][0] = reader->readDoubleLSB();
-			//	_sbounds[j][1] = reader->readDoubleLSB();
-			//	_sbounds[j][2] = reader->readDoubleLSB();
-			//	_sbounds[j][3] = reader->readDoubleLSB();
-			for($k=0;$k<count($bounds);$k++){
-				$shpbin[] =  $this->pack_double_le($bounds[$k]);
-				$out_content_size = $out_content_size + 8;
-			}
+                $geom_obj = json_decode($result[$j]['gjson'], true);
+                $coords = $geom_obj['coordinates'];
+                for($k=0;$k<count($coords);$k++) {
+                    $shpbin[] = $this->pack_double_le($coords[$k]);
+                    $out_content_size = $out_content_size + 8;
+                }
+                for( $k=0;$k<$att_count; $k++ ) {
+                    $shpbin[] = $this -> pack_str( $result[$j][$layer_arr[$k+1]] , $ATTRIBUTE_LENGTH );
+                    $out_content_size = $out_content_size + $ATTRIBUTE_LENGTH;
+                }
+            }
+        }
+        else {
+    		for($j=0;$j<$rcount;$j++){
+    			//	_shapeIds[j] = reader->readLongLSB();
+    			$shpbin[] = $this->pack_int32s_le($result[$j]['gid'] + 0);
+    			$out_content_size = $out_content_size + 4;
 
-			//	_nParts[j] = reader->readLongLSB();
-			$shpbin[] = $this->pack_int32s_le(count($coords));
-			$out_content_size = $out_content_size + 4;
+    			$geom_obj = json_decode($result[$j]['gjson'], true);
+    			$coords = $geom_obj['coordinates'];
+    			$bounds = $this -> getShapeBounds($coords);
+    			for($k=0;$k<count($bounds);$k++){
+    				$shpbin[] = $this->pack_double_le($bounds[$k]);
+    				$out_content_size = $out_content_size + 8;
+    			}
 
-			//	_nPoints[j] = reader->readLongLSB();
-			$nPoints = $this->countShapePoints($coords);
-			$shpbin[] = $this->pack_int32s_le($nPoints);
-			$out_content_size = $out_content_size + 4;
+    			$shpbin[] = $this->pack_int32s_le(count($coords));
+    			$out_content_size = $out_content_size + 4;
 
-			//for(k=0;k<_nParts[j];k++){
-			//	_parts[j][k] = reader->readLongLSB();
-			$partn = 0;
-			for($k=0;$k<count($coords);$k++){
-				$shpbin[] = $this->pack_int32s_le($partn);
-				$partn = count($coords[$k]); // start of next part
-				$out_content_size = $out_content_size + 4;
-			}
+    			$nPoints = $this->countShapePoints($coords);
+    			$shpbin[] = $this->pack_int32s_le($nPoints);
+    			$out_content_size = $out_content_size + 4;
+
+    			$partn = 0;
+    			for($k=0;$k<count($coords);$k++){
+    				$shpbin[] = $this->pack_int32s_le($partn);
+    				$partn = count($coords[$k]); // start of next part
+    				$out_content_size = $out_content_size + 4;
+    			}
 
 
-			for($a=0;$a<count($coords);$a++) {
-        		for($b=0;$b<count($coords[$a]);$b++) {
-        			//		tmpx = reader->readDoubleLSB();
-					//		tmpy = reader->readDoubleLSB();
-        			$shpbin[] = $this->pack_double_le($coords[$a][$b][0]);
-        			$shpbin[] = $this->pack_double_le($coords[$a][$b][1]);
-        			$out_content_size = $out_content_size + 16;
-        		}
-        	}
-			
-			for( $k=0;$k<$att_count; $k++ ) {
-				$shpbin[] = $this -> pack_str( $result[$j][$layer_arr[$k+1]] , $ATTRIBUTE_LENGTH );
-				$out_content_size = $out_content_size + $ATTRIBUTE_LENGTH;
-			}
-		}
+    			for($a=0;$a<count($coords);$a++) {
+            		for($b=0;$b<count($coords[$a]);$b++) {
+            			//		tmpx = reader->readDoubleLSB();
+    					//		tmpy = reader->readDoubleLSB();
+            			$shpbin[] = $this->pack_double_le($coords[$a][$b][0]);
+            			$shpbin[] = $this->pack_double_le($coords[$a][$b][1]);
+            			$out_content_size = $out_content_size + 16;
+            		}
+            	}
+                for( $k=0;$k<$att_count; $k++ ) {
+                    $shpbin[] = $this -> pack_str( $result[$j][$layer_arr[$k+1]] , $ATTRIBUTE_LENGTH );
+                    $out_content_size = $out_content_size + $ATTRIBUTE_LENGTH;
+                }
+    		}
+        }
+
 
 		header("Content-type: application/esrishp");
 		header("Content-length: " . $out_content_size );
 
-		#echo $out_content_size;
 		echo $sig;
 		echo $numlayers;
 		echo $out_stype;
