@@ -1,10 +1,3 @@
-/*
-Range Slider Widget
-(c) Schien Dong, Antradar Software Inc.
-
-License: www.antradar.com/license
-Documentation: www.antradar.com/docs-range-slider-widget
-*/
 
 strippx=function(v){return parseInt(v.replace('px',''),10);}
 

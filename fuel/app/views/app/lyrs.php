@@ -7,7 +7,6 @@
 
 <script type="text/javascript" src="/js/jquery.js" ></script>
 <script type="text/javascript" src="/js/nano.js" ></script>
-<script type="text/javascript" src="/js/sliders.js" ></script>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -111,6 +110,19 @@ function setVrml(objid , vrmlfile, layer, tname, cdate, points) {
 
     openPanel('editbldpanelv' , 'editpanelcontent');
     setEditVrml(vrmlobj_id, geom);
+}
+
+function updateTFM() {
+    var dragonfly = parent.frames["dragonfmap"].dragonfly;
+
+    var s = document.getElementById('vrmlscale').value / 100;
+    var x = document.getElementById('vrmlxrot').value;
+    var y = document.getElementById('vrmlyrot').value;
+    var z = document.getElementById('vrmlzrot').value;
+
+    var tfstr = "S:"+s+","+s+","+s+";R:"+x+",1,0,0;R:"+y+",0,1,0;R:"+z+",0,0,1";
+    parent.frames["dragonfmap"].dragonfly.setShapeLayerProperty("CREATED_0","DLTRANSFORMSHAPE",tfstr);
+
 }
 
 function uploadVrml() {
@@ -668,9 +680,47 @@ function setDataRange(  ) {
         return (newDate.getTime()/1000);
     }
 }
-
 </script>
 
+<script>
+
+strippx=function(v){return parseInt(v.replace('px',''),10);}
+
+dragslider=function(d,container,width,min,max,val){
+        var oldx=strippx(d.style.left);
+        var dragging=false;
+        var ox,posx,x;
+        
+        var margin=12; //cursor margin
+        var cw=10; //cursor width
+        
+        if (self.event&&event.touches) event.preventDefault();
+        
+        d.onmousemove=function(e){
+            if (e) x=e.screenX; else x=event.screenX;
+            if (self.event&&event.touches) x=e.touches[0].screenX;
+            
+            if (!dragging){ox=x;dragging=true;return;}
+            
+            posx=oldx+x-ox;
+            if (posx<0-margin-cw/2) posx=0-margin-cw/2;
+            if (posx>width-margin-cw/2) posx=width-margin-cw/2;
+            d.style.left=posx+'px'; 
+            gid(container).value=Math.round((posx+margin+cw/2)*(max-min)/width)+min;
+            updateTFM();      
+        }
+        d.ontouchmove=d.onmousemove;
+        
+        d.onmouseup=function(){
+            d.onmousemove=null;d.ontouchmove=null;  
+            document.onmousemove=null; document.onmouseup=null;
+            updateTFM();
+        }
+        document.onmousemove=d.onmousemove; document.onmouseup=d.onmouseup;
+        d.ontouchend=d.onmouseup;
+}
+
+</script>
 <style>
 body{
 background-color:#788880;
@@ -925,13 +975,15 @@ color:#F6FEFE;
                 <div id="editbldpanelv" class="editpanelcontent" >
                     <table>
                         <tr>
-                            <td>
+                            <td colspan="3">
                                 WRL:<input type="text" name="editwrlfile" id="editwrlfile" value="" readonly="readonly"/>
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                Scale
+                                縮尺
+                            </td>
+                            <td>
                                 <br>
     <div style="position:relative;width:150px;padding-bottom:20px;">
         <div style="border-left:solid 1px #b0b0b0;border-top:solid 1px #b0b0b0;margin-top:5px;font-size:1px;height:3px;">
@@ -939,31 +991,65 @@ color:#F6FEFE;
         </div>
         <div ontouchstart="dragslider(this,'vrmlscale',150,1,1000,100);" 
         onmousedown="dragslider(this,'vrmlscale',150,1,1000,100);" 
-        style="position:absolute;top:-15px;left:50px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
+        style="position:absolute;top:-15px;left:<?= ((100-1)*150/(1000-1)-12-5); ?>px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
+        <!--  -->
     
-    </div>
-<input id="vrmlscale" value="50">
-                            
+    </div> 
+                            </td>
+                            <td>
+                                <input id="vrmlscale" value="100" type="text" style="width:30px;" onchange="updateTFM()"> %
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                Xrot
-                                <input type="text" style="width:30px;" id="vrmlxrot" value="0" />
+                                X軸
+                            </td>
+                            <td>
+    <div style="position:relative;width:150px;padding-bottom:20px;">
+        <div style="border-left:solid 1px #b0b0b0;border-top:solid 1px #b0b0b0;margin-top:5px;font-size:1px;height:3px;">
+            <div style="border-top:solid 2px #e7eaea;"></div>
+        </div>
+        <div ontouchstart="dragslider(this,'vrmlxrot',150,0,360,0);" 
+        onmousedown="dragslider(this,'vrmlxrot',150,0,360,0);" 
+        style="position:absolute;top:-15px;left:<?= (-12-5); ?>px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
+    </div> 
+                            </td>
+                            <td>
+                                <input type="text" style="width:30px;" id="vrmlxrot" value="0" onchange="updateTFM()" />°
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                Yrot
-                                <input type="text" style="width:30px;" id="vrmlyrot" value="0" />
+                                Y軸
+                            </td>
+                            <td>
+    <div style="position:relative;width:150px;padding-bottom:20px;">
+        <div style="border-left:solid 1px #b0b0b0;border-top:solid 1px #b0b0b0;margin-top:5px;font-size:1px;height:3px;">
+            <div style="border-top:solid 2px #e7eaea;"></div>
+        </div>
+        <div ontouchstart="dragslider(this,'vrmlyrot',150,0,360,0);" 
+        onmousedown="dragslider(this,'vrmlyrot',150,0,360,0);" 
+        style="position:absolute;top:-15px;left:<?= (-12-5); ?>px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
+    </div> 
+                            </td>
+                            <td><input type="text" style="width:30px;" id="vrmlyrot" value="0" onchange="updateTFM()"/>°
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                Zrot
-                                <input type="text" style="width:30px;" id="vrmlzrot" value="0" />
-                                </div>
+                                Z軸
                             </td>
+                            <td>
+    <div style="position:relative;width:150px;padding-bottom:20px;">
+        <div style="border-left:solid 1px #b0b0b0;border-top:solid 1px #b0b0b0;margin-top:5px;font-size:1px;height:3px;">
+            <div style="border-top:solid 2px #e7eaea;"></div>
+        </div>
+        <div ontouchstart="dragslider(this,'vrmlzrot',150,0,360,0);" 
+        onmousedown="dragslider(this,'vrmlzrot',150,0,360,0);" 
+        style="position:absolute;top:-15px;left:<?= (-12-5); ?>px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
+    </div> 
+                            </td>
+                            <td><input type="text" style="width:30px;" id="vrmlzrot" value="0" onchange="updateTFM()"/>°</td>
                         </tr>
                     </table>
                 </div>
