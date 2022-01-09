@@ -6,6 +6,8 @@
 
 
 <script type="text/javascript" src="/js/jquery.js" ></script>
+<script type="text/javascript" src="/js/nano.js" ></script>
+<script type="text/javascript" src="/js/sliders.js" ></script>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -68,6 +70,14 @@ function init(){
 	openPanel('addobjectdiv', 'panelcontent');
 }
 
+var step = 100;
+
+function setPathData(path, value) {
+    var firstStep = 6 / step * value;
+    var secondStep = 2 / step * value;
+    path.attr('d', 'M1,' + (7 - firstStep) + ' C6.33333333,' + (2 + secondStep) + ' 11.6666667,' + (1 + firstStep) + ' 17,' + (1 + firstStep) + ' C22.3333333,' + (1 + firstStep) + ' 27.6666667,' + (2 + secondStep) + ' 33,' + (7 - firstStep));
+}
+
 function setDesign( design_id ) {
 	document.getElementById('new_design_id').value=design_id;
 	document.getElementById('edit_design_id').value=design_id;
@@ -89,8 +99,8 @@ function setVrml(objid , vrmlfile, layer, tname, cdate, points) {
     editlayer = layer;
 
     var dragonfly = parent.frames["dragonfmap"].dragonfly;
-    var wx = dragonfly.getWorldX();
-    var wy = dragonfly.getWorldY();
+    var wx = dragonfly.getCenterX();
+    var wy = dragonfly.getCenterY();
     var geom = vrmlobj_id + ";" + wx + "," + wy + ";" + vrmlobj_file + ";" + vrmlobj_file;
     openTab('tablink2', 'tabdiv2');
     openPanel('editobjectdiv', 'panelcontent');
@@ -105,7 +115,9 @@ function setVrml(objid , vrmlfile, layer, tname, cdate, points) {
 
 function uploadVrml() {
     let params = "scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=600,height=500,left=100,top=100";
-    window.open('vrmlup?vrmlid='+vrmlobj_id , 'design',params);
+    //window.open('vrmlup?vrmlid='+vrmlobj_id , 'design',params);
+
+    setVrml(6 , 'obj_6.wrl', 'tatemono_v', 'bld', '2022-01-01', '');
 }
 
 function newGeom(lyr) {
@@ -253,14 +265,15 @@ function setEditVrml(id, geom) {
     dragonfly.setShapeLayerProperty("CREATED_0","SRID","4612");
     dragonfly.setShapeLayerProperty("CREATED_0","MAXSCALE","0");
     dragonfly.setShapeLayerProperty("CREATED_0","LIFTHT","0");
+    dragonfly.setShapeLayerProperty("CREATED_0","SYMBOLFILETYPE","VRML");
+    dragonfly.setShapeLayerProperty("CREATED_0","SYMBOLS", "/cgi-bin/DFCgi.exe?vrml=");
+    dragonfly.setShapeLayerProperty("CREATED_0","SYMBOLATTDESC","NAME");
+    dragonfly.setShapeLayerProperty("CREATED_0","LABELSCALE", "40");
     dragonfly.setShapeLayerProperty("CREATED_0","DLSHAPECOUNT","1");
     dragonfly.setShapeLayerProperty("CREATED_0","DLSETEDITSHAPEINDEX","0");
     dragonfly.setShapeLayerProperty("CREATED_0","DLSETHLPOINTINDEX","-1");
     dragonfly.setShapeLayerProperty("CREATED_0","DLINSERTSHAPE",geom);
     dragonfly.setShapeLayerProperty("CREATED_0","DEPTH","OFF");
-    dragonfly.setShapeLayerProperty("CREATED_0","SYMBOLFILETYPE","VRML");
-    dragonfly.setShapeLayerProperty("CREATED_0","SYMBOLS", "/cgi-bin/DFCgi.exe?vrml=");
-
 }
 
 function setEditShape( id, geom ) {
@@ -919,21 +932,37 @@ color:#F6FEFE;
                         <tr>
                             <td>
                                 Scale
+                                <br>
+    <div style="position:relative;width:150px;padding-bottom:20px;">
+        <div style="border-left:solid 1px #b0b0b0;border-top:solid 1px #b0b0b0;margin-top:5px;font-size:1px;height:3px;">
+            <div style="border-top:solid 2px #e7eaea;"></div>
+        </div>
+        <div ontouchstart="dragslider(this,'vrmlscale',150,1,1000,100);" 
+        onmousedown="dragslider(this,'vrmlscale',150,1,1000,100);" 
+        style="position:absolute;top:-15px;left:50px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
+    
+    </div>
+<input id="vrmlscale" value="50">
+                            
                             </td>
                         </tr>
                         <tr>
                             <td>
                                 Xrot
+                                <input type="text" style="width:30px;" id="vrmlxrot" value="0" />
                             </td>
                         </tr>
                         <tr>
                             <td>
                                 Yrot
+                                <input type="text" style="width:30px;" id="vrmlyrot" value="0" />
                             </td>
                         </tr>
                         <tr>
                             <td>
                                 Zrot
+                                <input type="text" style="width:30px;" id="vrmlzrot" value="0" />
+                                </div>
                             </td>
                         </tr>
                     </table>
