@@ -348,7 +348,7 @@ class Controller_Hawkeye extends Controller
         $result = "";
         $layer = isset( $post["layer"] ) ? $post["layer"] : "tatemono_v";
         $action = isset( $post["action"] ) ? $post["action"] : "";
-        $vrml_id = isset( $post["vrmlid"] ) ? $post["vrmlid"] : "-1";
+        $vrml_id = isset( $post["vrmlid"] ) ? $post["vrmlid"]+0 : -1;
         $vfname = "";
         $points = "";
         $cdate = "";
@@ -369,21 +369,50 @@ class Controller_Hawkeye extends Controller
                 $filepath = APPPATH.'data/' . $vrmlfile['name'];
                 $dfolder = DOCROOT.'/maps/shape/vrml/';
 
-              	$cdate = date('Y-m-d H:i');
-                $query = DB::insert($layer);
-	            $query -> set(array( 'tname' => 'upload' ,
-		            'create_date' => $cdate,
-		            'create_ts' => strtotime($cdate),
-		            'update_ts' => time(),
-		        	'wkb_geometry' => db::expr("ST_GeomFromText('POINT(100.0 5.0)',4612)") ));
-	            $vrmlobj = $query->execute();
-	            $vrml_id = $vrmlobj[0];
+
+                if( $vrml_id >= 0 ) {
+                	$query = DB::select('*' , db::expr("ST_AsGeoJSON(wkb_geometry) gjson"));
+		            $query -> from($layer);
+		            $query -> where('gid' , $vrml_id);
+		            $result = $query->execute()->as_array();
+		            if( count($result) > 0 ) {
+		            	
+		            	$geom = json_decode($result[0]['gjson'], true);
+			            $type = $geom['type'];
+			            $coords = $geom['coordinates'];
+			            $points = $coords[0] . " " . $coords[1];
+			            $tfm = $result[0]["tfm"];
+			            $cdate = $result[0]["create_date"];
+			            $tname = $result[0]["tname"];
+		            }
+		            else {
+		            	$vrml_id = -1;
+		            }
+                }
+
+                if( $vrml_id == -1 ) {
+
+
+	              	$cdate = date('Y-m-d H:i');
+	                $query = DB::insert($layer);
+		            $query -> set(array( 'tname' => 'upload' ,
+			            'create_date' => $cdate,
+			            'create_ts' => strtotime($cdate),
+			            'update_ts' => time(),
+			        	'wkb_geometry' => db::expr("ST_GeomFromText('POINT(100.0 5.0)',4612)") ));
+		            $vrmlobj = $query->execute();
+		            $vrml_id = $vrmlobj[0];
+	        	}
 
 	            $vfname = "obj_" . $vrml_id . ".wrl";
 
             	if( file_exists($dfolder . $vfname) )
                 {
                     unlink($dfolder . $vfname);
+                }
+                if( file_exists($dfolder . $vfname . ".blob") )
+                {
+                    unlink($dfolder . $vfname . ".blob");
                 }
                 File::copy( $filepath , $dfolder . $vfname);
 
@@ -393,8 +422,9 @@ class Controller_Hawkeye extends Controller
                 $query->execute();
             	$result = "complete";
             }
-
         }
+
+
 
         $views = array();
         $views['result'] = $result;

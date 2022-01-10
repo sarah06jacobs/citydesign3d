@@ -22,6 +22,9 @@ function closeWin() {
 <body onload="init();">
     <form action="" method="post" enctype="multipart/form-data">
     <input type="hidden" name="action" value="upload" />
+    <input type="hidden" name="vrmlid" value="<?= $vrml_id ?>" />
+    <input type="hidden" name="layer" value="<?= $layer ?>" />
+    
     <TABLE id="dataTable" width="350px" border="1">
         <TR>
             <TD> WRLファイル： </TD>

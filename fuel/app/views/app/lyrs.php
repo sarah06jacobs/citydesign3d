@@ -207,9 +207,16 @@ function updateTFMSliders()
     document.getElementById('vrmlrotzpuck').style.left = ((document.getElementById('vrmlzrot').value-rmin)*width/(rmax-rmin)-margin-cw/2) + "px";
 }
 
+function changeVrml() {
+    var vid = vrmlobj_id;
+    stopEdit();
+    let params = "scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=600,height=500,left=100,top=100";
+    window.open('vrmlup?vrmlid='+vid , 'design',params);
+}
+
 function uploadVrml() {
     let params = "scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=600,height=500,left=100,top=100";
-    window.open('vrmlup?vrmlid='+vrmlobj_id , 'design',params);
+    window.open('vrmlup?vrmlid=-1' , 'design',params);
 
     //setVrml(6 , 'obj_6.wrl', 'tatemono_v', 'bld', '2022-01-01', '');
 }
@@ -1136,8 +1143,8 @@ color:#F6FEFE;
                 <div id="editbldpanelv" class="editpanelcontent" >
                     <table>
                         <tr>
-                            <td colspan="3">
-                                WRL:<input type="text" name="editwrlfile" id="editwrlfile" value="" readonly="readonly"/>
+                            <td colspan="4">
+                                WRL:<input type="text" name="editwrlfile" id="editwrlfile" value="" readonly="readonly"/> <input type="button" onclick="changeVrml()" value="変更"/>
                             </td>
                         </tr>
                         <tr>

@@ -275,20 +275,35 @@ class Controller_Api_City extends Controller_Apibase {
         $result = $query->execute()->as_array();
         if( count( $result ) > 0 ) {
             // design?
-            $designid = $result[0]["designid"]+0;
-            if($designid > 0) {
-                $query = db::delete('design_base');
-                $query -> where('design_id' , $designid);
-                $query -> execute();
+            if (array_key_exists('designid', $result[0])) {
+                $designid = $result[0]["designid"]+0;
+                if($designid > 0) {
+                    $query = db::delete('design_base');
+                    $query -> where('design_id' , $designid);
+                    $query -> execute();
 
-                $query = db::delete('design_item');
-                $query -> where('design_id' , $designid);
-                $query -> execute();
+                    $query = db::delete('design_item');
+                    $query -> where('design_id' , $designid);
+                    $query -> execute();
 
-                $dfolder = DOCROOT.'/assets/design/rc_' . $designid . '/';
-                if( file_exists($dfolder) )
+                    $dfolder = DOCROOT.'/assets/design/rc_' . $designid . '/';
+                    if( file_exists($dfolder) )
+                    {
+                        File::delete_dir($dfolder);
+                    }
+                }
+            }
+            if (array_key_exists('wrl', $result[0])) {
+                $wrlfile = $result[0]['wrl'];
+                $dfolder = DOCROOT.'/maps/shape/vrml/';
+                $vfname = "obj_" . $result[0]['gid'] . ".wrl";
+                if( file_exists($dfolder . $vfname) )
                 {
-                    File::delete_dir($dfolder);
+                    unlink($dfolder . $vfname);
+                }
+                if( file_exists($dfolder . $vfname . ".blob") )
+                {
+                    unlink($dfolder . $vfname . ".blob");
                 }
             }
         }
