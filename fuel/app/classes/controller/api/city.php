@@ -101,41 +101,50 @@ class Controller_Api_City extends Controller_Apibase {
         $obj_arr = array();
         for($i=0;$i<count($result);$i++) {
             $geom = json_decode($result[$i]['gjson'], true);
+            $type = $geom['type'];
             $coords = $geom['coordinates'];
-            $coords = $coords[0]; // first part
             unset($result[$i]['gjson']);
             unset($result[$i]['wkb_geometry']);
-            $coord_obj_arr = array();
             
             $coordstr = "";
-            for($j=0;$j<count($coords);$j++) {
-                $ptstr = "";
-                for($k=0;$k<count($coords[$j]);$k++) {
-                    if ( $k==0 ) {
-                        $ptstr = $coords[$j][$k];
+            
+            if( $type === "Point" ) {
+                $coordstr = $coords[0] . " " . $coords[1];
+                $geomstr = $result[$i]['gid'] . ";" . $coordstr;
+                $coord_obj_arr = $coords;
+            }
+            else {
+                $coords = $coords[0]; // first part
+                $coord_obj_arr = array();
+                for($j=0;$j<count($coords);$j++) {
+                    $ptstr = "";
+                    for($k=0;$k<count($coords[$j]);$k++) {
+                        if ( $k==0 ) {
+                            $ptstr = $coords[$j][$k];
+                        }
+                        else {
+                            $ptstr = $ptstr . "," . $coords[$j][$k];
+                        }
+                    }
+
+                    if(( $j < (count($coords)-1) ) || ( $coords[0][0] != $coords[count($coords)-1][0] && $coords[0][1] != $coords[count($coords)-1][1]  )) {
+                        if (count($coords[$j]) == 2) {
+                            $coord_obj_arr[] = array("x" => $coords[$j][0], "y" => $coords[$j][1]);
+                        }
+                        else if (count($coords[$j]) >= 3){
+                            $coord_obj_arr[] = array("x" => $coords[$j][0], "y" => $coords[$j][1] , "z" => $coords[$j][2]);
+                        }
+                    }
+
+                    if ($coordstr === "") {
+                        $coordstr = $ptstr;
                     }
                     else {
-                        $ptstr = $ptstr . "," . $coords[$j][$k];
+                        $coordstr = $coordstr . " " . $ptstr;
                     }
                 }
-
-                if(( $j < (count($coords)-1) ) || ( $coords[0][0] != $coords[count($coords)-1][0] && $coords[0][1] != $coords[count($coords)-1][1]  )) {
-                    if (count($coords[$j]) == 2) {
-                        $coord_obj_arr[] = array("x" => $coords[$j][0], "y" => $coords[$j][1]);
-                    }
-                    else if (count($coords[$j]) >= 3){
-                        $coord_obj_arr[] = array("x" => $coords[$j][0], "y" => $coords[$j][1] , "z" => $coords[$j][2]);
-                    }
-                }
-
-                if ($coordstr === "") {
-                    $coordstr = $ptstr;
-                }
-                else {
-                    $coordstr = $coordstr . " " . $ptstr;
-                }
+                $geomstr = $result[$i]['gid'] . ";1;" . ($result[$i]['floorht']*$result[$i]['floornum']) . ";" . $coordstr;
             }
-            $geomstr = $result[$i]['gid'] . ";1;" . ($result[$i]['floorht']*$result[$i]['floornum']) . ";" . $coordstr;
             // gid;numfl;flht;[x,y x,y ...]
             $result[$i]['geomstr'] = $geomstr;
             $result[$i]['geom'] = $coord_obj_arr;
@@ -166,6 +175,7 @@ class Controller_Api_City extends Controller_Apibase {
         $wallid = $json['wallid'];
         $tname = $json['tname'];
         $designid = $json['designid'];
+
         if( $designid === "" ) {
             $designid = "0";
         }
@@ -202,6 +212,43 @@ class Controller_Api_City extends Controller_Apibase {
             'update_ts' => time(),
             'designid' => $designid,
             'wkb_geometry' => db::expr("ST_GeomFromText('POLYGON(( ".$cstr." ))',4612)") ));
+        $query -> where('gid' , $id);
+        $query->execute();
+
+        $jresp = array();
+        $jresp['result'] = "OK";
+        $jresp['errors'] = $errors;
+        return Response::forge(json_encode($jresp) , 200);
+    }
+
+    function action_editvrml() {
+        $post = Input::post();
+        $get = Input::get();
+        $post = array_merge($get, $post);
+
+        $json = Input::json();
+        $errors = array();
+
+        $id = $json['id'];
+        $coords = $json['coords'];
+        $cdate = $json['date'];
+        $layer = $json['layer'];
+        $tname = $json['tname'];
+
+        $wrlfile = $json['wrlfile'];
+        $tfm = $json['tfm'];
+
+        $cstr = $coords['x'] . " " . $coords['y'];
+
+        $query = DB::update($layer);
+        $query->set(array(
+            'tname' => $tname,
+            'create_date' => $cdate,
+            'create_ts' => strtotime($cdate),
+            'update_ts' => time(),
+            'wrl' => $wrlfile,
+            'tfm' => $tfm,
+            'wkb_geometry' => db::expr("ST_GeomFromText('POINT( ".$cstr." )',4612)") ));
         $query -> where('gid' , $id);
         $query->execute();
 

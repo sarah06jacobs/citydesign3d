@@ -8,7 +8,7 @@
     if(opener) {
         // set design id if saved.
         <? if ( $result === "complete" ) { ?>
-        opener.setVrml('<?= $vrml_id; ?>' , '<?= $vfname; ?>' , '<?= $layer; ?>' , '<?= $tname; ?>', '<?= $cdate; ?>', '<?= $points; ?>' );
+        opener.setVrml('<?= $vrml_id; ?>' , '<?= $vfname; ?>' , '<?= $layer; ?>' , '<?= $tname; ?>', '<?= $cdate; ?>', '<?= $points; ?>' ,  '<?= $tfm; ?>');
         window.close();
         <? } ?>
     }

@@ -31,7 +31,7 @@ class Controller_Api_Gis extends Controller_Apibase {
         $geomtype = isset($post['gty']) ? $post['gty'] : "POLYGON";
         //$bbox = "139.7,35.6,139.8,35.7";
 
-        $ATTRIBUTE_LENGTH = 32;
+        $ATTRIBUTE_LENGTH = 64;
 
         $layer_arr = explode(':' , $layers);
         $bbox_arr = explode("," , $bbox);

@@ -137,4 +137,12 @@ class Controller_Apibase extends Controller_Base {
       return $bounds;
     }
 
+    public function alert($msg) {
+      $msg .= PHP_EOL;
+      $msg .= Input::uri() . PHP_EOL;
+      $msg .= print_r(Input::get() , true);
+      $msg .= print_r(Input::post() , true);
+      Log::warning($msg);
+    }
+
 }

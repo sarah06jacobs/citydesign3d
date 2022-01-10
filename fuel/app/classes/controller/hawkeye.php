@@ -352,6 +352,7 @@ class Controller_Hawkeye extends Controller
         $vfname = "";
         $points = "";
         $cdate = "";
+        $tfm = "";
         $tname = "upload0";
 
         if ($action === "upload") {
@@ -404,6 +405,7 @@ class Controller_Hawkeye extends Controller
         $views['tname'] = $tname;
         $views['cdate'] = $cdate;
         $views['points'] = $points;
+        $views['tfm'] = $tfm;
         return Response::forge(View::forge('app/vrmlup', $views));
     }
 

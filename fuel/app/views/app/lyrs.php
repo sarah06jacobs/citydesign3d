@@ -12,6 +12,24 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script language="javascript">
 
+
+var points = [];
+var bld_ht = 3;
+var edit_id = -1;
+var clickmode = 0;
+var editlayer = "";
+
+var layer_map = { lyr_1000: "tatemono_1" ,
+                lyr_1001: "tatemono_2" ,
+                lyr_2000: "tatemono_v"
+            };
+
+var step = 100;
+var vrmlobj_id = -1;
+var vrmlobj_file = "";
+var vrmlobj_tfm = "";
+var editType = 1; // 1 - building, 2- vrml
+
 function openPanel( pname , clname ) {
 	var i, pcontent;
 	pcontent = document.getElementsByClassName(clname);
@@ -36,11 +54,6 @@ function openTab(tabname, cityName) {
   document.getElementById(cityName).style.display = "block";
   document.getElementById(tabname).className += " active";
 }
-
-var layer_map = { lyr_1000: "tatemono_1" ,
-				lyr_1001: "tatemono_2" ,
-				lyr_2000: "tatemono_v"
-			};
 
 function setMapStatus(lid){
 	var lobj = document.getElementById("mlayer"+lid);
@@ -69,7 +82,7 @@ function init(){
 	openPanel('addobjectdiv', 'panelcontent');
 }
 
-var step = 100;
+
 
 function setPathData(path, value) {
     var firstStep = 6 / step * value;
@@ -90,17 +103,61 @@ function datestr() {
     return yyyy + "-" + mm + "-" + dd;
 }
 
-var vrmlobj_id = -1;
-var vrmlobj_file = "";
-function setVrml(objid , vrmlfile, layer, tname, cdate, points) {
+function setTFMForm() {
+    if( vrmlobj_tfm != "" ) {
+        tarr = vrmlobj_tfm.split(";");
+
+        for( var i=0;i<tarr.length;i++ ) {
+
+            farr = tarr[i].split(":");
+            varr = farr[1].split(",");
+            if( farr[0] === "S" ) {
+                var scl = varr[0];
+                document.getElementById('vrmlscale').value = parseInt(scl * 100);
+            }
+            else {
+                var rot = varr[0];
+                if( (varr[1]-0) == 1 ) { // X
+                    document.getElementById('vrmlxrot').value = rot;
+                }
+                if( (varr[2]-0) == 1 ) { // Y
+                    document.getElementById('vrmlyrot').value = rot;
+                }
+                if( (varr[3]-0) == 1 ) { // Z
+                    document.getElementById('vrmlzrot').value = rot;
+                }
+            }
+        }
+        updateTFMSliders();
+    }
+}
+
+
+function setVrml(objid , vrmlfile, layer, tname, cdate, point_str, tfm) {
     vrmlobj_id = objid;
+    edit_id = objid;
     vrmlobj_file = vrmlfile;
     editlayer = layer;
+    editType = 2;
+    vrmlobj_tfm = tfm;
 
+    setTFMForm();
     var dragonfly = parent.frames["dragonfmap"].dragonfly;
-    var wx = dragonfly.getCenterX();
-    var wy = dragonfly.getCenterY();
-    var geom = vrmlobj_id + ";" + wx + "," + wy + ";" + vrmlobj_file + ";" + vrmlobj_file;
+    var geom = "";
+
+    if( point_str === "" ) {
+        var wx = dragonfly.getCenterX();
+        var wy = dragonfly.getCenterY();
+        var geom = vrmlobj_id + ";" + wx + "," + wy + ";" + vrmlobj_file + ";" + vrmlobj_file;
+        var coord = { x: wx, z: 0, y: wy };
+        points = coord;
+    }
+    else {
+        parr = point_str.split(" ");
+        var geom = vrmlobj_id + ";" + parr[0] + "," + parr[1] + ";" + vrmlobj_file + ";" + vrmlobj_file;
+        var coord = { x: parr[0], z: 0, y: parr[1] };
+        points = coord;
+    }
     openTab('tablink2', 'tabdiv2');
     openPanel('editobjectdiv', 'panelcontent');
 
@@ -122,14 +179,39 @@ function updateTFM() {
 
     var tfstr = "S:"+s+","+s+","+s+";R:"+x+",1,0,0;R:"+y+",0,1,0;R:"+z+",0,0,1";
     parent.frames["dragonfmap"].dragonfly.setShapeLayerProperty("CREATED_0","DLTRANSFORMSHAPE",tfstr);
+    vrmlobj_tfm = tfstr;
+}
 
+function sliderKeyUp(obj) {
+    var v = obj.value;
+    if(!isNaN(v)) {
+        updateTFMSliders();
+    }
+}
+
+function updateTFMSliders()
+{
+    var smin = 1;
+    var smax = 1000;
+    var margin = 12;
+    var cw = 10;
+    var width = 150;
+
+    var rmin = 0;
+    var rmax = 360;
+
+    document.getElementById('vrmlscalepuck').style.left = ((document.getElementById('vrmlscale').value-smin)*width/(smax-smin)-margin-cw/2) + "px";
+
+    document.getElementById('vrmlrotxpuck').style.left = ((document.getElementById('vrmlxrot').value-rmin)*width/(rmax-rmin)-margin-cw/2) + "px";
+    document.getElementById('vrmlrotypuck').style.left = ((document.getElementById('vrmlyrot').value-rmin)*width/(rmax-rmin)-margin-cw/2) + "px";
+    document.getElementById('vrmlrotzpuck').style.left = ((document.getElementById('vrmlzrot').value-rmin)*width/(rmax-rmin)-margin-cw/2) + "px";
 }
 
 function uploadVrml() {
     let params = "scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=600,height=500,left=100,top=100";
-    //window.open('vrmlup?vrmlid='+vrmlobj_id , 'design',params);
+    window.open('vrmlup?vrmlid='+vrmlobj_id , 'design',params);
 
-    setVrml(6 , 'obj_6.wrl', 'tatemono_v', 'bld', '2022-01-01', '');
+    //setVrml(6 , 'obj_6.wrl', 'tatemono_v', 'bld', '2022-01-01', '');
 }
 
 function newGeom(lyr) {
@@ -161,11 +243,11 @@ function newGeom(lyr) {
     }
 }
 
-var points = [];
-var bld_ht = 3;
-var edit_id = -1;
-var clickmode = 0;
-var editlayer = "";
+function setPointCoord(outx, alt, outy, pi, isadd, iscw) {
+    var coord = { x: outx, z: alt, y: outy };
+    points = coord;
+}
+
 function setNewPolyCoord(outx, alt, outy, pi, isadd, iscw) {
 	var coord = { x: outx, z: alt, y: outy };
 	if ( isadd == 1 ) {
@@ -227,11 +309,12 @@ function itemClicked(id,layerid,inclusive) {
             		openPanel('editobjectdiv', 'panelcontent');
 
                     editlayer = json_data['layer'];
-            		points = objects[0]['geom'];
                     document.getElementById("editdate").value = objects[0]['create_date'];
             		document.getElementById("edittname").value = objects[0]['tname'];
 
                     if ( layerid < 2000 ) {
+                        editType = 1;
+                        points = objects[0]['geom'];
                         setWallImage(objects[0]['wallid']);
                 		document.getElementById("edit_design_id").value = objects[0]['designid'];
                 		bld_ht = objects[0]['floorht'] * objects[0]['floornum'];
@@ -248,6 +331,14 @@ function itemClicked(id,layerid,inclusive) {
                         // vrml
                         if( editlayer == "tatemono_v" ) {
 
+                            var coord = { x: objects[0]['geom'][0], z: 0, y: objects[0]['geom'][1] };
+                            points = coord;
+
+                            editType = 2;
+                            var geomstr = objects[0]['geomstr'];
+                            var garr = geomstr.split(";");
+
+                            setVrml(objects[0]['gid'] , objects[0]['wrl'], editlayer, objects[0]['tname'], objects[0]['create_date'], garr[1] , objects[0]['tfm']);
                         }
                     }
             	}
@@ -285,6 +376,7 @@ function setEditVrml(id, geom) {
     dragonfly.setShapeLayerProperty("CREATED_0","DLSETEDITSHAPEINDEX","0");
     dragonfly.setShapeLayerProperty("CREATED_0","DLSETHLPOINTINDEX","-1");
     dragonfly.setShapeLayerProperty("CREATED_0","DLINSERTSHAPE",geom);
+    dragonfly.setShapeLayerProperty("CREATED_0","DLTRANSFORMSHAPE",vrmlobj_tfm);
     dragonfly.setShapeLayerProperty("CREATED_0","DEPTH","OFF");
 }
 
@@ -360,6 +452,58 @@ function deleteObject() {
 }
 
 function saveEditObject() {
+    if (editType == 1) {
+
+        saveEditBuilding();
+    }
+    else if (editType == 2) {
+
+        saveEditVrml();
+    }
+}
+
+function saveEditVrml() {
+    var data = {
+        id: edit_id,
+        tname: document.getElementById("edittname").value,
+        date: document.getElementById("editdate").value,
+        coords: points,
+        layer: editlayer,
+        wrlfile: document.getElementById("editwrlfile").value,
+        tfm: vrmlobj_tfm
+    };
+
+    $.ajax({
+        type:"post",                // method = "POST"
+        url:"/api/city/editvrml",        // POST送信先のURL
+        //data: data,
+        data:JSON.stringify(data),  // JSONデータ本体
+        contentType: 'application/json', // リクエストの Content-Type
+        dataType: "json",           // レスポンスをJSONとしてパースする
+        success: function(json_data) {   // 200 OK時
+            // JSON Arrayの先頭が成功フラグ、失敗の場合2番目がエラーメッセージ
+            if (!json_data['result']) {    // サーバが失敗を返した場合
+                alert("Transaction error. " + json_data[1]);
+                return;
+            }
+            else {
+                clickmode = 1;
+                alert("オブジェクト編集完了しました。");
+            }
+            // 成功時処理
+        },
+        error: function() {         // HTTPエラー時
+            alert("Server Error. Please try again later.");
+        },
+        complete: function() {      // 成功・失敗に関わらず通信が終了した際の処理
+            stopEdit();
+            //button.attr("disabled", false);  // ボタンを再び enableにする
+        }
+    });
+}
+
+function saveEditBuilding() {
+
 	var data = {
 		id: edit_id,
 		tname: document.getElementById("edittname").value,
@@ -368,7 +512,9 @@ function saveEditObject() {
         ht: bld_ht,
         layer: editlayer,
         designid: document.getElementById("edit_design_id").value,
-        wallid: document.getElementById("wallidselect").value
+        wallid: document.getElementById("wallidselect").value,
+        wrlfile: document.getElementById("editwrlfile").value,
+        tfm: vrmlobj_tfm
     };
 
 	$.ajax({
@@ -407,7 +553,13 @@ function resetForms() {
 	document.getElementById("edit_design_id").value = "";
 	document.getElementById("newtname").value = "";
 	document.getElementById("edittname").value = "";
-	
+	document.getElementById("editwrlfile").value = "";
+
+    document.getElementById('vrmlscale').value = 100;
+    document.getElementById('vrmlxrot').value = 0;
+    document.getElementById('vrmlyrot').value = 0;
+    document.getElementById('vrmlzrot').value = 0;
+    updateTFMSliders();
 }
 
 function saveObject() {
@@ -456,7 +608,12 @@ function handleAction(val,shp,lyr) {
 
 function mapOutputCoords(outx,  alt, outy, li, si, pi, isadd, iscw) {
 	if ( li == 1000000 ) { // dragonfly add layer
-		setNewPolyCoord(outx, alt, outy, pi, isadd, iscw);
+        if (editType == 1) {
+            setNewPolyCoord(outx, alt, outy, pi, isadd, iscw);
+        }
+        else if (editType == 2) { // vrml
+            setPointCoord(outx, alt, outy, pi, isadd, iscw);
+        }
 	}
 }
 
@@ -473,6 +630,10 @@ function stopEdit() {
 	bld_ht = 3;
 	edit_id = -1;
 	editlayer = "";
+    vrmlobj_id = -1;
+    vrmlobj_file = "";
+    vrmlobj_tfm = "";
+    editType = 1;
 	resetForms();
 }
 
@@ -989,7 +1150,7 @@ color:#F6FEFE;
         <div style="border-left:solid 1px #b0b0b0;border-top:solid 1px #b0b0b0;margin-top:5px;font-size:1px;height:3px;">
             <div style="border-top:solid 2px #e7eaea;"></div>
         </div>
-        <div ontouchstart="dragslider(this,'vrmlscale',150,1,1000,100);" 
+        <div id="vrmlscalepuck" ontouchstart="dragslider(this,'vrmlscale',150,1,1000,100);" 
         onmousedown="dragslider(this,'vrmlscale',150,1,1000,100);" 
         style="position:absolute;top:-15px;left:<?= ((100-1)*150/(1000-1)-12-5); ?>px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
         <!--  -->
@@ -1009,7 +1170,7 @@ color:#F6FEFE;
         <div style="border-left:solid 1px #b0b0b0;border-top:solid 1px #b0b0b0;margin-top:5px;font-size:1px;height:3px;">
             <div style="border-top:solid 2px #e7eaea;"></div>
         </div>
-        <div ontouchstart="dragslider(this,'vrmlxrot',150,0,360,0);" 
+        <div id="vrmlrotxpuck" ontouchstart="dragslider(this,'vrmlxrot',150,0,360,0);" 
         onmousedown="dragslider(this,'vrmlxrot',150,0,360,0);" 
         style="position:absolute;top:-15px;left:<?= (-12-5); ?>px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
     </div> 
@@ -1027,7 +1188,7 @@ color:#F6FEFE;
         <div style="border-left:solid 1px #b0b0b0;border-top:solid 1px #b0b0b0;margin-top:5px;font-size:1px;height:3px;">
             <div style="border-top:solid 2px #e7eaea;"></div>
         </div>
-        <div ontouchstart="dragslider(this,'vrmlyrot',150,0,360,0);" 
+        <div id="vrmlrotypuck" ontouchstart="dragslider(this,'vrmlyrot',150,0,360,0);" 
         onmousedown="dragslider(this,'vrmlyrot',150,0,360,0);" 
         style="position:absolute;top:-15px;left:<?= (-12-5); ?>px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
     </div> 
@@ -1044,7 +1205,7 @@ color:#F6FEFE;
         <div style="border-left:solid 1px #b0b0b0;border-top:solid 1px #b0b0b0;margin-top:5px;font-size:1px;height:3px;">
             <div style="border-top:solid 2px #e7eaea;"></div>
         </div>
-        <div ontouchstart="dragslider(this,'vrmlzrot',150,0,360,0);" 
+        <div id="vrmlrotzpuck" ontouchstart="dragslider(this,'vrmlzrot',150,0,360,0);" 
         onmousedown="dragslider(this,'vrmlzrot',150,0,360,0);" 
         style="position:absolute;top:-15px;left:<?= (-12-5); ?>px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
     </div> 
