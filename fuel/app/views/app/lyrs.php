@@ -115,7 +115,7 @@ function setTFMForm() {
                 var scl = varr[0];
                 document.getElementById('vrmlscale').value = parseInt(scl * 100);
             }
-            else {
+            else if (farr[0] === "R") {
                 var rot = varr[0];
                 if( (varr[1]-0) == 1 ) { // X
                     document.getElementById('vrmlxrot').value = rot;
@@ -127,9 +127,17 @@ function setTFMForm() {
                     document.getElementById('vrmlzrot').value = rot;
                 }
             }
+            else if (farr[0] === "T") {
+                var tx = varr[0];
+                var ty = varr[1];
+                var tz = varr[2];
+                document.getElementById('vrmlxmove').value = tx;
+                document.getElementById('vrmlymove').value = ty;
+                document.getElementById('vrmlzmove').value = tz;
+            }
         }
-        updateTFMSliders();
     }
+    updateTFMSliders();
 }
 
 
@@ -173,11 +181,15 @@ function updateTFM() {
     var dragonfly = parent.frames["dragonfmap"].dragonfly;
 
     var s = document.getElementById('vrmlscale').value / 100;
-    var x = document.getElementById('vrmlxrot').value;
-    var y = document.getElementById('vrmlyrot').value;
-    var z = document.getElementById('vrmlzrot').value;
+    var x = document.getElementById('vrmlxrot').value-0;
+    var y = document.getElementById('vrmlyrot').value-0;
+    var z = document.getElementById('vrmlzrot').value-0;
 
-    var tfstr = "S:"+s+","+s+","+s+";R:"+x+",1,0,0;R:"+y+",0,1,0;R:"+z+",0,0,1";
+    var tx = document.getElementById('vrmlxmove').value-0;
+    var ty = document.getElementById('vrmlymove').value-0;
+    var tz = document.getElementById('vrmlzmove').value-0;
+    var tfstr = "S:"+s+","+s+","+s+";R:"+x+",1,0,0;R:"+y+",0,1,0;R:"+z+",0,0,1;T:"+tx+","+ty+","+tz;
+
     parent.frames["dragonfmap"].dragonfly.setShapeLayerProperty("CREATED_0","DLTRANSFORMSHAPE",tfstr);
     vrmlobj_tfm = tfstr;
 }
@@ -186,6 +198,7 @@ function sliderKeyUp(obj) {
     var v = obj.value;
     if(!isNaN(v)) {
         updateTFMSliders();
+        updateTFM();
     }
 }
 
@@ -200,11 +213,18 @@ function updateTFMSliders()
     var rmin = 0;
     var rmax = 360;
 
+    var mmin = -1000;
+    var mmax = 1000;
+
     document.getElementById('vrmlscalepuck').style.left = ((document.getElementById('vrmlscale').value-smin)*width/(smax-smin)-margin-cw/2) + "px";
 
     document.getElementById('vrmlrotxpuck').style.left = ((document.getElementById('vrmlxrot').value-rmin)*width/(rmax-rmin)-margin-cw/2) + "px";
     document.getElementById('vrmlrotypuck').style.left = ((document.getElementById('vrmlyrot').value-rmin)*width/(rmax-rmin)-margin-cw/2) + "px";
     document.getElementById('vrmlrotzpuck').style.left = ((document.getElementById('vrmlzrot').value-rmin)*width/(rmax-rmin)-margin-cw/2) + "px";
+
+    document.getElementById('vrmlmovexpuck').style.left = ((document.getElementById('vrmlxmove').value-mmin)*width/(mmax-mmin)-margin-cw/2) + "px";
+    document.getElementById('vrmlmoveypuck').style.left = ((document.getElementById('vrmlymove').value-mmin)*width/(mmax-mmin)-margin-cw/2) + "px";
+    document.getElementById('vrmlmovezpuck').style.left = ((document.getElementById('vrmlzmove').value-mmin)*width/(mmax-mmin)-margin-cw/2) + "px";
 }
 
 function changeVrml() {
@@ -566,6 +586,9 @@ function resetForms() {
     document.getElementById('vrmlxrot').value = 0;
     document.getElementById('vrmlyrot').value = 0;
     document.getElementById('vrmlzrot').value = 0;
+    document.getElementById('vrmlxmove').value = 0;
+    document.getElementById('vrmlymove').value = 0;
+    document.getElementById('vrmlzmove').value = 0;
     updateTFMSliders();
 }
 
@@ -1159,18 +1182,18 @@ color:#F6FEFE;
         </div>
         <div id="vrmlscalepuck" ontouchstart="dragslider(this,'vrmlscale',150,1,1000,100);" 
         onmousedown="dragslider(this,'vrmlscale',150,1,1000,100);" 
-        style="position:absolute;top:-15px;left:<?= ((100-1)*150/(1000-1)-12-5); ?>px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
+        style="position:absolute;top:-15px;left:0px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
         <!--  -->
     
     </div> 
                             </td>
                             <td>
-                                <input id="vrmlscale" value="100" type="text" style="width:30px;" onchange="updateTFM()"> %
+                                <input id="vrmlscale" value="100" type="text" style="width:30px;" onkeyup="sliderKeyUp(this)" onchange="updateTFM()"> %
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                X軸
+                                X軸回転
                             </td>
                             <td>
     <div style="position:relative;width:150px;padding-bottom:20px;">
@@ -1179,16 +1202,16 @@ color:#F6FEFE;
         </div>
         <div id="vrmlrotxpuck" ontouchstart="dragslider(this,'vrmlxrot',150,0,360,0);" 
         onmousedown="dragslider(this,'vrmlxrot',150,0,360,0);" 
-        style="position:absolute;top:-15px;left:<?= (-12-5); ?>px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
+        style="position:absolute;top:-15px;left:0px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
     </div> 
                             </td>
                             <td>
-                                <input type="text" style="width:30px;" id="vrmlxrot" value="0" onchange="updateTFM()" />°
+                                <input type="text" style="width:30px;" id="vrmlxrot" value="0" onchange="updateTFM()" onkeyup="sliderKeyUp(this)"/>°
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                Y軸
+                                Y軸回転
                             </td>
                             <td>
     <div style="position:relative;width:150px;padding-bottom:20px;">
@@ -1197,15 +1220,15 @@ color:#F6FEFE;
         </div>
         <div id="vrmlrotypuck" ontouchstart="dragslider(this,'vrmlyrot',150,0,360,0);" 
         onmousedown="dragslider(this,'vrmlyrot',150,0,360,0);" 
-        style="position:absolute;top:-15px;left:<?= (-12-5); ?>px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
+        style="position:absolute;top:-15px;left:0px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
     </div> 
                             </td>
-                            <td><input type="text" style="width:30px;" id="vrmlyrot" value="0" onchange="updateTFM()"/>°
+                            <td><input type="text" style="width:30px;" id="vrmlyrot" value="0" onchange="updateTFM()" onkeyup="sliderKeyUp(this)"/>°
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                Z軸
+                                Z軸回転
                             </td>
                             <td>
     <div style="position:relative;width:150px;padding-bottom:20px;">
@@ -1214,11 +1237,62 @@ color:#F6FEFE;
         </div>
         <div id="vrmlrotzpuck" ontouchstart="dragslider(this,'vrmlzrot',150,0,360,0);" 
         onmousedown="dragslider(this,'vrmlzrot',150,0,360,0);" 
-        style="position:absolute;top:-15px;left:<?= (-12-5); ?>px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
+        style="position:absolute;top:-15px;left:0px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
     </div> 
                             </td>
-                            <td><input type="text" style="width:30px;" id="vrmlzrot" value="0" onchange="updateTFM()"/>°</td>
+                            <td><input type="text" style="width:30px;" id="vrmlzrot" value="0" onchange="updateTFM()" onkeyup="sliderKeyUp(this)"/>°</td>
                         </tr>
+
+
+                        <tr>
+                            <td>
+                                X軸移動
+                            </td>
+                            <td>
+    <div style="position:relative;width:150px;padding-bottom:20px;">
+        <div style="border-left:solid 1px #b0b0b0;border-top:solid 1px #b0b0b0;margin-top:5px;font-size:1px;height:3px;">
+            <div style="border-top:solid 2px #e7eaea;"></div>
+        </div>
+        <div id="vrmlmovexpuck" ontouchstart="dragslider(this,'vrmlxmove',150,-1000,1000,0);" 
+        onmousedown="dragslider(this,'vrmlxmove',150,-1000,1000,0);" 
+        style="position:absolute;top:-15px;left:0px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
+    </div> 
+                            </td>
+                            <td><input type="text" style="width:30px;" id="vrmlxmove" value="0" onchange="updateTFM()" onkeyup="sliderKeyUp(this)"/>°</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Y軸移動
+                            </td>
+                            <td>
+    <div style="position:relative;width:150px;padding-bottom:20px;">
+        <div style="border-left:solid 1px #b0b0b0;border-top:solid 1px #b0b0b0;margin-top:5px;font-size:1px;height:3px;">
+            <div style="border-top:solid 2px #e7eaea;"></div>
+        </div>
+        <div id="vrmlmoveypuck" ontouchstart="dragslider(this,'vrmlymove',150,-1000,1000,0);" 
+        onmousedown="dragslider(this,'vrmlymove',150,-1000,1000,0);" 
+        style="position:absolute;top:-15px;left:0px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
+    </div> 
+                            </td>
+                            <td><input type="text" style="width:30px;" id="vrmlymove" value="0" onchange="updateTFM()" onkeyup="sliderKeyUp(this)"/>°</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Z軸移動
+                            </td>
+                            <td>
+    <div style="position:relative;width:150px;padding-bottom:20px;">
+        <div style="border-left:solid 1px #b0b0b0;border-top:solid 1px #b0b0b0;margin-top:5px;font-size:1px;height:3px;">
+            <div style="border-top:solid 2px #e7eaea;"></div>
+        </div>
+        <div id="vrmlmovezpuck" ontouchstart="dragslider(this,'vrmlzmove',150,-1000,1000,0);" 
+        onmousedown="dragslider(this,'vrmlzmove',150,-1000,1000,0);" 
+        style="position:absolute;top:-15px;left:0px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
+    </div> 
+                            </td>
+                            <td><input type="text" style="width:30px;" id="vrmlzmove" value="0" onchange="updateTFM()" onkeyup="sliderKeyUp(this)"/>°</td>
+                        </tr>
+
                     </table>
                 </div>
 			</td>
