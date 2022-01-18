@@ -57,7 +57,7 @@ class Controller_Api_City extends Controller_Apibase {
 
         $name = "BLDG_" . $mid;
 
-        $floors = (int)($ht / 3.0);
+        $floors = (int)($ht);
 
         $query = DB::insert($layer);
         $query->set(array( 'tname' => $name , 
@@ -65,6 +65,7 @@ class Controller_Api_City extends Controller_Apibase {
             'wallid' => $wallid,
             'tname' => $tname,
             'create_date' => $cdate,
+            'floorht' => '1',
             'create_ts' => strtotime($cdate),
             'update_ts' => time(),
             'designid' => $designid,
@@ -200,11 +201,12 @@ class Controller_Api_City extends Controller_Apibase {
             $cstr = $cstr . "," . $coords[0]['x'] . " " . $coords[0]['y'];
         }
 
-        $floors = (int)($ht / 3.0);
+        $floors = (int)($ht);
 
         $query = DB::update($layer);
         $query->set(array(
-            'floornum' => $floors , 
+            'floornum' => $floors,
+            'floorht' => '1', 
             'wallid' => $wallid,
             'tname' => $tname,
             'create_date' => $cdate,
@@ -399,6 +401,89 @@ class Controller_Api_City extends Controller_Apibase {
         $jresp = array();
         $jresp['lat'] = $oaza[0]['lat1'];
         $jresp['lon'] = $oaza[0]['lon1'];
+        
+        return Response::forge(json_encode($jresp) , 200);
+    }
+
+    public function action_getplaces() {
+        $post = Input::post();
+        $get = Input::get();
+        $post = array_merge($get, $post);
+
+        $json = Input::json();
+
+        $kw = $json["kw"];
+
+        $query = DB::select('*');
+        $query->from('places');
+        if( $kw !== "" ) {
+        $query->where('pname' , 'like' , "%$kw%");
+        }
+        $query->order_by('create_ts','desc');
+        $result = $query->execute()->as_array();
+        $jresp = array();
+        $jresp['list'] = $result;
+        
+        return Response::forge(json_encode($jresp) , 200);
+    }
+
+    public function action_deleteplace() {
+        $post = Input::post();
+        $get = Input::get();
+        $post = array_merge($get, $post);
+
+        $json = Input::json();
+
+        $places_id = $json["places_id"];
+
+        $query = DB::delete('places');
+        $query->where('places_id' ,$places_id );
+        $query->execute();
+
+        $query = DB::select('*');
+        $query->from('places');
+        $query->order_by('create_ts','desc');
+        $result = $query->execute()->as_array();
+        $jresp = array();
+        $jresp['list'] = $result;
+        
+        return Response::forge(json_encode($jresp) , 200);
+    }
+
+    public function action_addplace() {
+        $post = Input::post();
+        $get = Input::get();
+        $post = array_merge($get, $post);
+
+        $json = Input::json();
+
+        $pname = $json["pname"];
+        $wy = $json["wy"];
+        $wx = $json["wx"];
+        $alt = $json["alt"];
+        $pitch = $json["pitch"];
+        $dir = $json["dir"];
+
+        $url = "?wx=$wx&wy=$wy&alt=$alt&pitch=$pitch&dir=$dir";
+
+        $query = DB::insert('places');
+        $query->set(array(
+            'pname' => $pname , 
+            'lon' => $wx,
+            'lat' => $wy,
+            'alt' => $alt,
+            'pitch' => $pitch,
+            'dir' => $dir,
+            'url' => $url,
+            'create_ts' => time()));
+        $query->execute();
+
+        $query = DB::select('*');
+        $query->from('places');
+        $query->order_by('create_ts','desc');
+        $result = $query->execute()->as_array();
+        $jresp = array();
+        $jresp['list'] = $result;
         
         return Response::forge(json_encode($jresp) , 200);
     }

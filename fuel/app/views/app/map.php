@@ -28,9 +28,15 @@ function init(){
 	  
 	  dragonfly.sendParameterString(pstr);
 	  dragonfly.sendMessage("StartDataThreads");
-	  //dragonfly.setCameraMapPos(139.774883522,35.6426525309,20000,-90,0);
-
-	  dragonfly.setCameraMapPos(139.766,35.68,10000,-90,0);
+	  setTimeout(function()
+      {
+      	dragonfly.setCameraMapPos(<?= $wx; ?>,<?= $wy; ?>,<?= $alt; ?>, -90 , <?= $dir; ?>);
+      		setTimeout(function()
+		      {
+		      	dragonfly.setCameraMapPos(<?= $wx; ?>,<?= $wy; ?>,<?= $alt; ?>, <?= $pitch; ?> , <?= $dir; ?>);
+		      } , 1000);
+      } , 5);
+	  
 }
 
 function handleAction(val,shp,lyr) {

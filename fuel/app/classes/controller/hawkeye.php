@@ -30,7 +30,14 @@ class Controller_Hawkeye extends Controller
 	public function action_index()
 	{
             $get = Input::get();
-            return Response::forge(View::forge('app/index'));
+
+            $views = array();
+            $views['wx'] = isset($get["wx"]) ? $get["wx"] : Config::get('top_lon');
+            $views['wy'] = isset($get["wy"]) ? $get["wy"] : Config::get('top_lat');
+            $views['alt'] = isset($get["alt"]) ? $get["alt"] : Config::get('top_alt');
+            $views['pitch'] = isset($get["pitch"]) ? $get["pitch"] : Config::get('top_pitch');
+            $views['dir'] = isset($get["dir"]) ? $get["dir"] : Config::get('top_dir');
+            return Response::forge(View::forge('app/index' , $views));
 	}
 
 	public function action_map()
@@ -38,6 +45,11 @@ class Controller_Hawkeye extends Controller
             $get = Input::get();
             $views = array();
             $views['host'] = $_SERVER['SERVER_ADDR'];
+            $views['wx'] = isset($get["wx"]) ? $get["wx"] : Config::get('top_lon');
+            $views['wy'] = isset($get["wy"]) ? $get["wy"] : Config::get('top_lat');
+            $views['alt'] = isset($get["alt"]) ? $get["alt"] : Config::get('top_alt');
+            $views['pitch'] = isset($get["pitch"]) ? $get["pitch"] : Config::get('top_pitch');
+            $views['dir'] = isset($get["dir"]) ? $get["dir"] : Config::get('top_dir');
             return Response::forge(View::forge('app/map' , $views));
 	}
 
@@ -46,6 +58,11 @@ class Controller_Hawkeye extends Controller
             $get = Input::get();
             $views = array();
             
+            $query = DB::select('*');
+	        $query->from('places');
+	        $query->order_by('create_ts','desc');
+	        $places = $query->execute()->as_array();
+	        $views['places'] = $places;
             
             $query = DB::select('*');
             $query -> from('addr_pref');
@@ -54,6 +71,7 @@ class Controller_Hawkeye extends Controller
             
             $views["prefecture"] = $prefecture;
             $views["wallcount"] = Config::get('wallcount') + 0;
+            $views['host'] = $_SERVER['SERVER_ADDR'];
             return Response::forge(View::forge('app/lyrs', $views));
 	}
         

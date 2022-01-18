@@ -29,6 +29,48 @@ var vrmlobj_id = -1;
 var vrmlobj_file = "";
 var vrmlobj_tfm = "";
 var editType = 1; // 1 - building, 2- vrml
+var panelOpen = 1;
+var panelWidth = 270;
+function togglePanel() {
+    if( panelOpen == 1 ) {
+        document.getElementById("contenttop").style.visibility = "hidden";
+        document.getElementById("footerbutton").value="＞";
+        panelOpen = 0;
+        timer=setInterval(
+        function()
+        {
+          if(panelWidth<=30){
+              clearTimeout(timer);
+              panelWidth = 30;
+              parent.frames["topframe"].setAttribute('cols','30,*');
+          }
+          else  {
+            panelWidth -= 30;
+              parent.frames["topframe"].setAttribute('cols',(panelWidth)+',*');
+         }
+        }
+        ,2);
+    }
+    else {
+        document.getElementById("contenttop").style.visibility = "visible";
+        document.getElementById("footerbutton").value="＜";
+        timer=setInterval(
+        function()
+        {
+          if(panelWidth>=270){
+              clearTimeout(timer);
+              panelWidth = 270;
+              parent.frames["topframe"].setAttribute('cols','270,*');
+          }
+          else  {
+            panelWidth += 30;
+              parent.frames["topframe"].setAttribute('cols',(panelWidth)+',*');
+         }
+        }
+        ,2);
+        panelOpen = 1;
+    }
+}
 
 function openPanel( pname , clname ) {
 	var i, pcontent;
@@ -741,6 +783,175 @@ function removeSelectOpts(name)
     }
 }
 
+function filterPlaces() {
+    var kw = document.getElementById('searchplacename').value;
+
+    var data = {
+        kw: kw
+    };
+
+    $.ajax({
+        type:"post",                // method = "POST"
+        url:"/api/city/getplaces",        // POST送信先のURL
+        data:JSON.stringify(data),  // JSONデータ本体
+        contentType: 'application/json', // リクエストの Content-Type
+        dataType: "json",           // レスポンスをJSONとしてパースする
+        success: function(json_data) {   // 200 OK時
+            // JSON Arrayの先頭が成功フラグ、失敗の場合2番目がエラーメッセージ
+            if (!json_data['list']) {    // サーバが失敗を返した場合
+                alert("Transaction error. ");
+                return;
+            }
+            else {
+                var list = json_data['list'];
+                reloadPlaces(list);
+            }
+            // 成功時処理
+        },
+        error: function() {         // HTTPエラー時
+            alert("Server Error. Please try again later.");
+        },
+        complete: function() {      // 成功・失敗に関わらず通信が終了した際の処理
+        }
+    });
+}
+
+function gotoPlace(wx,wy,alt,pitch,dir) {
+    var dragonfly = parent.frames["dragonfmap"].dragonfly;
+    dragonfly.setCameraMapPos(wx,wy,alt,pitch,dir);
+}
+
+function reloadPlaces(list) {
+    var rootdiv = document.getElementById('placeslist');
+    rootdiv.innerHTML = "";
+    rootdiv.appendChild(document.createElement("br"));
+    for ( var i=0; i<list.length; i++ ) {
+        var obj = list[i];
+        var span = document.createElement("span");
+        span.id = "place" + obj['places_id'];
+        span.setAttribute("style" ,"width:150px;height:30px;outline-color:lightgrey;outline-style: solid;outline-width: 1px;margin-left: 2px;margin-top: 2px;display: inline-block;padding: 3px;");
+        span.setAttribute("onclick","gotoPlace("+obj['lon']+","+obj['lat']+","+obj['alt']+","+obj['pitch']+","+obj['dir']+");");
+        span.innerHTML = obj['pname'];
+        rootdiv.appendChild(span);
+
+        var span3 = document.createElement("span");
+        span3.innerHTML = "&nbsp;";
+        rootdiv.appendChild(span3);
+
+        var at = document.createElement("a");
+        at.setAttribute("onclick","placeToCB('"+obj['url']+"');");
+        at.setAttribute("style" ,"color:green;text-decoration: none;");
+        at.innerHTML = "url";
+        rootdiv.appendChild(at);
+
+        var span2 = document.createElement("span");
+        span2.innerHTML = "&nbsp;";
+        rootdiv.appendChild(span2);
+
+        var at2 = document.createElement("a");
+        at2.setAttribute("onclick","deletePlace('"+obj['places_id']+"');");
+        at2.setAttribute("style" ,"color:red;text-decoration: none;");
+        at2.innerHTML = "削除";
+        rootdiv.appendChild(at2);
+        
+        rootdiv.appendChild(document.createElement("br"));
+    }
+}
+
+function placeToCB(url) {
+    var base = "<?= $host; ?>/hawkeye/";
+    alert( base + url );
+    var text = base + url;
+    if (window.clipboardData) { // Internet Explorer
+        window.clipboardData.setData("Text", text);
+    } else {
+        unsafeWindow.netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+        const clipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].getService(Components.interfaces.nsIClipboardHelper);
+        clipboardHelper.copyString(text);
+    }
+}
+
+function deletePlace(id) {
+    var data = {
+        places_id: id
+    };
+
+    $.ajax({
+        type:"post",                // method = "POST"
+        url:"/api/city/deleteplace",        // POST送信先のURL
+        data:JSON.stringify(data),  // JSONデータ本体
+        contentType: 'application/json', // リクエストの Content-Type
+        dataType: "json",           // レスポンスをJSONとしてパースする
+        success: function(json_data) {   // 200 OK時
+            // JSON Arrayの先頭が成功フラグ、失敗の場合2番目がエラーメッセージ
+            if (!json_data['list']) {    // サーバが失敗を返した場合
+                alert("Transaction error. ");
+                return;
+            }
+            else {
+                document.getElementById('searchplacename').value = "";
+                document.getElementById('newplacename').value = "";
+                var list = json_data['list'];
+                reloadPlaces(list);
+            }
+            // 成功時処理
+        },
+        error: function() {         // HTTPエラー時
+            alert("Server Error. Please try again later.");
+        },
+        complete: function() {      // 成功・失敗に関わらず通信が終了した際の処理
+        }
+    });
+}
+
+function addPlace() {
+    var pname = document.getElementById('newplacename').value;
+
+    if(pname == '') {
+        alert("名前を入力してください。");
+        return;
+    }
+
+    var dragonfly = parent.frames["dragonfmap"].dragonfly;
+    
+    var data = {
+        pname: pname,
+        wx : dragonfly.getWorldX(),
+        wy : dragonfly.getWorldY(),
+        alt : dragonfly.getWorldALT(),
+        pitch : dragonfly.getPitchDegrees(),
+        dir : dragonfly.getDirectionDegrees()
+    };
+
+    $.ajax({
+        type:"post",                // method = "POST"
+        url:"/api/city/addplace",        // POST送信先のURL
+        data:JSON.stringify(data),  // JSONデータ本体
+        contentType: 'application/json', // リクエストの Content-Type
+        dataType: "json",           // レスポンスをJSONとしてパースする
+        success: function(json_data) {   // 200 OK時
+            // JSON Arrayの先頭が成功フラグ、失敗の場合2番目がエラーメッセージ
+            if (!json_data['list']) {    // サーバが失敗を返した場合
+                alert("Transaction error. ");
+                return;
+            }
+            else {
+                document.getElementById('searchplacename').value = "";
+                document.getElementById('newplacename').value = "";
+                var list = json_data['list'];
+                reloadPlaces(list);
+            }
+            // 成功時処理
+        },
+        error: function() {         // HTTPエラー時
+            alert("Server Error. Please try again later.");
+        },
+        complete: function() {      // 成功・失敗に関わらず通信が終了した際の処理
+        }
+    });
+
+}
+
 function changeCity(obj) {
 	if (obj.value == -1) {
 		removeSelectOpts('oazaselect');
@@ -917,6 +1128,15 @@ body{
 background-color:#788880;
 font-color:#F6FEFE;
 color:#F6FEFE;
+display: flex;
+flex-direction: column;
+}
+
+html, body {
+  height: 100%;
+}
+.content {
+  flex: 1 0 auto;
 }
 
 
@@ -966,11 +1186,15 @@ color:#F6FEFE;
 .editpanelcontent {
     display: none;
 }
+.footer {
+  flex-shrink: 0;
+}
 
 </style>
 </HEAD>
 <BODY leftmargin="1" rightmargin="1" topmargin="1" bottommargin="1" onload="init();">
 
+<div class="content" id="contenttop">
 
 <div class="tab">
   <button id="tablink1" class="tablinks" onclick="openTab('tablink1', 'tabdiv1');">レイヤー</button>
@@ -1353,10 +1577,33 @@ color:#F6FEFE;
         </tr>
         
     </table>
- 
-	
+    <hr>
+    <h4>
+    気に入り場所登録</h4>
+    <input type="textbox" value="" id="newplacename" style="width:150px">
+    <input type="button" id="footerbutton" onclick="addPlace();" value="登録"><br>
+    <br>
+    filter:<br>
+    <input type="textbox" value="" id="searchplacename" style="width:200px" onkeyup="filterPlaces();"> 
+    <br>
+    <div id="placeslist" style="overflow-y:scroll; height:450px;width:250px;">
+        <br>
+        <? foreach ($places as $place) { ?>
+        <span id="place<?= $place['places_id'] ?>" style="width:150px;height:30px;outline-color:lightgrey;outline-style: solid;outline-width: 1px;margin-left: 2px;margin-top: 2px;display: inline-block;padding: 3px;" 
+            onclick="gotoPlace(<?= $place['lon']; ?>,<?= $place['lat']; ?>,<?= $place['alt']; ?>,<?= $place['pitch']; ?>,<?= $place['dir']; ?>);"> <?= $place['pname'] ?> </span>
+            <span>&nbsp;</span>
+        <a style="color:green;text-decoration: none;" onclick="placeToCB('<?= $place['url']; ?>');">url</a>
+        <span>&nbsp;</span>
+        <a style="color:red;text-decoration: none;" onclick="deletePlace('<?= $place['places_id']; ?>');">削除</a>
+        <br>
+        <? } ?>
+	</div>
 </div>
 
 </form>
+</div>
+<footer class="footer" style="text-align: right;width:100%;">
+    <input type="button" id="footerbutton" onclick="togglePanel();" value="＜">
+</footer>
 </BODY>
 </HTML>

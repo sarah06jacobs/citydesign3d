@@ -39,3 +39,18 @@ SELECT AddGeometryColumn('tatemono_v ', 'wkb_geometry', 4612, 'POINT', 2 );
 CREATE INDEX tatemono_v_geom_idx ON tatemono_v USING gist (wkb_geometry);
 
 INSERT INTO tatemono_v (tname,wrl,wkb_geometry) VALUES ('test1', 'apartment_4.wrl',ST_GeomFromText('POINT(139.76 35.68)',4612));
+
+
+
+CREATE TABLE public.places
+(
+    places_id serial NOT NULL,
+    pname varchar(2048),
+    lat double precision DEFAULT 0,
+    lon double precision DEFAULT 0,
+    alt double precision DEFAULT 0,
+    pitch double precision DEFAULT 0,
+    dir double precision DEFAULT 0,
+    url varchar(2048),
+    create_ts bigint NOT NULL
+);

@@ -13,6 +13,12 @@
 return array(
 	'wallcount' => '3',
 	'walltexw' => '10',
+	'top_lon' => 139.766,
+	'top_lat' => 35.68,
+	'top_alt' => 10000,
+	'top_pitch' => -90,
+	'top_dir' => 0,
+
 	/**
 	 * -------------------------------------------------------------------------
 	 *  The base URL of the application
