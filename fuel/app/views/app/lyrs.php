@@ -1014,7 +1014,7 @@ function changeOaza(obj) {
 
     $.ajax({
         type:"post",                // method = "POST"
-        url:"/api/city/addroaza",        // POST送信先のURL
+        url:"/api/city/addraza",        // POST送信先のURL
         data:JSON.stringify(data),  // JSONデータ本体
         contentType: 'application/json', // リクエストの Content-Type
         dataType: "json",           // レスポンスをJSONとしてパースする
@@ -1028,7 +1028,7 @@ function changeOaza(obj) {
                 var lat = json_data["lat"];
                 var lon = json_data["lon"];
                 var dragonfly = parent.frames["dragonfmap"].dragonfly;
-                dragonfly.addAutoFly(" -dest "+lon+" 1000 "+ lat +" -etilt -90 -delay 0" );
+                dragonfly.addAutoFly(" -dest "+lon+" 800 "+ lat +" -etilt -90 -delay 0" );
             }
             // 成功時処理
         },
@@ -1082,6 +1082,7 @@ function setDataRange(  ) {
         return (newDate.getTime()/1000);
     }
 }
+
 </script>
 
 <script>
@@ -1207,7 +1208,6 @@ html, body {
 	<table width="100%">
 		<tr><td colspan="2" style="border-bottom:black solid 1px;"><b>Layers</b></td></tr>
 	</table>
-		<form>
 	<table>
 	<tr>
 		<td width="10px">&nbsp; </td>
@@ -1583,6 +1583,7 @@ html, body {
     <input type="textbox" value="" id="newplacename" style="width:150px">
     <input type="button" id="footerbutton" onclick="addPlace();" value="登録"><br>
     <br>
+    <form id="placescsvform" action="placescsv" method="post">
     filter:<br>
     <input type="textbox" value="" id="searchplacename" style="width:200px" onkeyup="filterPlaces();"> 
     <br>
@@ -1598,9 +1599,11 @@ html, body {
         <br>
         <? } ?>
 	</div>
+    
+        <input type="submit" value="CSVダウンロード" />
+    </form>
 </div>
 
-</form>
 </div>
 <footer class="footer" style="text-align: right;width:100%;">
     <input type="button" id="footerbutton" onclick="togglePanel();" value="＜">

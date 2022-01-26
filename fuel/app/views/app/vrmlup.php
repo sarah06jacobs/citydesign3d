@@ -32,6 +32,28 @@ function closeWin() {
             </TD>
             
         </TR>
+        <TR>
+            <TD> 点群XML ファイル： </TD>
+            <TD> <input name="tengunfile" type="file" />  
+            </TD>
+            
+        </TR>
+        <TR>
+            <TD> 点群 頂点削減： </TD>
+            <TD> 
+               点(n) %  <select name="skip">
+                    <option value=0>0</option>
+                    <option value=2>2</option>
+                    <option value=4>4</option>
+                    <option value=5>5</option>
+                    <option value=8>8</option>
+                    <option value=10>10</option>
+                    <option value=20>20</option>
+                    <option value=100>100</option>
+                </select> 含む  
+            </TD>
+            
+        </TR>
     </TABLE>
     <input type="submit" value="アップロード" name="submit" /> &nbsp; <input type="button" value="キャンセル" onclick="closeWin()" />
     </form>

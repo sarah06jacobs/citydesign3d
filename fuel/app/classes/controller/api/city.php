@@ -394,7 +394,7 @@ class Controller_Api_City extends Controller_Apibase {
         $query = DB::select('*');
         $query -> from('addr_oaza');
         $query -> where('pref_code' , $pref_code);
-        $query -> where('city_code' , $pref_code);
+        $query -> where('city_code' , $city_code);
         $query -> where('oaza_code' , $oaza_code);
         $oaza = $query->execute()->as_array();
         

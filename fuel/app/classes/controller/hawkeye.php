@@ -74,6 +74,32 @@ class Controller_Hawkeye extends Controller
             $views['host'] = $_SERVER['SERVER_ADDR'];
             return Response::forge(View::forge('app/lyrs', $views));
 	}
+
+	public function action_placescsv()
+	{
+		$get = Input::get();
+        $views = array();
+
+        $searchplacename = isset($post["searchplacename"]) ? $post["searchplacename"] : "";
+        $query = DB::select('*');
+        $query->from('places');
+        //if( $searchplacename !== "" ) {
+        //	$query->where('pname' , 'like' , "%$searchplacename%");
+        //}
+        $query->order_by('create_ts','desc');
+        $places = $query->execute()->as_array();
+
+        $views['filename'] = "places-" . date("Y-m-d") . ".csv";
+
+        for($i=0;$i<count($places);$i++) {
+        	$places[$i]['url'] = 'http://' . $_SERVER['SERVER_ADDR'] . '/hawkeye/' . $places[$i]['url'];
+        	$places[$i]['url'] = str_replace("&amp;","&",$places[$i]['url']);
+        }
+
+        $views['list'] = $places;
+
+        return Response::forge(View::forge('app/csvfile', $views));
+	}
         
     public function action_design()
 	{
@@ -367,6 +393,7 @@ class Controller_Hawkeye extends Controller
         $layer = isset( $post["layer"] ) ? $post["layer"] : "tatemono_v";
         $action = isset( $post["action"] ) ? $post["action"] : "";
         $vrml_id = isset( $post["vrmlid"] ) ? $post["vrmlid"]+0 : -1;
+        $skip = isset( $post["skip"] ) ? $post["skip"]+0 : 0;
         $vfname = "";
         $points = "";
         $cdate = "";
@@ -376,18 +403,16 @@ class Controller_Hawkeye extends Controller
         if ($action === "upload") {
         	$config = array(
 			    'path' => APPPATH.'data',
-			    'ext_whitelist' => array('png','jpg','jpeg','gif','wrl')
+			    'ext_whitelist' => array('png','jpg','jpeg','gif','wrl','xml')
 			);
 			Upload::process($config);
 			Upload::save();
 
+			$tengunfile = Upload::get_files('tengunfile');
 			$vrmlfile = Upload::get_files('vrmlfile');
-	            
-            if( count($vrmlfile) > 0 ) {
-                $filepath = APPPATH.'data/' . $vrmlfile['name'];
-                $dfolder = DOCROOT.'/maps/shape/vrml/';
 
-
+            if( count($vrmlfile) > 0 || count($tengunfile) > 0 ) {
+                echo "add <br>";
                 if( $vrml_id >= 0 ) {
                 	$query = DB::select('*' , db::expr("ST_AsGeoJSON(wkb_geometry) gjson"));
 		            $query -> from($layer);
@@ -409,8 +434,6 @@ class Controller_Hawkeye extends Controller
                 }
 
                 if( $vrml_id == -1 ) {
-
-
 	              	$cdate = date('Y-m-d H:i');
 	                $query = DB::insert($layer);
 		            $query -> set(array( 'tname' => 'upload' ,
@@ -423,8 +446,10 @@ class Controller_Hawkeye extends Controller
 	        	}
 
 	            $vfname = "obj_" . $vrml_id . ".wrl";
+	            echo "vname $vfname<br>";
 
-            	if( file_exists($dfolder . $vfname) )
+                $dfolder = DOCROOT.'/maps/shape/vrml/';
+                if( file_exists($dfolder . $vfname) )
                 {
                     unlink($dfolder . $vfname);
                 }
@@ -432,7 +457,15 @@ class Controller_Hawkeye extends Controller
                 {
                     unlink($dfolder . $vfname . ".blob");
                 }
-                File::copy( $filepath , $dfolder . $vfname);
+
+                if( count($tengunfile) > 0 ) {
+					// convert to vrml
+					$this -> convertxmltovrml($tengunfile , $dfolder . $vfname, $skip);
+				}
+				else if ( count($vrmlfile) > 0 ) {
+					$filepath = APPPATH.'data/' . $vrmlfile['name'];
+	                File::copy( $filepath , $dfolder . $vfname);
+				}
 
                 $query = DB::update($layer);
                 $query -> set(array( 'wrl' => $vfname));
@@ -441,8 +474,6 @@ class Controller_Hawkeye extends Controller
             	$result = "complete";
             }
         }
-
-
 
         $views = array();
         $views['result'] = $result;
@@ -496,5 +527,70 @@ class Controller_Hawkeye extends Controller
 	public function action_404()
 	{
 		return Response::forge(Presenter::forge('welcome/404'), 404);
+	}
+
+	public function convertxmltovrml($tengunfile, $vfname, $skip=0) {
+		$filepath = APPPATH.'data/' . $tengunfile['name'];
+		$xml = simplexml_load_file($filepath);
+
+		if( file_exists($vfname) )
+        {
+            unlink($vfname);
+        }
+		
+		/*
+#VRML V2.0 utf8
+#PointSet example
+
+    Shape {
+	  geometry PointSet {
+		coord Coordinate {
+                    point [
+				-1.0 -1.0 0.0,
+				1.0 1.0 0.0,
+				0.0 0.0 0.0,
+                    ]
+                }
+                color Color {
+                    color [
+                        1.0 0.0 0.0,
+				0.0 1.0 0.0,
+                        0.0 0.0 1.0,
+                    ]
+         		}
+       }
+    }
+		*/
+
+		$fp = fopen($vfname, 'w');
+		fwrite($fp, '#VRML V2.0 utf8' . PHP_EOL);
+		fwrite($fp, 'Shape {' . PHP_EOL);
+
+		foreach ( $xml->CgPoints as $pset ) {
+			fwrite($fp, '  geometry PointSet {' . PHP_EOL);
+			fwrite($fp, '    coord Coordinate {' . PHP_EOL);
+			fwrite($fp, '    point [' . PHP_EOL);
+			$pinx = 0;
+			foreach ( $pset->CgPoint as $point ) {
+				if( ($pinx % $skip ) == 0 ) {
+					fwrite($fp,$point . "," . PHP_EOL);
+				}
+				$pinx = $pinx + 1;
+			}
+			fwrite($fp, '    ]' . PHP_EOL); // close point
+			fwrite($fp, '    }' . PHP_EOL); // close Coordinate
+
+			//fwrite($fp, '    color Color {' . PHP_EOL);
+			//fwrite($fp, '    color [' . PHP_EOL);
+			//foreach ( $pset->CgPoint as $point ) {
+			//	fwrite($fp,"1.0 0.0 0.0," . PHP_EOL);
+			//}
+			//fwrite($fp, '    ]' . PHP_EOL); // close color
+			//fwrite($fp, '    }' . PHP_EOL); // close Color
+
+			fwrite($fp, '  }' . PHP_EOL); // close pointset
+		}
+		fwrite($fp, '}' . PHP_EOL); // close shape
+		fclose($fp);
 	}
 }
