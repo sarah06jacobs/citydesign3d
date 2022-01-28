@@ -34,9 +34,13 @@ class Controller_Hawkeye extends Controller
             $views = array();
             $views['wx'] = isset($get["wx"]) ? $get["wx"] : Config::get('top_lon');
             $views['wy'] = isset($get["wy"]) ? $get["wy"] : Config::get('top_lat');
+            $views['cx'] = isset($get["cx"]) ? $get["cx"] : Config::get('top_clon');
+            $views['cy'] = isset($get["cy"]) ? $get["cy"] : Config::get('top_clat');
             $views['alt'] = isset($get["alt"]) ? $get["alt"] : Config::get('top_alt');
             $views['pitch'] = isset($get["pitch"]) ? $get["pitch"] : Config::get('top_pitch');
             $views['dir'] = isset($get["dir"]) ? $get["dir"] : Config::get('top_dir');
+
+            $views['out'] = isset($get["out"]) ? $get["out"] : Config::get('top_out');
             return Response::forge(View::forge('app/index' , $views));
 	}
 
@@ -47,9 +51,13 @@ class Controller_Hawkeye extends Controller
             $views['host'] = $_SERVER['SERVER_ADDR'];
             $views['wx'] = isset($get["wx"]) ? $get["wx"] : Config::get('top_lon');
             $views['wy'] = isset($get["wy"]) ? $get["wy"] : Config::get('top_lat');
+            $views['cx'] = isset($get["cx"]) ? $get["cx"] : Config::get('top_clon');
+            $views['cy'] = isset($get["cy"]) ? $get["cy"] : Config::get('top_clat');
             $views['alt'] = isset($get["alt"]) ? $get["alt"] : Config::get('top_alt');
             $views['pitch'] = isset($get["pitch"]) ? $get["pitch"] : Config::get('top_pitch');
             $views['dir'] = isset($get["dir"]) ? $get["dir"] : Config::get('top_dir');
+
+            $views['out'] = isset($get["out"]) ? $get["out"] : Config::get('top_out');
             return Response::forge(View::forge('app/map' , $views));
 	}
 
@@ -572,7 +580,7 @@ class Controller_Hawkeye extends Controller
 			fwrite($fp, '    point [' . PHP_EOL);
 			$pinx = 0;
 			foreach ( $pset->CgPoint as $point ) {
-				if( ($pinx % $skip ) == 0 ) {
+				if( ($skip == 0) || ($pinx % $skip ) == 0 ) {
 					fwrite($fp,$point . "," . PHP_EOL);
 				}
 				$pinx = $pinx + 1;

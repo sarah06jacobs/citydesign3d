@@ -816,9 +816,19 @@ function filterPlaces() {
     });
 }
 
-function gotoPlace(wx,wy,alt,pitch,dir) {
+function gotoPlace(wx,wy,cx,cy,alt,pitch,dir,out) {
     var dragonfly = parent.frames["dragonfmap"].dragonfly;
-    dragonfly.setCameraMapPos(wx,wy,alt,pitch,dir);
+    
+    var isEarth = dragonfly.isDisplayEarth();
+    if( isEarth == 1 ) {
+        dragonfly.setCameraMapPos(cx,cy,alt,pitch,dir);
+        dragonfly.setCenterMapPos(cx,cy);
+        dragonfly.SetPropertyD(36,out);
+    }
+    else {
+        dragonfly.setCameraMapPos(wx,wy,alt,pitch,dir);
+    }
+    
 }
 
 function reloadPlaces(list) {
@@ -830,7 +840,7 @@ function reloadPlaces(list) {
         var span = document.createElement("span");
         span.id = "place" + obj['places_id'];
         span.setAttribute("style" ,"width:150px;height:30px;outline-color:lightgrey;outline-style: solid;outline-width: 1px;margin-left: 2px;margin-top: 2px;display: inline-block;padding: 3px;");
-        span.setAttribute("onclick","gotoPlace("+obj['lon']+","+obj['lat']+","+obj['alt']+","+obj['pitch']+","+obj['dir']+");");
+        span.setAttribute("onclick","gotoPlace("+obj['lon']+","+obj['lat']+","  + obj['center_lon']+","+obj['center_lat']+ "," +obj['alt']+","+obj['pitch']+","+obj['dir']+","+obj['out']+");");
         span.innerHTML = obj['pname'];
         rootdiv.appendChild(span);
 
@@ -918,9 +928,13 @@ function addPlace() {
         pname: pname,
         wx : dragonfly.getWorldX(),
         wy : dragonfly.getWorldY(),
+        cx : dragonfly.getCenterX(),
+        cy : dragonfly.getCenterY(),
         alt : dragonfly.getWorldALT(),
         pitch : dragonfly.getPitchDegrees(),
-        dir : dragonfly.getDirectionDegrees()
+        dir : dragonfly.getDirectionDegrees(),
+        out : dragonfly.getWorldOut(),
+        lift : dragonfly.getCameraLift()
     };
 
     $.ajax({
@@ -1591,7 +1605,7 @@ html, body {
         <br>
         <? foreach ($places as $place) { ?>
         <span id="place<?= $place['places_id'] ?>" style="width:150px;height:30px;outline-color:lightgrey;outline-style: solid;outline-width: 1px;margin-left: 2px;margin-top: 2px;display: inline-block;padding: 3px;" 
-            onclick="gotoPlace(<?= $place['lon']; ?>,<?= $place['lat']; ?>,<?= $place['alt']; ?>,<?= $place['pitch']; ?>,<?= $place['dir']; ?>);"> <?= $place['pname'] ?> </span>
+            onclick="gotoPlace(<?= $place['lon']; ?>,<?= $place['lat']; ?>,<?= $place['center_lon']; ?>,<?= $place['center_lat']; ?>,<?= $place['alt']; ?>,<?= $place['pitch']; ?>,<?= $place['dir']; ?>, <?= $place['out']; ?>);"> <?= $place['pname'] ?> </span>
             <span>&nbsp;</span>
         <a style="color:green;text-decoration: none;" onclick="placeToCB('<?= $place['url']; ?>');">url</a>
         <span>&nbsp;</span>

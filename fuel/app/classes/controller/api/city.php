@@ -460,11 +460,15 @@ class Controller_Api_City extends Controller_Apibase {
         $pname = $json["pname"];
         $wy = $json["wy"];
         $wx = $json["wx"];
+        $cy = $json["cy"];
+        $cx = $json["cx"];
         $alt = $json["alt"];
         $pitch = $json["pitch"];
         $dir = $json["dir"];
 
-        $url = "?wx=$wx&wy=$wy&alt=$alt&pitch=$pitch&dir=$dir";
+        $out = $json["out"];
+
+        $url = "?wx=$wx&wy=$wy&cx=$cx&cy=$cy&alt=$alt&pitch=$pitch&dir=$dir&out=$out";
 
         $query = DB::insert('places');
         $query->set(array(
@@ -475,6 +479,9 @@ class Controller_Api_City extends Controller_Apibase {
             'pitch' => $pitch,
             'dir' => $dir,
             'url' => $url,
+            'center_lat' => $cy,
+            'center_lon' => $cx,
+            'out' => $out,
             'create_ts' => time()));
         $query->execute();
 

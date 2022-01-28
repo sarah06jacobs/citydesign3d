@@ -33,7 +33,16 @@ function init(){
       	dragonfly.setCameraMapPos(<?= $wx; ?>,<?= $wy; ?>,<?= $alt; ?>, -90 , <?= $dir; ?>);
       		setTimeout(function()
 		      {
-		      	dragonfly.setCameraMapPos(<?= $wx; ?>,<?= $wy; ?>,<?= $alt; ?>, <?= $pitch; ?> , <?= $dir; ?>);
+		      	var isEarth = dragonfly.isDisplayEarth();
+		      	if( isEarth == 1 ) {
+			        dragonfly.setCameraMapPos(<?= $cx; ?>,<?= $cy; ?>,<?= $alt; ?>, <?= $pitch; ?> , <?= $dir; ?>);
+			        dragonfly.setCenterMapPos(<?= $cx; ?>,<?= $cy; ?>);
+			        dragonfly.SetPropertyD(36,<?= $out; ?>);
+		      	}
+		      	else {
+		      		dragonfly.setCameraMapPos(<?= $wx; ?>,<?= $wy; ?>,<?= $alt; ?>, <?= $pitch; ?> , <?= $dir; ?>);
+		      	}
+		      	
 		      } , 1000);
       } , 5);
 	  
