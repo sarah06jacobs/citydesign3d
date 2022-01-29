@@ -122,6 +122,10 @@ class Controller_Hawkeye extends Controller
         $result = "";
 
         $walls = array();
+
+        if( $design_id + 0 == 0 ) {
+        	$design_id = -1;
+        }
         
         $webfolder = '/assets/design/rc_' . $design_id . '/';
         $default_wall = $this->getWallInfo("" , $webfolder , 'wall');

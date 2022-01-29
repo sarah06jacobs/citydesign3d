@@ -31,7 +31,7 @@ class Controller_Api_City extends Controller_Apibase {
         $tname = $json['tname'];
         $designid = $json['designid'];
         if( $designid === "" ) {
-            $designid = "0";
+            $designid = "-1";
         }
         else if ( $designid + 0 > 0) {
             $wallid = "0";
@@ -343,8 +343,8 @@ class Controller_Api_City extends Controller_Apibase {
         $jresp = array();
         $jresp['list'] = $city;
         
-        $jresp['lat'] = $pref[0]['lat1'];
-        $jresp['lon'] = $pref[0]['lon1'];
+        $jresp['lat'] = $pref[0]['lat2'];
+        $jresp['lon'] = $pref[0]['lon2'];
         
         return Response::forge(json_encode($jresp) , 200);
     }
@@ -374,8 +374,8 @@ class Controller_Api_City extends Controller_Apibase {
         
         $jresp = array();
         $jresp['list'] = $oaza;
-        $jresp['lat'] = $city[0]['lat1'];
-        $jresp['lon'] = $city[0]['lon1'];
+        $jresp['lat'] = $city[0]['lat2'];
+        $jresp['lon'] = $city[0]['lon2'];
         
         return Response::forge(json_encode($jresp) , 200);
     }
@@ -399,8 +399,8 @@ class Controller_Api_City extends Controller_Apibase {
         $oaza = $query->execute()->as_array();
         
         $jresp = array();
-        $jresp['lat'] = $oaza[0]['lat1'];
-        $jresp['lon'] = $oaza[0]['lon1'];
+        $jresp['lat'] = $oaza[0]['lat2'];
+        $jresp['lon'] = $oaza[0]['lon2'];
         
         return Response::forge(json_encode($jresp) , 200);
     }
