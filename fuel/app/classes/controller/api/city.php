@@ -307,6 +307,14 @@ class Controller_Api_City extends Controller_Apibase {
                 {
                     unlink($dfolder . $vfname . ".blob");
                 }
+                // delete images
+                for($q=1;$q<10;$q++) {
+                    $imname = "obj_" . $result[0]['gid'] . "_img_" . $q . ".png";
+                    if( file_exists($dfolder . $imname) )
+                    {
+                        unlink($dfolder . $imname);
+                    }
+                }
             }
         }
 

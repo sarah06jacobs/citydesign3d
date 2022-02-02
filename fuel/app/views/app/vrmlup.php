@@ -14,6 +14,28 @@
     }
 }
 
+var wallct = 1;
+function addRow(tableID) {
+    
+    wallct = wallct+1;
+
+    var table = document.getElementById(tableID);
+
+    var rowCount = table.rows.length;
+    var row = table.insertRow(rowCount-1); // before add button
+
+    var cell1 = row.insertCell(0);
+    cell1.innerHTML = wallct + ".";
+
+    var cell2 = row.insertCell(1);
+    var element1 = document.createElement("input");
+    element1.type = "file";
+    element1.name = "vtex" + wallct;
+    cell2.appendChild(element1);
+
+    document.getElementById("wallct").value = wallct;
+}
+
 function closeWin() {
 	window.close();
 }
@@ -25,6 +47,7 @@ function closeWin() {
     <input type="hidden" name="vrmlid" value="<?= $vrml_id ?>" />
     <input type="hidden" name="layer" value="<?= $layer ?>" />
     
+    <br><b>3Dファイル</b><br>
     <TABLE id="dataTable" width="350px" border="1">
         <TR>
             <TD> WRLファイル： </TD>
@@ -55,6 +78,22 @@ function closeWin() {
             
         </TR>
     </TABLE>
+
+    <br><b>関連テキスチャー</b><br>
+    <TABLE id="imageTable" width="350px" border="1">
+        <TR>
+            <TD> 1. </TD>
+            <TD> <input name="vtex1" type="file" /> </TD>
+        </TR>
+        <tr>
+            <td colspan="2">
+                <input type="button" value="+ 追加" onclick="addRow('imageTable')" />
+            </td>
+        </tr>
+    </TABLE>
+    <input type="hidden" name="wallct" value="1" />
+
+    <br><br>
     <input type="submit" value="アップロード" name="submit" /> &nbsp; <input type="button" value="キャンセル" onclick="closeWin()" />
     </form>
 </body>

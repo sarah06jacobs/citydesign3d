@@ -406,6 +406,7 @@ class Controller_Hawkeye extends Controller
         $action = isset( $post["action"] ) ? $post["action"] : "";
         $vrml_id = isset( $post["vrmlid"] ) ? $post["vrmlid"]+0 : -1;
         $skip = isset( $post["skip"] ) ? $post["skip"]+0 : 0;
+        $wallct = isset( $post["wallct"] ) ? $post["wallct"]+0 : 0;
         $vfname = "";
         $points = "";
         $cdate = "";
@@ -413,6 +414,7 @@ class Controller_Hawkeye extends Controller
         $tname = "upload0";
 
         if ($action === "upload") {
+        	$dfolder = DOCROOT.'/maps/shape/vrml/';
         	$config = array(
 			    'path' => APPPATH.'data',
 			    'ext_whitelist' => array('png','jpg','jpeg','gif','wrl','xml')
@@ -452,15 +454,21 @@ class Controller_Hawkeye extends Controller
 			            'create_date' => $cdate,
 			            'create_ts' => strtotime($cdate),
 			            'update_ts' => time(),
+			            'imgcount' => $wallct,
 			        	'wkb_geometry' => db::expr("ST_GeomFromText('POINT(100.0 5.0)',4612)") ));
 		            $vrmlobj = $query->execute();
 		            $vrml_id = $vrmlobj[0];
 	        	}
+	        	else {
+	        		$query = DB::update($layer);
+		            $query -> set(array( 
+			            'update_ts' => time(),
+			            'imgcount' => $wallct ) );
+		            $vrmlobj = $query->execute();
+	        	}
 
 	            $vfname = "obj_" . $vrml_id . ".wrl";
-	            echo "vname $vfname<br>";
 
-                $dfolder = DOCROOT.'/maps/shape/vrml/';
                 if( file_exists($dfolder . $vfname) )
                 {
                     unlink($dfolder . $vfname);
@@ -475,8 +483,51 @@ class Controller_Hawkeye extends Controller
 					$this -> convertxmltovrml($tengunfile , $dfolder . $vfname, $skip);
 				}
 				else if ( count($vrmlfile) > 0 ) {
-					$filepath = APPPATH.'data/' . $vrmlfile['name'];
-	                File::copy( $filepath , $dfolder . $vfname);
+
+					// attachments
+					// upload images
+					$replaceimg = array();
+		            for( $q=1;$q<=$wallct;$q++  ) {
+		                $file = Upload::get_files('vtex'.$q);
+		                if( count($file) > 0 ) {
+		                	$fname = $file['name'];
+		                	//$destname = substr($fname, 0, strrpos($fname, ".")) . ".png";
+		                	$destname = "obj_" . $vrml_id . "_img_" . $q . ".png";
+
+		                    $filepath = APPPATH.'data/' . $fname;
+		                    $info = getimagesize($filepath);
+		                    if ($info === FALSE ) {
+		                        unlink($filepath);
+		                    } else {
+		                        if( file_exists($dfolder . $destname) )
+		                        {
+		                            unlink($dfolder . $destname);
+		                        }
+		                        if( ($info[2] !== IMAGETYPE_PNG) ) {
+		                    		$binary = imagecreatefromstring(file_get_contents($filepath));
+									ImagePNG($binary, $dfolder . $destname, 0);
+		                    	}
+		                    	else {
+		                        	File::copy( $filepath , $dfolder . $destname);
+		                    	}
+		                    	$replaceimg[] = array("orig" => $fname , "new" => $destname);
+		                    }
+		                    // delete temp
+		                    unlink($filepath);
+		                }
+		            }
+
+		            $filepath = APPPATH.'data/' . $vrmlfile['name'];
+
+		            $fconts = file_get_contents($filepath);
+		            if( count($replaceimg) > 0 ) {
+		            	for($ll=0; $ll<count($replaceimg); $ll++) {
+		            		$fconts = str_ireplace( $replaceimg[$ll]['orig'] , $replaceimg[$ll]['new'] , $fconts  );
+		            	}
+		            }
+		            file_put_contents($dfolder . $vfname, $fconts);
+		            // delete temp
+		            unlink($filepath);
 				}
 
                 $query = DB::update($layer);

@@ -198,13 +198,13 @@ function setVrml(objid , vrmlfile, layer, tname, cdate, point_str, tfm) {
     if( point_str === "" ) {
         var wx = dragonfly.getCenterX();
         var wy = dragonfly.getCenterY();
-        var geom = vrmlobj_id + ";" + wx + "," + wy + ";" + vrmlobj_file + ";" + vrmlobj_file;
+        var geom = vrmlobj_id + ";" + wx + "," + wy + ";" + tname + ";" + vrmlobj_file;
         var coord = { x: wx, z: 0, y: wy };
         points = coord;
     }
     else {
         parr = point_str.split(" ");
-        var geom = vrmlobj_id + ";" + parr[0] + "," + parr[1] + ";" + vrmlobj_file + ";" + vrmlobj_file;
+        var geom = vrmlobj_id + ";" + parr[0] + "," + parr[1] + ";" + tname + ";" + vrmlobj_file;
         var coord = { x: parr[0], z: 0, y: parr[1] };
         points = coord;
     }
