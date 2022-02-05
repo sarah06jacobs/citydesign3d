@@ -302,6 +302,7 @@ SRID 4612
 	BWALLATTRIBUTE wallid
 	BWALLCOUNT 1
 	BWALLTEXW <?= $walltexw; ?>
+  
   SHADOWS ON
 	DESIGNATTRIBUTE designid
 	DESIGNFOLDER /assets/design
