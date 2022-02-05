@@ -41,7 +41,7 @@ function init(){
 		      		dragonfly.setCameraMapPos(<?= $wx; ?>,<?= $wy; ?>,<?= $alt; ?>, <?= $pitch; ?> , <?= $dir; ?>);
 		      	}
 		      	
-		      } , 1000);
+		      } , 10000);
       } , 5);
 	  
 }
