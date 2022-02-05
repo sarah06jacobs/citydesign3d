@@ -271,6 +271,7 @@ SRID 4612
 	MAXSCALE 10000
 	TRAIL 9
 	MINSCALE 0
+  SHADOWS ON
 	BWALLS /assets/walls/dm2_
 	BWALLFLNUM floornum
 	BWALLFLHT floorht
@@ -301,7 +302,7 @@ SRID 4612
 	BWALLATTRIBUTE wallid
 	BWALLCOUNT 1
 	BWALLTEXW <?= $walltexw; ?>
-    
+  SHADOWS ON
 	DESIGNATTRIBUTE designid
 	DESIGNFOLDER /assets/design
 	DESIGNSERVLET /api/gis/getdesign?design_id=

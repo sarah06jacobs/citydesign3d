@@ -20,10 +20,8 @@ function init(){
 	  //pstr += " -terrain -kankyou ";
 	  pstr += " -maxalt 10000000";
 	  pstr += " -jscript -Smapoutputcoords -Shandleaction -Sitemclicked";
-	  //pstr += " -vextents 126 25 149 46 ";
-	  // pstr += " -debugfile C:\\Users\\carls\\Documents\\dfly.txt ";
-	  pstr += " -mapjoho -earthmodel -nostencil ";
- 	  //pstr += " -mapjoho ";
+	  pstr += " -mapjoho -earthmodel ";
+	  //pstr += " -nostencil "; // building shadows
 	  //pstr += " -keepalive 0 ";
 	  
 	  dragonfly.sendParameterString(pstr);
