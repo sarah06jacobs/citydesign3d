@@ -417,15 +417,16 @@ class Controller_Hawkeye extends Controller
         	$dfolder = DOCROOT.'/maps/shape/vrml/';
         	$config = array(
 			    'path' => APPPATH.'data',
-			    'ext_whitelist' => array('png','jpg','jpeg','gif','wrl','xml')
+			    'ext_whitelist' => array('png','jpg','jpeg','gif','wrl','xml', 'csv')
 			);
 			Upload::process($config);
 			Upload::save();
 
 			$tengunfile = Upload::get_files('tengunfile');
 			$vrmlfile = Upload::get_files('vrmlfile');
+			$csvfile = Upload::get_files('csvfile');
 
-            if( count($vrmlfile) > 0 || count($tengunfile) > 0 ) {
+            if( count($vrmlfile) > 0 || count($tengunfile) > 0 || count($csvfile) > 0 ) {
                 echo "add <br>";
                 if( $vrml_id >= 0 ) {
                 	$query = DB::select('*' , db::expr("ST_AsGeoJSON(wkb_geometry) gjson"));
@@ -481,6 +482,9 @@ class Controller_Hawkeye extends Controller
                 if( count($tengunfile) > 0 ) {
 					// convert to vrml
 					$this -> convertxmltovrml($tengunfile , $dfolder . $vfname, $skip);
+				}
+				else if ( count($csvfile) > 0 ) {
+					$this -> convertcsvtovrml($csvfile , $dfolder . $vfname, $skip);
 				}
 				else if ( count($vrmlfile) > 0 ) {
 
@@ -592,6 +596,73 @@ class Controller_Hawkeye extends Controller
 		return Response::forge(Presenter::forge('welcome/404'), 404);
 	}
 
+	public function convertcsvtovrml($csvfile, $vfname, $skip=0) {
+		$filepath = APPPATH.'data/' . $csvfile['name'];
+		$fhandle = fopen($filepath , 'r');
+
+		if( file_exists($vfname) )
+        {
+            unlink($vfname);
+        }
+
+		$fp = fopen($vfname, 'w');
+		fwrite($fp, '#VRML V2.0 utf8' . PHP_EOL);
+		fwrite($fp, 'Shape {' . PHP_EOL);
+
+		fwrite($fp, '  geometry PointSet {' . PHP_EOL);
+		fwrite($fp, '    coord Coordinate {' . PHP_EOL);
+		fwrite($fp, '    point [' . PHP_EOL);
+		$pinx = 0;
+		while(!feof($fhandle)) {
+			$dat = fgetcsv($fhandle);
+			// x,y,z,r,g,b
+			if( $dat && count($dat) >= 3 ) {
+				$x = $dat[0];
+				$y = $dat[1];
+				$z = $dat[2];
+
+				if( ($skip == 0) || ($pinx % $skip ) == 0 ) {
+					$point = $x . " " . $y . " " . $z;
+					fwrite($fp,$point . "," . PHP_EOL);
+				}
+				$pinx = $pinx + 1;
+			}	
+		}
+
+		fwrite($fp, '    ]' . PHP_EOL); // close point
+		fwrite($fp, '    }' . PHP_EOL); // close Coordinate
+
+		rewind($fhandle);
+		fwrite($fp, '    color Color {' . PHP_EOL);
+		fwrite($fp, '    color [' . PHP_EOL);
+
+		while(!feof($fhandle)) {
+			$dat = fgetcsv($fhandle);
+			if( $dat && count($dat) >= 6 ) {
+				// x,y,z,r,g,b
+				$r = $dat[3];
+				$g = $dat[4];
+				$b = $dat[5];
+
+				if( ($skip == 0) || ($pinx % $skip ) == 0 ) {
+					$point = round(($r/255.0),2) . " " . round(($g/255.0),2) . " " . round(($b/255.0),2);
+					fwrite($fp,$point . "," . PHP_EOL);
+				}
+				$pinx = $pinx + 1;
+			}
+		}
+		fwrite($fp, '    ]' . PHP_EOL); // close color
+		fwrite($fp, '    }' . PHP_EOL); // close Color
+
+		fwrite($fp, '  }' . PHP_EOL); // close pointset
+	
+		fwrite($fp, '}' . PHP_EOL); // close shape
+		fclose($fp);
+		fclose($fhandle);
+
+		unlink($filepath);
+	}
+
 	public function convertxmltovrml($tengunfile, $vfname, $skip=0) {
 		$filepath = APPPATH.'data/' . $tengunfile['name'];
 		$xml = simplexml_load_file($filepath);
@@ -601,30 +672,6 @@ class Controller_Hawkeye extends Controller
             unlink($vfname);
         }
 		
-		/*
-#VRML V2.0 utf8
-#PointSet example
-
-    Shape {
-	  geometry PointSet {
-		coord Coordinate {
-                    point [
-				-1.0 -1.0 0.0,
-				1.0 1.0 0.0,
-				0.0 0.0 0.0,
-                    ]
-                }
-                color Color {
-                    color [
-                        1.0 0.0 0.0,
-				0.0 1.0 0.0,
-                        0.0 0.0 1.0,
-                    ]
-         		}
-       }
-    }
-		*/
-
 		$fp = fopen($vfname, 'w');
 		fwrite($fp, '#VRML V2.0 utf8' . PHP_EOL);
 		fwrite($fp, 'Shape {' . PHP_EOL);
@@ -655,5 +702,7 @@ class Controller_Hawkeye extends Controller
 		}
 		fwrite($fp, '}' . PHP_EOL); // close shape
 		fclose($fp);
+
+		unlink($filepath);
 	}
 }

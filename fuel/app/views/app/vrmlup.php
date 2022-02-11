@@ -62,6 +62,11 @@ function closeWin() {
             
         </TR>
         <TR>
+            <TD> 点群CSV ファイル： </TD>
+            <TD> <input name="csvfile" type="file" />  
+            </TD>
+        </TR>
+        <TR>
             <TD> 点群 頂点削減： </TD>
             <TD> 
                点(n) %  <select name="skip">
