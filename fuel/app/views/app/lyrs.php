@@ -1,4 +1,4 @@
-<HTML>
+﻿<HTML>
 <HEAD>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <TITLE>City Design</TITLE>
@@ -1247,7 +1247,7 @@ html, body {
 	<tr>
 		<td width="10px">&nbsp; </td>
 		<td width="5px"><input type="checkbox" id="mlayer2" onclick="setMapStatus(2);"></td>
-		<td>業界線</td>
+		<td>境界線</td>
 	</tr>
 
 	<tr>
@@ -1616,7 +1616,7 @@ html, body {
     </table>
     <hr>
     <h4>
-    気に入り場所登録</h4>
+    お気に入り場所登録</h4>
     <input type="textbox" value="" id="newplacename" style="width:150px">
     <input type="button" id="footerbutton" onclick="addPlace();" value="登録"><br>
     <br>
