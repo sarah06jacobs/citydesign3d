@@ -25,6 +25,7 @@ class Controller_Api_City extends Controller_Apibase {
 
         $coords = $json['coords'];
         $ht = $json['ht'];
+        $ground = $json['ground'];
         $layer = $json['layer'];
         $wallid = $json['wallid'];
         $cdate = $json['date'];
@@ -61,7 +62,8 @@ class Controller_Api_City extends Controller_Apibase {
 
         $query = DB::insert($layer);
         $query->set(array( 'tname' => $name , 
-        	'floornum' => $floors , 
+        	'floornum' => $floors,
+            'flground' => $ground,
             'wallid' => $wallid,
             'tname' => $tname,
             'create_date' => $cdate,
@@ -171,6 +173,7 @@ class Controller_Api_City extends Controller_Apibase {
         $id = $json['id'];
         $coords = $json['coords'];
         $ht = $json['ht'];
+        $ground = $json['ground'];
         $cdate = $json['date'];
         $layer = $json['layer'];
         $wallid = $json['wallid'];
@@ -206,7 +209,8 @@ class Controller_Api_City extends Controller_Apibase {
         $query = DB::update($layer);
         $query->set(array(
             'floornum' => $floors,
-            'floorht' => '1', 
+            'floorht' => '1',
+            'flground' => $ground,
             'wallid' => $wallid,
             'tname' => $tname,
             'create_date' => $cdate,

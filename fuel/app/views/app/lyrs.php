@@ -15,6 +15,7 @@
 
 var points = [];
 var bld_ht = 3;
+var bld_ground = 0;
 var edit_id = -1;
 var clickmode = 0;
 var editlayer = "";
@@ -143,6 +144,14 @@ function datestr() {
     var mm = d.getMonth() < 9 ? "0" + (d.getMonth() + 1) : (d.getMonth() + 1);
     var dd = d.getDate() < 10 ? "0" + d.getDate() : d.getDate();
     return yyyy + "-" + mm + "-" + dd;
+}
+
+function updateGround(obj) {
+    bld_ground = obj.value;
+    if( bld_ground == "" ) {
+        bld_ground = "0";
+    }
+    parent.frames["dragonfmap"].dragonfly.setShapeLayerProperty("CREATED_0","DLSETGROUNDHT",bld_ground);
 }
 
 function setTFMForm() {
@@ -387,6 +396,7 @@ function itemClicked(id,layerid,inclusive) {
                         setWallImage(objects[0]['wallid']);
                 		document.getElementById("edit_design_id").value = objects[0]['designid'];
                 		bld_ht = objects[0]['floorht'] * objects[0]['floornum'];
+                        bld_ground = objects[0]['flground'] - 0;
     	            	var geomstr = objects[0]['geomstr'];
                         if( editlayer == "tatemono_1" ) {
                             openPanel('editbldpanel1' , 'editpanelcontent');
@@ -395,6 +405,8 @@ function itemClicked(id,layerid,inclusive) {
                             openPanel('editbldpanel2' , 'editpanelcontent');
                         }
                         setEditShape( id, geomstr );
+                        document.getElementById("editbldground").value = bld_ground;
+                        updateGround(document.getElementById("editbldground"));
                     }
                     else {
                         // vrml
@@ -579,6 +591,7 @@ function saveEditBuilding() {
         date: document.getElementById("editdate").value,
         coords: points,
         ht: bld_ht,
+        ground : bld_ground,
         layer: editlayer,
         designid: document.getElementById("edit_design_id").value,
         wallid: document.getElementById("wallidselect").value,
@@ -639,6 +652,7 @@ function saveObject() {
 	var data = {
         coords: points,
         ht: bld_ht,
+        ground : bld_ground,
         date: document.getElementById("newdate").value,
         tname: document.getElementById("newtname").value,
         wallid: document.getElementById("newwallidselect").value,
@@ -700,6 +714,7 @@ function stopEdit() {
 	clickmode = 0;
 	points = [];
 	bld_ht = 3;
+    bld_ground = 0;
 	edit_id = -1;
 	editlayer = "";
     vrmlobj_id = -1;
@@ -1351,6 +1366,10 @@ html, body {
                 </div>
             </td>
         </tr>
+        <tr>
+            <td>地面調整</td>
+            <td><input type="text" id="newbldground" name="newbldground" value="0"  onchange="updateGround(this)" onkeyup="updateGround(this)"/></td>
+        </tr>
 		<tr>
                     <td colspan="2">
                             <input type="button" onclick="stopEdit()" value="キャンセル" />
@@ -1535,6 +1554,10 @@ html, body {
                 </div>
 			</td>
 		</tr>
+        <tr>
+            <td>地面調整</td>
+            <td><input type="text" id="editbldground" name="editbldground" value="0" onchange="updateGround(this)" onkeyup="updateGround(this)"/></td>
+        </tr>
 		<tr>
 			<td colspan="2">&nbsp;
 			</td>

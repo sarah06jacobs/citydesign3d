@@ -31,14 +31,16 @@ function init(){
       	dragonfly.setCameraMapPos(<?= $wx; ?>,<?= $wy; ?>,<?= $alt; ?>, -90 , <?= $dir; ?>);
       		setTimeout(function()
 		      {
-		      	var isEarth = dragonfly.isDisplayEarth();
-		      	if( isEarth == 1 ) {
-			        dragonfly.setCameraMapPos(<?= $cx; ?>,<?= $cy; ?>,<?= $alt; ?>, <?= $pitch; ?> , <?= $dir; ?>);
-			        dragonfly.setCenterMapPos(<?= $cx; ?>,<?= $cy; ?>);
-			        dragonfly.SetPropertyD(36,<?= $out; ?>);
-		      	}
-		      	else {
-		      		dragonfly.setCameraMapPos(<?= $wx; ?>,<?= $wy; ?>,<?= $alt; ?>, <?= $pitch; ?> , <?= $dir; ?>);
+		      	if( mapMoved == 0 ) {
+			      	var isEarth = dragonfly.isDisplayEarth();
+			      	if( isEarth == 1 ) {
+				        dragonfly.setCameraMapPos(<?= $cx; ?>,<?= $cy; ?>,<?= $alt; ?>, <?= $pitch; ?> , <?= $dir; ?>);
+				        dragonfly.setCenterMapPos(<?= $cx; ?>,<?= $cy; ?>);
+				        dragonfly.SetPropertyD(36,<?= $out; ?>);
+			      	}
+			      	else {
+			      		dragonfly.setCameraMapPos(<?= $wx; ?>,<?= $wy; ?>,<?= $alt; ?>, <?= $pitch; ?> , <?= $dir; ?>);
+			      	}
 		      	}
 		      	
 		      } , 10000);
@@ -55,7 +57,9 @@ function itemClicked(id,layerid,inclusive) {
 	parent.frames["contents"].itemClicked(id,layerid,inclusive);
 }
 
+var mapMoved = 0;
 function mapOutputCoords(outx,  alt, outy, li, si, pi, isadd, iscw) {
+	mapMoved = 1;
 	parent.frames["contents"].mapOutputCoords(outx,  alt, outy, li, si, pi, isadd, iscw);
 }
 

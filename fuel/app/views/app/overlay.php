@@ -264,7 +264,7 @@ SRID 4612
 	DISPLAY3D ON
 	CGIREQUEST /api/gis/getlayer?pool=hawk
 	STATUS ON
-	DATA tatemono_1:floornum:floorht:wallid:designid
+	DATA tatemono_1:floornum:floorht:wallid:designid:flground
 	SRID 4612
 	TILEWIDTH 30000
 	STROKE 173 173 185
@@ -276,6 +276,7 @@ SRID 4612
 	BWALLFLNUM floornum
 	BWALLFLHT floorht
 	BWALLATTRIBUTE wallid
+  BWALLFLGROUND flground
 	BWALLCOUNT <?= $wallcount; ?>
 
 	BWALLTEXW <?= $walltexw; ?>
@@ -289,7 +290,7 @@ SRID 4612
 	DISPLAY3D ON
 	CGIREQUEST /api/gis/getlayer?pool=hawk
 	STATUS ON
-	DATA tatemono_2:floornum:floorht:wallid:designid
+	DATA tatemono_2:floornum:floorht:wallid:designid:flground
 	SRID 4612
 	TILEWIDTH 30000
 	STROKE 173 173 185
@@ -300,6 +301,7 @@ SRID 4612
 	BWALLFLNUM floornum
 	BWALLFLHT floorht
 	BWALLATTRIBUTE wallid
+  BWALLFLGROUND flground
 	BWALLCOUNT 1
 	BWALLTEXW <?= $walltexw; ?>
   
