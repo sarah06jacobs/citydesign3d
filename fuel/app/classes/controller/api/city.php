@@ -451,17 +451,15 @@ class Controller_Api_City extends Controller_Apibase {
         $id = $json['id'];
         $layer = $json['layer'];
 
-        $query = DB::select('*', db::expr("ST_AsGeoJSON(ST_Centroid(wkb_geometry)) gjson"));
+        $query = DB::select('*', db::expr("ST_AsGeoJSON(ST_Centroid(wkb_geometry)) centerjson") , db::expr("ST_AsGeoJSON(wkb_geometry) gjson"));
         $query->from($layer);
         $query -> where('gid' , $id);
         $result = $query->execute()->as_array();
 
         if( count( $result ) > 0 ) {
             $obj = $result[0];
-            $geom = json_decode($obj['gjson'], true);
-            $type = $geom['type'];
-            $coords = $geom['coordinates'];
-            $coordstr = "";
+            $centgeom = json_decode($obj['centerjson'], true);
+            $centcoords = $centgeom['coordinates'];
             $pname = $obj["tname"];
             if (isset($obj["flground"])) {
                 $alt = ($obj["floorht"] * $obj["floornum"]) - $obj["flground"] + Config::get('object_favorite_alt');
@@ -472,8 +470,35 @@ class Controller_Api_City extends Controller_Apibase {
             $out = $alt;
             $pitch = "-90";
             $dir = "0";
-            $wx = $coords[0];
-            $wy = $coords[1];
+            // get direction from polygon
+            $geom = json_decode($obj['gjson'], true);
+            $type = $geom['type'];
+            $coords = $geom['coordinates'];
+            if( $type !== "Point" ) {
+                $coords = $coords[0]; // first part
+                $coord_obj_arr = array();
+                for($j=0;$j<count($coords);$j++) {
+                    if(( $j < (count($coords)-1) ) || ( $coords[0][0] != $coords[count($coords)-1][0] && $coords[0][1] != $coords[count($coords)-1][1]  )) {
+                        if (count($coords[$j]) == 2) {
+                            $coord_obj_arr[] = array("x" => $coords[$j][0], "y" => $coords[$j][1]);
+                        }
+                        else if (count($coords[$j]) >= 3){
+                            $coord_obj_arr[] = array("x" => $coords[$j][0], "y" => $coords[$j][1] , "z" => $coords[$j][2]);
+                        }
+                    }
+                }
+
+                // use the first line
+                if( count($coord_obj_arr) > 1 ) {
+                    $vx = $coord_obj_arr[1]["x"] - $coord_obj_arr[0]["x"];
+                    $vy = $coord_obj_arr[1]["y"] - $coord_obj_arr[0]["y"];
+                    $mag = sqrt($vx*$vx + $vy*$vy);
+                    $dir = $this -> mfunc_ang( array(-($vy/$mag), ($vx/$mag)) , array(0,-1) );
+                }
+            }
+
+            $wx = $centcoords[0];
+            $wy = $centcoords[1];
             $cx = $wx;
             $cy = $wy;
             $url = "?wx=$wx&wy=$wy&cx=$cx&cy=$cy&alt=$alt&pitch=$pitch&dir=$dir&out=$out";
@@ -505,6 +530,37 @@ class Controller_Api_City extends Controller_Apibase {
         $jresp['list'] = $result;
         $jresp['errors'] = $errors;
         return Response::forge(json_encode($jresp) , 200);
+    }
+
+    public function mfunc_norm($vec) {
+        $norm = 0;
+        $components = count($vec);
+
+        for ($i = 0; $i < $components; $i++)
+            $norm += $vec[$i] * $vec[$i];
+
+        return sqrt($norm);
+    }
+   
+    public function mfunc_dot($vec1, $vec2)
+    {
+        $prod = 0;
+        $components = count($vec1);
+
+        for ($i = 0; $i < $components; $i++)
+            $prod += ($vec1[$i] * $vec2[$i]);
+        return $prod;
+    }
+   
+    public function mfunc_ang($v1, $v2) {
+        $ang = acos($this->mfunc_dot($v1, $v2) / ($this->mfunc_norm($v1) * $this->mfunc_norm($v2)));
+        $degang = $ang * (180.0/3.14);
+       
+        if( $v1[0] < 0 ) {
+            $degang = 360 - $degang;
+        }
+       
+        return $degang;
     }
 
     public function action_deleteplace() {
