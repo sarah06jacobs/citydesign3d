@@ -439,6 +439,74 @@ class Controller_Api_City extends Controller_Apibase {
         return Response::forge(json_encode($jresp) , 200);
     }
 
+    public function action_setobjectplace() {
+        $post = Input::post();
+        $get = Input::get();
+        $post = array_merge($get, $post);
+
+        $json = Input::json();
+        $errors = array();
+
+        $errors = "";
+        $id = $json['id'];
+        $layer = $json['layer'];
+
+        $query = DB::select('*', db::expr("ST_AsGeoJSON(ST_Centroid(wkb_geometry)) gjson"));
+        $query->from($layer);
+        $query -> where('gid' , $id);
+        $result = $query->execute()->as_array();
+
+        if( count( $result ) > 0 ) {
+            $obj = $result[0];
+            $geom = json_decode($obj['gjson'], true);
+            $type = $geom['type'];
+            $coords = $geom['coordinates'];
+            $coordstr = "";
+            $pname = $obj["tname"];
+            if (isset($obj["flground"])) {
+                $alt = ($obj["floorht"] * $obj["floornum"]) - $obj["flground"] + Config::get('object_favorite_alt');
+            }
+            else {
+                $alt = Config::get('object_favorite_alt');
+            }
+            $out = $alt;
+            $pitch = "-90";
+            $dir = "0";
+            $wx = $coords[0];
+            $wy = $coords[1];
+            $cx = $wx;
+            $cy = $wy;
+            $url = "?wx=$wx&wy=$wy&cx=$cx&cy=$cy&alt=$alt&pitch=$pitch&dir=$dir&out=$out";
+
+            $query = DB::insert('places');
+            $query->set(array(
+                'pname' => $pname , 
+                'lon' => $wx,
+                'lat' => $wy,
+                'alt' => $alt,
+                'pitch' => $pitch,
+                'dir' => $dir,
+                'url' => $url,
+                'center_lat' => $cy,
+                'center_lon' => $cx,
+                'out' => $out,
+                'create_ts' => time()));
+            $query->execute();
+        }
+        else {
+            $errors = "オブジェクト見つかりません。";
+        }
+
+        $query = DB::select('*');
+        $query->from('places');
+        $query->order_by('create_ts','desc');
+        $result = $query->execute()->as_array();
+        $jresp = array();
+        $jresp['list'] = $result;
+        $jresp['errors'] = $errors;
+        return Response::forge(json_encode($jresp) , 200);
+    }
+
     public function action_deleteplace() {
         $post = Input::post();
         $get = Input::get();

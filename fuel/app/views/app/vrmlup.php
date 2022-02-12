@@ -96,7 +96,7 @@ function closeWin() {
             </td>
         </tr>
     </TABLE>
-    <input type="hidden" name="wallct" value="1" />
+    <input type="hidden" name="wallct" id="wallct" value="1" />
 
     <br><br>
     <input type="submit" value="アップロード" name="submit" /> &nbsp; <input type="button" value="キャンセル" onclick="closeWin()" />

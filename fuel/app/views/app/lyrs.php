@@ -225,6 +225,7 @@ function setVrml(objid , vrmlfile, layer, tname, cdate, point_str, tfm) {
     document.getElementById("editdate").value = cdate;
 
     openPanel('editbldpanelv' , 'editpanelcontent');
+    document.getElementById('editbldgrounddiv').style.display = "none";
     setEditVrml(vrmlobj_id, geom);
 }
 
@@ -400,9 +401,11 @@ function itemClicked(id,layerid,inclusive) {
     	            	var geomstr = objects[0]['geomstr'];
                         if( editlayer == "tatemono_1" ) {
                             openPanel('editbldpanel1' , 'editpanelcontent');
+                            document.getElementById('editbldgrounddiv').style.display = "block";
                         }
                         else if( editlayer == "tatemono_2" ) {
                             openPanel('editbldpanel2' , 'editpanelcontent');
+                            document.getElementById('editbldgrounddiv').style.display = "block";
                         }
                         setEditShape( id, geomstr );
                         document.getElementById("editbldground").value = bld_ground;
@@ -420,6 +423,7 @@ function itemClicked(id,layerid,inclusive) {
                             var garr = geomstr.split(";");
 
                             setVrml(objects[0]['gid'] , objects[0]['wrl'], editlayer, objects[0]['tname'], objects[0]['create_date'], garr[1] , objects[0]['tfm']);
+                            document.getElementById('editbldgrounddiv').style.display = "none";
                         }
                     }
             	}
@@ -495,6 +499,43 @@ function setEditTool(tool) {
 	dragonfly.setShapeLayerProperty("CREATED_0","EDITFLAGS" , tool);
 	dragonfly.sendParameterString(" -seteditgeometry CREATED_0");
 	clickmode = 1;
+}
+
+function setObjectFavorite() {
+    var data = {
+        id: edit_id,
+        layer: editlayer
+    }
+    $.ajax({
+        type:"post",                // method = "POST"
+        url:"/api/city/setobjectplace",        // POST送信先のURL
+        //data: data,
+        data:JSON.stringify(data),  // JSONデータ本体
+        contentType: 'application/json', // リクエストの Content-Type
+        dataType: "json",           // レスポンスをJSONとしてパースする
+        success: function(json_data) {   // 200 OK時
+            if (!json_data['list']) {    // サーバが失敗を返した場合
+                alert("Transaction error. ");
+                return;
+            }
+            else {
+                alert("お気に入りに登録しました。");
+                document.getElementById('searchplacename').value = "";
+                document.getElementById('newplacename').value = "";
+                var list = json_data['list'];
+                reloadPlaces(list);
+            }
+            // 成功時処理
+        },
+        error: function() {         // HTTPエラー時
+            alert("Server Error. Please try again later.");
+        },
+        complete: function() {      // 成功・失敗に関わらず通信が終了した際の処理
+            clickmode = 3;
+            stopEdit();
+            //button.attr("disabled", false);  // ボタンを再び enableにする
+        }
+    });
 }
 
 function deleteObject() {
@@ -1555,8 +1596,16 @@ html, body {
 			</td>
 		</tr>
         <tr>
-            <td>地面調整</td>
-            <td><input type="text" id="editbldground" name="editbldground" value="0" onchange="updateGround(this)" onkeyup="updateGround(this)"/></td>
+            <td colspan="3">
+                <div id="editbldgrounddiv" >
+                <table>    
+                    <tr>
+                        <td>地面調整</td>
+                        <td><input type="text" id="editbldground" name="editbldground" value="0" onchange="updateGround(this)" onkeyup="updateGround(this)"/></td>
+                    </tr>
+                </table>
+                </div>
+            </td>
         </tr>
 		<tr>
 			<td colspan="2">&nbsp;
@@ -1572,6 +1621,16 @@ html, body {
 			<td colspan="2">&nbsp;
 			</td>
 		</tr>
+
+        <tr>
+            <td colspan="2">
+                <input type="button" onclick="setObjectFavorite()" value="お気に入り登録" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">&nbsp;
+            </td>
+        </tr>
 		<tr>
 			<td colspan="2">
 				<input type="button" onclick="stopEdit()" value="キャンセル" />

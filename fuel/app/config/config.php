@@ -23,6 +23,9 @@ return array(
 	'top_out' => 10000,
 	'top_lift' => 10000,
 
+
+	'object_favorite_alt' => 500,
+
 	/**
 	 * -------------------------------------------------------------------------
 	 *  The base URL of the application

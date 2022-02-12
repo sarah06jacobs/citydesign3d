@@ -29,19 +29,19 @@ class Controller_Hawkeye extends Controller
 	 */
 	public function action_index()
 	{
-            $get = Input::get();
+        $get = Input::get();
 
-            $views = array();
-            $views['wx'] = isset($get["wx"]) ? $get["wx"] : Config::get('top_lon');
-            $views['wy'] = isset($get["wy"]) ? $get["wy"] : Config::get('top_lat');
-            $views['cx'] = isset($get["cx"]) ? $get["cx"] : Config::get('top_clon');
-            $views['cy'] = isset($get["cy"]) ? $get["cy"] : Config::get('top_clat');
-            $views['alt'] = isset($get["alt"]) ? $get["alt"] : Config::get('top_alt');
-            $views['pitch'] = isset($get["pitch"]) ? $get["pitch"] : Config::get('top_pitch');
-            $views['dir'] = isset($get["dir"]) ? $get["dir"] : Config::get('top_dir');
+        $views = array();
+        $views['wx'] = isset($get["wx"]) ? $get["wx"] : Config::get('top_lon');
+        $views['wy'] = isset($get["wy"]) ? $get["wy"] : Config::get('top_lat');
+        $views['cx'] = isset($get["cx"]) ? $get["cx"] : Config::get('top_clon');
+        $views['cy'] = isset($get["cy"]) ? $get["cy"] : Config::get('top_clat');
+        $views['alt'] = isset($get["alt"]) ? $get["alt"] : Config::get('top_alt');
+        $views['pitch'] = isset($get["pitch"]) ? $get["pitch"] : Config::get('top_pitch');
+        $views['dir'] = isset($get["dir"]) ? $get["dir"] : Config::get('top_dir');
 
-            $views['out'] = isset($get["out"]) ? $get["out"] : Config::get('top_out');
-            return Response::forge(View::forge('app/index' , $views));
+        $views['out'] = isset($get["out"]) ? $get["out"] : Config::get('top_out');
+        return Response::forge(View::forge('app/index' , $views));
 	}
 
 	public function action_map()
@@ -427,7 +427,6 @@ class Controller_Hawkeye extends Controller
 			$csvfile = Upload::get_files('csvfile');
 
             if( count($vrmlfile) > 0 || count($tengunfile) > 0 || count($csvfile) > 0 ) {
-                echo "add <br>";
                 if( $vrml_id >= 0 ) {
                 	$query = DB::select('*' , db::expr("ST_AsGeoJSON(wkb_geometry) gjson"));
 		            $query -> from($layer);
@@ -495,6 +494,7 @@ class Controller_Hawkeye extends Controller
 		                $file = Upload::get_files('vtex'.$q);
 		                if( count($file) > 0 ) {
 		                	$fname = $file['name'];
+
 		                	//$destname = substr($fname, 0, strrpos($fname, ".")) . ".png";
 		                	$destname = "obj_" . $vrml_id . "_img_" . $q . ".png";
 
