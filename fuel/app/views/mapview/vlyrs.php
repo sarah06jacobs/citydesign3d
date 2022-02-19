@@ -4,9 +4,11 @@
 <TITLE>City Design</TITLE>
 <LINK REL="StyleSheet" HREF="/css/style.css" TYPE="text/css">
 
-
 <script type="text/javascript" src="/js/jquery.js" ></script>
 <script type="text/javascript" src="/js/nano.js" ></script>
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -664,39 +666,59 @@ html, body {
 <div id="tabdiv2" class="tabcontent">
 
 <div id="addobjectdiv" class="panelcontent">
-
 <table>
     <tr>
         <td> 表示範囲：タイム
         </td>
     </tr>
     <tr>
+        <td>
+ <script>
+  $( function() {
+    $( "#slider-range" ).slider({
+      range: true,
+      min: 0,
+      max: 300,
+      values: [ 0, 300 ],
+      slide: function( event, ui ) {
+
+        var fromdate = new Date(2000, (ui.values[ 0 ]), 1);
+        var untildate = new Date(2000, (ui.values[ 1 ]), 1);
+
+        var fyear = fromdate.getFullYear();
+        var fmonth = fromdate.getMonth() - -1;
+        var fmstr = fmonth + "";
+        if( fmonth < 10 ) {
+            fmstr = "0" + fmstr;
+        }
+
+        var tyear = untildate.getFullYear();
+        var tmonth = untildate.getMonth() - -1;
+        var tmstr = tmonth + "";
+        if( tmonth < 10 ) {
+            tmstr = "0" + tmstr;
+        }
+
+        document.getElementById("frombld").value = fyear + "-" + fmstr + "-01 to " + tyear + "-" + tmstr + "-01";
+      }
+    });
+    $( "#slider-range" ).mouseup(function()
+        {
+            setDataRange();
+        });
+  } );
+  </script>
+
+<div id="slider-range"></div>
+
+        </td>
+    </tr>
+    <tr>
         <td> 
-            <input type="text" name="frombld" id="frombld" />
+            <input type="text" name="frombld" id="frombld" value="2000-01-01 to 2025-01-01"  style="width:200px;"/>
         </td>
     </tr>
 </table>
-<script>
-    var example = flatpickr('#frombld',{
-      dateFormat: 'Y-m-d',
-      allowInput: false,
-      defaultHour: 12, 
-      defaultMinute: 0, 
-      disableMobile: false,
-      mode: "range",
-      prevArrow: '&lt;',
-      nextArrow: '&gt;',
-      parseDate: false,
-      time_24hr: true,
-      onChange: function() {
-        //alert("onChange.");
-      },
-      onClose: function() {
-        //alert("onClose.");
-        setDataRange();
-      }
-    });
-</script>
 </div>
 
 <div id="editobjectdiv" class="panelcontent">

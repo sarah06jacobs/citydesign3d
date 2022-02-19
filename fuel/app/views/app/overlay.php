@@ -217,6 +217,7 @@ SRID 4612
 	LAYERID 1000
 	TYPE BUILDING
 	DISPLAY3D ON
+  DEPTH ON
 	CGIREQUEST /api/gis/getlayer?pool=hawk
 	STATUS ON
 	DATA tatemono_1:floornum:floorht:wallid:designid:flground:tname
@@ -246,6 +247,7 @@ SRID 4612
   LAYER
 	NAME tatemono_2
 	LAYERID 1001
+  DEPTH ON
 	TYPE BUILDING
 	DISPLAY3D ON
 	CGIREQUEST /api/gis/getlayer?pool=hawk
@@ -282,6 +284,7 @@ SRID 4612
   LAYER
   NAME tatemono_v
   LAYERID 2000
+  DEPTH ON
   TRAIL 5
   SRID 4612
   DISPLAY3D ON
