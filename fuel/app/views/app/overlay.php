@@ -141,51 +141,6 @@ SRID 4612
     TRAIL 7
   END
 
-
-  LAYER
-    NAME city_annotation_0
-    DATA ipc/city/city_annotation_0
-    LABELATTRIBUTE name_str1
-    FONTTEXTCOLOR 205 205 205 255
-    FONTOUTLINECOLOR 20 20 20 255
-    LABELSCALE 45
-    MAXLABELS 50
-    DISPLAY3D ON
-    TYPE POINT
-    STATUS OFF
-    POINTSIZE 0
-    LIFTHT 5
-    STROKE 220 200 20 255
-    CGIREQUEST /cgi-bin/DFCgi.exe
-    SRID 4612
-    TILEWIDTH 3000
-    MAXSCALE 2000
-    MINSCALE 0
-    TRAIL 5
-  END
-
-  LAYER
-    NAME city_annotation_1
-    DATA ipc/city/city_annotation_1
-    LABELATTRIBUTE name_str1
-    FONTTEXTCOLOR 225 235 235 255
-    FONTOUTLINECOLOR 20 20 20 255
-    LABELSCALE 50
-    MAXLABELS 50
-    DISPLAY3D ON
-    TYPE POINT
-    STATUS OFF
-    POINTSIZE 0
-    LIFTHT 5
-    STROKE 220 200 20 255
-    CGIREQUEST /cgi-bin/DFCgi.exe
-    SRID 4612
-    TILEWIDTH 20000
-    MAXSCALE 10000
-    MINSCALE 0
-    TRAIL 5
-  END
-
   LAYER
     NAME city_railway
     DATA ipc/city/city_railway
@@ -264,7 +219,7 @@ SRID 4612
 	DISPLAY3D ON
 	CGIREQUEST /api/gis/getlayer?pool=hawk
 	STATUS ON
-	DATA tatemono_1:floornum:floorht:wallid:designid:flground
+	DATA tatemono_1:floornum:floorht:wallid:designid:flground:tname
 	SRID 4612
 	TILEWIDTH 30000
 	STROKE 173 173 185
@@ -280,7 +235,12 @@ SRID 4612
 	BWALLCOUNT <?= $wallcount; ?>
 
 	BWALLTEXW <?= $walltexw; ?>
-
+  MAXLABELS 200
+  LABELATTRIBUTE tname
+  LABELSCALE 50
+  LABELVISIBLE OFF
+  FONTTEXTCOLOR 255 255 0 255
+  FONTOUTLINECOLOR 20 20 20 255
   END
 
   LAYER
@@ -290,7 +250,7 @@ SRID 4612
 	DISPLAY3D ON
 	CGIREQUEST /api/gis/getlayer?pool=hawk
 	STATUS ON
-	DATA tatemono_2:floornum:floorht:wallid:designid:flground
+	DATA tatemono_2:floornum:floorht:wallid:designid:flground:tname
 	SRID 4612
 	TILEWIDTH 30000
 	STROKE 173 173 185
@@ -311,6 +271,12 @@ SRID 4612
 	DESIGNSERVLET /api/gis/getdesign?design_id=
 	DESIGNOBJECTMAX 200
 	DESIGNTEXTUREMAX 2000
+  MAXLABELS 200
+  LABELATTRIBUTE tname
+  LABELSCALE 50
+  LABELVISIBLE OFF
+  FONTTEXTCOLOR 255 255 0 255
+  FONTOUTLINECOLOR 20 20 20 255
   END
 
   LAYER
@@ -330,11 +296,12 @@ SRID 4612
   DATA tatemono_v:wrl:tfm:tname
   TRANSFORMATTRIBUTE tfm
   SYMBOLATTRIBUTE wrl
-  MAXLABELS 300
+  MAXLABELS 200
   LABELATTRIBUTE tname
     FONTTEXTCOLOR 255 255 255 255
     FONTOUTLINECOLOR 20 20 20 255
     LABELSCALE 50
+    LABELVISIBLE OFF
   CGIREQUEST /api/gis/getlayer?pool=hawk&gty=POINT
   END
 END

@@ -34,7 +34,9 @@ var panelOpen = 1;
 var panelWidth = 270;
 function togglePanel() {
     if( panelOpen == 1 ) {
-        document.getElementById("contenttop").style.visibility = "hidden";
+        document.getElementById("contenttop").style.display = "none";
+        document.getElementById("filler").style.display = "block";
+        
         document.getElementById("footerbutton").value="＞";
         panelOpen = 0;
         timer=setInterval(
@@ -53,7 +55,8 @@ function togglePanel() {
         ,2);
     }
     else {
-        document.getElementById("contenttop").style.visibility = "visible";
+        document.getElementById("contenttop").style.display = "block";
+        document.getElementById("filler").style.display = "none";
         document.getElementById("footerbutton").value="＜";
         timer=setInterval(
         function()
@@ -102,7 +105,7 @@ function setMapStatus(lid){
 	var lobj = document.getElementById("mlayer"+lid);
 	var setstr = (lobj.checked) ? "ON" : "OFF";
 	lid = lid -1;
-	var lyrswitch = [["top_annotation","middle_annotation","city_annotation_0","city_annotation_1"],
+	var lyrswitch = [["top_annotation","middle_annotation"],
 	["top_line","aza_polygon", "oaza_polygon"] ,
 	["middle_road_line","city_road_0","city_road_1","city_road_2"] ,
 	["middle_railway","city_railway"],
@@ -111,6 +114,21 @@ function setMapStatus(lid){
 	for(i=0;i<lyrswitch[lid].length;i++) {
 		parent.frames["dragonfmap"].dragonfly.setShapeLayerProperty(lyrswitch[lid][i],"status",setstr);
 	}
+
+    var dragonfly = parent.frames["dragonfmap"].dragonfly;
+    if( lid == 0 ) {
+        // building labels
+        if( lobj.checked ) {
+            dragonfly.setShapeLayerProperty("tatemono_1","LABELVISIBLE","ON");
+            dragonfly.setShapeLayerProperty("tatemono_2","LABELVISIBLE","ON");
+            dragonfly.setShapeLayerProperty("tatemono_v","LABELVISIBLE","ON");
+        }
+        else {
+            dragonfly.setShapeLayerProperty("tatemono_1","LABELVISIBLE","OFF");
+            dragonfly.setShapeLayerProperty("tatemono_2","LABELVISIBLE","OFF");
+            dragonfly.setShapeLayerProperty("tatemono_v","LABELVISIBLE","OFF");
+        }
+    }
 }
 
 function testButton() {
@@ -1556,7 +1574,7 @@ html, body {
         style="position:absolute;top:-15px;left:0px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
     </div> 
                             </td>
-                            <td><input type="text" style="width:30px;" id="vrmlxmove" value="0" onchange="updateTFM()" onkeyup="sliderKeyUp(this)"/>°</td>
+                            <td><input type="text" style="width:30px;" id="vrmlxmove" value="0" onchange="updateTFM()" onkeyup="sliderKeyUp(this)"/></td>
                         </tr>
                         <tr>
                             <td>
@@ -1572,7 +1590,7 @@ html, body {
         style="position:absolute;top:-15px;left:0px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
     </div> 
                             </td>
-                            <td><input type="text" style="width:30px;" id="vrmlymove" value="0" onchange="updateTFM()" onkeyup="sliderKeyUp(this)"/>°</td>
+                            <td><input type="text" style="width:30px;" id="vrmlymove" value="0" onchange="updateTFM()" onkeyup="sliderKeyUp(this)"/></td>
                         </tr>
                         <tr>
                             <td>
@@ -1588,7 +1606,7 @@ html, body {
         style="position:absolute;top:-15px;left:0px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
     </div> 
                             </td>
-                            <td><input type="text" style="width:30px;" id="vrmlzmove" value="0" onchange="updateTFM()" onkeyup="sliderKeyUp(this)"/>°</td>
+                            <td><input type="text" style="width:30px;" id="vrmlzmove" value="0" onchange="updateTFM()" onkeyup="sliderKeyUp(this)"/></td>
                         </tr>
 
                     </table>
@@ -1673,18 +1691,18 @@ html, body {
         </tr>
         
     </table>
-    <hr>
+    <hr />
     <h4>
     お気に入り場所登録</h4>
     <input type="textbox" value="" id="newplacename" style="width:150px">
-    <input type="button" id="footerbutton" onclick="addPlace();" value="登録"><br>
+    <input type="button" id="addPlaceButton" onclick="addPlace();" value="登録"><br>
     <br>
     <form id="placescsvform" action="placescsv" method="post">
     filter:<br>
     <input type="textbox" value="" id="searchplacename" style="width:200px" onkeyup="filterPlaces();"> 
     <br>
-    <div id="placeslist" style="overflow-y:scroll; height:450px;width:250px;">
-        <br>
+    <div id="placeslist" style="overflow-y:scroll;height:450px;width:250px;">
+        <br />
         <? foreach ($places as $place) { ?>
         <span id="place<?= $place['places_id'] ?>" style="width:150px;height:30px;outline-color:lightgrey;outline-style: solid;outline-width: 1px;margin-left: 2px;margin-top: 2px;display: inline-block;padding: 3px;" 
             onclick="gotoPlace(<?= $place['lon']; ?>,<?= $place['lat']; ?>,<?= $place['center_lon']; ?>,<?= $place['center_lat']; ?>,<?= $place['alt']; ?>,<?= $place['pitch']; ?>,<?= $place['dir']; ?>, <?= $place['out']; ?>);"> <?= $place['pname'] ?> </span>
@@ -1692,14 +1710,17 @@ html, body {
         <a style="color:green;text-decoration: none;" onclick="placeToCB('<?= $place['url']; ?>');">url</a>
         <span>&nbsp;</span>
         <a style="color:red;text-decoration: none;" onclick="deletePlace('<?= $place['places_id']; ?>');">削除</a>
-        <br>
+        <br />
         <? } ?>
 	</div>
-    
+        
         <input type="submit" value="CSVダウンロード" />
     </form>
 </div>
 
+</div>
+<div id="filler" style="display: none" class="content" >
+&nbsp;<br>
 </div>
 <footer class="footer" style="text-align: right;width:100%;">
     <input type="button" id="footerbutton" onclick="togglePanel();" value="＜">

@@ -34,7 +34,9 @@ var panelOpen = 1;
 var panelWidth = 270;
 function togglePanel() {
     if( panelOpen == 1 ) {
-        document.getElementById("contenttop").style.visibility = "hidden";
+        document.getElementById("contenttop").style.display = "none";
+        document.getElementById("filler").style.display = "block";
+        
         document.getElementById("footerbutton").value="＞";
         panelOpen = 0;
         timer=setInterval(
@@ -53,7 +55,8 @@ function togglePanel() {
         ,2);
     }
     else {
-        document.getElementById("contenttop").style.visibility = "visible";
+        document.getElementById("contenttop").style.display = "block";
+        document.getElementById("filler").style.display = "none";
         document.getElementById("footerbutton").value="＜";
         timer=setInterval(
         function()
@@ -98,11 +101,15 @@ function openTab(tabname, cityName) {
   document.getElementById(tabname).className += " active";
 }
 
+function stopEdit() {
+    openPanel('addobjectdiv', 'panelcontent');
+}
+
 function setMapStatus(lid){
 	var lobj = document.getElementById("mlayer"+lid);
 	var setstr = (lobj.checked) ? "ON" : "OFF";
 	lid = lid -1;
-	var lyrswitch = [["top_annotation","middle_annotation","city_annotation_0","city_annotation_1"],
+	var lyrswitch = [["top_annotation","middle_annotation"],
 	["top_line","aza_polygon", "oaza_polygon"] ,
 	["middle_road_line","city_road_0","city_road_1","city_road_2"] ,
 	["middle_railway","city_railway"],
@@ -111,6 +118,20 @@ function setMapStatus(lid){
 	for(i=0;i<lyrswitch[lid].length;i++) {
 		parent.frames["dragonfmap"].dragonfly.setShapeLayerProperty(lyrswitch[lid][i],"status",setstr);
 	}
+    var dragonfly = parent.frames["dragonfmap"].dragonfly;
+    if( lid == 0 ) {
+        // building labels
+        if( lobj.checked ) {
+            dragonfly.setShapeLayerProperty("tatemono_1","LABELVISIBLE","ON");
+            dragonfly.setShapeLayerProperty("tatemono_2","LABELVISIBLE","ON");
+            dragonfly.setShapeLayerProperty("tatemono_v","LABELVISIBLE","ON");
+        }
+        else {
+            dragonfly.setShapeLayerProperty("tatemono_1","LABELVISIBLE","OFF");
+            dragonfly.setShapeLayerProperty("tatemono_2","LABELVISIBLE","OFF");
+            dragonfly.setShapeLayerProperty("tatemono_v","LABELVISIBLE","OFF");
+        }
+    }
 }
 
 function init(){
@@ -705,6 +726,11 @@ html, body {
 </script>
             </td>
         </tr>
+        <tr>
+            <td colspan="2">
+                <input type="button" onclick="stopEdit()" value="閉じる" />
+            </td>
+        </tr>
 	</table>
 </div>
 
@@ -762,6 +788,9 @@ html, body {
     </form>
 </div>
 
+</div>
+<div id="filler" style="display: none" class="content" >
+&nbsp;<br>
 </div>
 <footer class="footer" style="text-align: right;width:100%;">
     <input type="button" id="footerbutton" onclick="togglePanel();" value="＜">

@@ -483,7 +483,7 @@ class Controller_Hawkeye extends Controller
 					$this -> convertxmltovrml($tengunfile , $dfolder . $vfname, $skip);
 				}
 				else if ( count($csvfile) > 0 ) {
-					$this -> convertcsvtovrml($csvfile , $dfolder . $vfname, $skip);
+					$this -> convertcsvtovrml($csvfile , $dfolder . $vfname, $skip, $post["trx"], $post["try"], $post["trz"]);
 				}
 				else if ( count($vrmlfile) > 0 ) {
 
@@ -596,7 +596,7 @@ class Controller_Hawkeye extends Controller
 		return Response::forge(Presenter::forge('welcome/404'), 404);
 	}
 
-	public function convertcsvtovrml($csvfile, $vfname, $skip=0) {
+	public function convertcsvtovrml($csvfile, $vfname, $skip=0, $tx=0, $ty=0, $tz=0) {
 		$filepath = APPPATH.'data/' . $csvfile['name'];
 		$fhandle = fopen($filepath , 'r');
 
@@ -617,9 +617,9 @@ class Controller_Hawkeye extends Controller
 			$dat = fgetcsv($fhandle);
 			// x,y,z,r,g,b
 			if( $dat && count($dat) >= 3 ) {
-				$x = $dat[0];
-				$y = $dat[1];
-				$z = $dat[2];
+				$x = $dat[0] + $tx;
+				$y = $dat[2] + $ty; // flip
+				$z = $dat[1] + $tz;
 
 				if( ($skip == 0) || ($pinx % $skip ) == 0 ) {
 					$point = $x . " " . $y . " " . $z;

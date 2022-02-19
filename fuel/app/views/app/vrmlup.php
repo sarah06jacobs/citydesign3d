@@ -66,6 +66,12 @@ function closeWin() {
             <TD> <input name="csvfile" type="file" />  
             </TD>
         </TR>
+        <tr><td colspan="2">
+            tx<input type="text" name="trx" value="0" size=4/>
+            tz<input type="text" name="trz" value="0" size=4/>
+            ty<input type="text" name="try" value="0" size=4/>
+
+        </td></tr>
         <TR>
             <TD> 点群 頂点削減： </TD>
             <TD> 

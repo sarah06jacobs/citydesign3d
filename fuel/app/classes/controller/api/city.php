@@ -461,6 +461,7 @@ class Controller_Api_City extends Controller_Apibase {
             $centgeom = json_decode($obj['centerjson'], true);
             $centcoords = $centgeom['coordinates'];
             $pname = $obj["tname"];
+
             if (isset($obj["flground"])) {
                 $alt = ($obj["floorht"] * $obj["floornum"]) - $obj["flground"] + Config::get('object_favorite_alt');
             }
@@ -502,6 +503,10 @@ class Controller_Api_City extends Controller_Apibase {
             $cx = $wx;
             $cy = $wy;
             $url = "?wx=$wx&wy=$wy&cx=$cx&cy=$cy&alt=$alt&pitch=$pitch&dir=$dir&out=$out";
+
+            if( trim($pname) === "" ) {
+                $pname = "【".$obj["gid"]."】" . round($wx , 4) . "," . round($wy,4);
+            }
 
             $query = DB::insert('places');
             $query->set(array(
