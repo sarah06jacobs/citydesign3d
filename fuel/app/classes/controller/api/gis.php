@@ -144,7 +144,7 @@ class Controller_Api_Gis extends Controller_Apibase {
             		}
             	}
                 for( $k=0;$k<$att_count; $k++ ) {
-                    $shpbin[] = $this -> pack_str( $result[$j][$layer_arr[$k+1]] , $ATTRIBUTE_LENGTH );
+                    $shpbin[] = $this -> pack_str( mb_convert_encoding($result[$j][$layer_arr[$k+1]],"sjis","utf-8") , $ATTRIBUTE_LENGTH );
                     $out_content_size = $out_content_size + $ATTRIBUTE_LENGTH;
                 }
     		}
