@@ -211,6 +211,12 @@ function setTFMForm() {
     updateTFMSliders();
 }
 
+function setVrmlChild(vrmlid, layer) {
+    // just refresh the layer to show the added data
+    var dragonfly = parent.frames["dragonfmap"].dragonfly;
+    dragonfly.setShapeLayerProperty(layer,"RELOADLAYER", "1");
+}
+
 
 function setVrml(objid , vrmlfile, layer, tname, cdate, point_str, tfm) {
     vrmlobj_id = objid;
@@ -311,6 +317,16 @@ function uploadVrml() {
     window.open('vrmlup?vrmlid=-1' , 'design',params);
 
     //setVrml(6 , 'obj_6.wrl', 'tatemono_v', 'bld', '2022-01-01', '');
+}
+
+function addVrmlChild() {
+    if( vrmlobj_id >= 0 ) {
+        let params = "scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=600,height=500,left=100,top=100";
+        window.open('vrmlup?vrmlid=-1&gid='+vrmlobj_id , 'design',params);
+    }
+    else {
+        alert("VRML OBJECT 選択してください。");
+    }
 }
 
 function newGeom(lyr) {
@@ -908,39 +924,45 @@ function gotoPlace(wx,wy,cx,cy,alt,pitch,dir,out) {
 }
 
 function reloadPlaces(list) {
+    // placestable
+    var table = document.getElementById('placestable');
+    var rowCount = table.rows.length;
+    for (var i = rowCount-1; i >=0; i--) {
+        table.deleteRow(i);
+    }
+
     var rootdiv = document.getElementById('placeslist');
-    rootdiv.innerHTML = "";
-    rootdiv.appendChild(document.createElement("br"));
+    rowCount = 0;
     for ( var i=0; i<list.length; i++ ) {
         var obj = list[i];
+
+        var row = table.insertRow(i);
+        var cell1 = row.insertCell(0);
+        cell1.setAttribute("style" ,"width:160px;outline-color:lightgrey;outline-style: solid;outline-width: 1px;");
         var span = document.createElement("span");
         span.id = "place" + obj['places_id'];
-        span.setAttribute("style" ,"width:150px;height:30px;outline-color:lightgrey;outline-style: solid;outline-width: 1px;margin-left: 2px;margin-top: 2px;display: inline-block;padding: 3px;");
+        span.setAttribute("style" ,"width:160px;height:30px;margin-left: 2px;margin-top: 2px;display: inline-block;padding: 3px;");
         span.setAttribute("onclick","gotoPlace("+obj['lon']+","+obj['lat']+","  + obj['center_lon']+","+obj['center_lat']+ "," +obj['alt']+","+obj['pitch']+","+obj['dir']+","+obj['out']+");");
-        span.innerHTML = obj['pname'];
-        rootdiv.appendChild(span);
+        span.innerHTML = " " + obj['pname'] + " ";
+        cell1.appendChild(span);
 
-        var span3 = document.createElement("span");
-        span3.innerHTML = "&nbsp;";
-        rootdiv.appendChild(span3);
-
+        var cell2 = row.insertCell(1);
+        cell2.setAttribute("style" ,"width:30px;text-align: center;");
         var at = document.createElement("a");
         at.setAttribute("onclick","placeToCB('"+obj['url']+"');");
         at.setAttribute("style" ,"color:green;text-decoration: none;");
         at.innerHTML = "url";
-        rootdiv.appendChild(at);
+        cell2.appendChild(at);
 
-        var span2 = document.createElement("span");
-        span2.innerHTML = "&nbsp;";
-        rootdiv.appendChild(span2);
-
+        var cell3 = row.insertCell(2);
+        cell3.setAttribute("style" ,"width:40px;text-align: center;");
         var at2 = document.createElement("a");
         at2.setAttribute("onclick","deletePlace('"+obj['places_id']+"');");
         at2.setAttribute("style" ,"color:red;text-decoration: none;");
         at2.innerHTML = "削除";
-        rootdiv.appendChild(at2);
-        
-        rootdiv.appendChild(document.createElement("br"));
+        cell3.appendChild(at2);
+
+        rowCount++;
     }
 }
 
@@ -1653,10 +1675,15 @@ html, body {
 		</tr>
 		<tr>
 			<td colspan="2">
-				<input type="button" onclick="setEditTool('vw')" value="Edit Points" />
-				<input type="button" onclick="endEditTool()" value="Stop Edit" />
+				<input type="button" onclick="setEditTool('vw')" value="頂点編集開始" />
+				<input type="button" onclick="endEditTool()" value="頂点編集終了" />
 			</td>
 		</tr>
+        <tr>
+            <td colspan="2">
+                <input type="button" onclick="addVrmlChild()" value="子オブジェクト追加" />
+            </td>
+        </tr>
 		<tr>
 			<td colspan="2">&nbsp;
 			</td>
@@ -1723,19 +1750,28 @@ html, body {
     filter:<br>
     <input type="textbox" value="" id="searchplacename" style="width:200px" onkeyup="filterPlaces();"> 
     <br>
-    <div id="placeslist" style="overflow-y:scroll;height:450px;width:250px;">
+    <div id="placeslist" style="overflow-y:scroll;height:430px;width:250px;">
         <br />
-        <? foreach ($places as $place) { ?>
-        <span id="place<?= $place['places_id'] ?>" style="width:150px;height:30px;outline-color:lightgrey;outline-style: solid;outline-width: 1px;margin-left: 2px;margin-top: 2px;display: inline-block;padding: 3px;" 
+        <table id="placestable" name="placestable" style="width:230px;">
+            <? foreach ($places as $place) { ?>
+            <tr>
+                <td style="width:160px;outline-color:lightgrey;outline-style: solid;outline-width: 1px;">
+
+                <span id="place<?= $place['places_id'] ?>" style="width:160px;height:30px;margin-left: 2px;margin-top: 2px;display: inline-block;padding: 3px;" 
             onclick="gotoPlace(<?= $place['lon']; ?>,<?= $place['lat']; ?>,<?= $place['center_lon']; ?>,<?= $place['center_lat']; ?>,<?= $place['alt']; ?>,<?= $place['pitch']; ?>,<?= $place['dir']; ?>, <?= $place['out']; ?>);"> <?= $place['pname'] ?> </span>
-            <span>&nbsp;</span>
-        <a style="color:green;text-decoration: none;" onclick="placeToCB('<?= $place['url']; ?>');">url</a>
-        <span>&nbsp;</span>
-        <a style="color:red;text-decoration: none;" onclick="deletePlace('<?= $place['places_id']; ?>');">削除</a>
-        <br />
-        <? } ?>
+
+                </td>
+                <td style="width:30px;text-align: center;">
+                    <a style="color:green;text-decoration: none;" onclick="placeToCB('<?= $place['url']; ?>');">url</a>
+                </td>
+                <td style="width:40px;text-align: center;">
+                    <a style="color:red;text-decoration: none;" onclick="deletePlace('<?= $place['places_id']; ?>');">削除</a>
+                </td>
+            </tr>
+            <? } ?>
+        </table>
 	</div>
-        
+        <br>
         <input type="submit" value="CSVダウンロード" />
     </form>
 </div>

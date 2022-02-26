@@ -79,8 +79,6 @@ class Controller_Api_City extends Controller_Apibase {
         $jresp['errors'] = $errors;
         // INSERT INTO tatemono_1 (tname,floornum,wkb_geometry) VALUES ('test1', 10,ST_GeomFromText('POLYGON((139.76 35.68,139.76 35.686,139.766 35.686,139.766 35.68,139.76 35.68))',4612));
         return Response::forge(json_encode($jresp) , 200);
-
-
     }
 
     public function action_getobject() {
@@ -258,6 +256,14 @@ class Controller_Api_City extends Controller_Apibase {
         $query -> where('gid' , $id);
         $query->execute();
 
+        $query = DB::update($layer);
+        $query->set(array(
+            'update_ts' => time(),
+            'tfm' => $tfm,
+            'wkb_geometry' => db::expr("ST_GeomFromText('POINT( ".$cstr." )',4612)") ));
+        $query -> where('parent_gid' , $id);
+        $query->execute();
+
         $jresp = array();
         $jresp['result'] = "OK";
         $jresp['errors'] = $errors;
@@ -278,11 +284,13 @@ class Controller_Api_City extends Controller_Apibase {
         $query = DB::select('*');
         $query->from($layer);
         $query -> where('gid' , $id);
+        $query -> or_where('parent_gid' , $id);
         $result = $query->execute()->as_array();
-        if( count( $result ) > 0 ) {
+
+        for($i=0;$i<count($result);$i++) {
             // design?
-            if (array_key_exists('designid', $result[0])) {
-                $designid = $result[0]["designid"]+0;
+            if (array_key_exists('designid', $result[$i])) {
+                $designid = $result[$i]["designid"]+0;
                 if($designid > 0) {
                     $query = db::delete('design_base');
                     $query -> where('design_id' , $designid);
@@ -299,10 +307,10 @@ class Controller_Api_City extends Controller_Apibase {
                     }
                 }
             }
-            if (array_key_exists('wrl', $result[0])) {
-                $wrlfile = $result[0]['wrl'];
+            if (array_key_exists('wrl', $result[$i])) {
+                $wrlfile = $result[$i]['wrl'];
                 $dfolder = DOCROOT.'/maps/shape/vrml/';
-                $vfname = "obj_" . $result[0]['gid'] . ".wrl";
+                $vfname = "obj_" . $result[$i]['gid'] . ".wrl";
                 if( file_exists($dfolder . $vfname) )
                 {
                     unlink($dfolder . $vfname);
@@ -313,7 +321,7 @@ class Controller_Api_City extends Controller_Apibase {
                 }
                 // delete images
                 for($q=1;$q<10;$q++) {
-                    $imname = "obj_" . $result[0]['gid'] . "_img_" . $q . ".png";
+                    $imname = "obj_" . $result[$i]['gid'] . "_img_" . $q . ".png";
                     if( file_exists($dfolder . $imname) )
                     {
                         unlink($dfolder . $imname);
@@ -324,6 +332,7 @@ class Controller_Api_City extends Controller_Apibase {
 
         $query = DB::delete($layer);
         $query -> where('gid' , $id);
+        $query -> or_where('parent_gid' , $id);
         $query->execute();
 
         $jresp = array();

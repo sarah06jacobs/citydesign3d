@@ -8,8 +8,15 @@
     if(opener) {
         // set design id if saved.
         <? if ( $result === "complete" ) { ?>
+
+            <? if (($gid+0) < 0) { ?>
+
         opener.setVrml('<?= $vrml_id; ?>' , '<?= $vfname; ?>' , '<?= $layer; ?>' , '<?= $tname; ?>', '<?= $cdate; ?>', '<?= $points; ?>' ,  '<?= $tfm; ?>');
         window.close();
+            <? } else { ?>
+        opener.setVrmlChild('<?= $vrml_id; ?>' , '<?= $layer; ?>');
+        window.close();
+            <? } ?>
         <? } ?>
     }
 }
@@ -46,6 +53,7 @@ function closeWin() {
     <input type="hidden" name="action" value="upload" />
     <input type="hidden" name="vrmlid" value="<?= $vrml_id ?>" />
     <input type="hidden" name="layer" value="<?= $layer ?>" />
+    <input type="hidden" name="gid" value="<?= $gid ?>" />
     
     <br><b>3Dファイル</b><br>
     <TABLE id="dataTable" width="350px" border="1">

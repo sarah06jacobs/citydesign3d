@@ -407,6 +407,7 @@ class Controller_Hawkeye extends Controller
         $vrml_id = isset( $post["vrmlid"] ) ? $post["vrmlid"]+0 : -1;
         $skip = isset( $post["skip"] ) ? $post["skip"]+0 : 0;
         $wallct = isset( $post["wallct"] ) ? $post["wallct"]+0 : 0;
+        $gid = isset( $post["gid"] ) ? $post["gid"]+0 : -1;
         $vfname = "";
         $points = "";
         $cdate = "";
@@ -448,14 +449,36 @@ class Controller_Hawkeye extends Controller
                 }
 
                 if( $vrml_id == -1 ) {
+                	$setlon = "100.0";
+                	$setlat = "5.0";
+                	$tname = "vrml object";
+                	$tfm = "";
+                	if( $gid >= 0 ) {
+                		$query = DB::select('*', db::expr("ST_AsGeoJSON(wkb_geometry) gjson"));
+				        $query->from($layer);
+				        $query->where('gid',$gid);
+				        $obj = $query->execute()->as_array();
+				        if( count($obj) > 0 ) {
+				        	$geom = json_decode($obj[0]['gjson'], true);
+				            $type = $geom['type'];
+				            $coords = $geom['coordinates'];
+				            $setlon = $coords[0];
+				            $setlat = $coords[1];
+				            $tname = "";
+				            $tfm = $obj[0]["tfm"];
+				        }
+                	}
+
 	              	$cdate = date('Y-m-d H:i');
 	                $query = DB::insert($layer);
-		            $query -> set(array( 'tname' => 'upload' ,
+		            $query -> set(array( 'tname' => $tname ,
 			            'create_date' => $cdate,
 			            'create_ts' => strtotime($cdate),
 			            'update_ts' => time(),
 			            'imgcount' => $wallct,
-			        	'wkb_geometry' => db::expr("ST_GeomFromText('POINT(100.0 5.0)',4612)") ));
+			            'parent_gid' => $gid,
+			            'tfm' => $tfm,
+			        	'wkb_geometry' => db::expr("ST_GeomFromText('POINT(".$setlon." ".$setlat.")',4612)") ));
 		            $vrmlobj = $query->execute();
 		            $vrml_id = $vrmlobj[0];
 	        	}
@@ -547,7 +570,7 @@ class Controller_Hawkeye extends Controller
         $views['vrml_id'] = $vrml_id;
         $views['vfname'] = $vfname;
         $views['layer'] = $layer;
-
+        $views['gid'] = $gid;
         $views['tname'] = $tname;
         $views['cdate'] = $cdate;
         $views['points'] = $points;
