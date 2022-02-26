@@ -214,7 +214,8 @@ function setTFMForm() {
 function setVrmlChild(vrmlid, layer) {
     // just refresh the layer to show the added data
     var dragonfly = parent.frames["dragonfmap"].dragonfly;
-    dragonfly.setShapeLayerProperty(layer,"RELOADLAYER", "1");
+    dragonfly.setShapeLayerProperty(editlayer,"RELOADLAYER", "1");
+    dragonfly.setShapeLayerProperty(editlayer,"HIDEOBJECT",edit_id);
 }
 
 
