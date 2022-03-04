@@ -12,6 +12,7 @@
             <? if (($gid+0) < 0) { ?>
 
         opener.setVrml('<?= $vrml_id; ?>' , '<?= $vfname; ?>' , '<?= $layer; ?>' , '<?= $tname; ?>', '<?= $cdate; ?>', '<?= $points; ?>' ,  '<?= $tfm; ?>');
+        opener.document.getElementById("setfavoritebutton").disabled = true;
         window.close();
             <? } else { ?>
         opener.setVrmlChild('<?= $vrml_id; ?>' , '<?= $layer; ?>');

@@ -427,6 +427,7 @@ function itemClicked(id,layerid,inclusive) {
                     editlayer = json_data['layer'];
                     document.getElementById("editdate").value = objects[0]['create_date'];
             		document.getElementById("edittname").value = objects[0]['tname'];
+                    document.getElementById("setfavoritebutton").disabled = false;
 
                     if ( layerid < 2000 ) {
                         editType = 1;
@@ -1692,7 +1693,7 @@ html, body {
 
         <tr>
             <td colspan="2">
-                <input type="button" onclick="setObjectFavorite()" value="お気に入り登録" />
+                <input type="button" id="setfavoritebutton" onclick="setObjectFavorite()" value="お気に入り登録" />
             </td>
         </tr>
         <tr>
