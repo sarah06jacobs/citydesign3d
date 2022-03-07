@@ -404,10 +404,15 @@ class Controller_Hawkeye extends Controller
         $result = "";
         $layer = isset( $post["layer"] ) ? $post["layer"] : "tatemono_v";
         $action = isset( $post["action"] ) ? $post["action"] : "";
-        $vrml_id = isset( $post["vrmlid"] ) ? $post["vrmlid"]+0 : -1;
+        $vrml_id = isset( $post["vrmlid"] ) ? $post["vrmlid"]+0 : -1; // gid of object
         $skip = isset( $post["skip"] ) ? $post["skip"]+0 : 0;
         $wallct = isset( $post["wallct"] ) ? $post["wallct"]+0 : 0;
-        $gid = isset( $post["gid"] ) ? $post["gid"]+0 : -1;
+        $gid = isset( $post["gid"] ) ? $post["gid"]+0 : -1;  // gid of parent object
+
+        $offset_x = isset( $post["trx"] ) ? $post["trx"] : 0;
+        $offset_y = isset( $post["try"] ) ? $post["try"] : 0;
+        $offset_z = isset( $post["trz"] ) ? $post["trz"] : 0;
+
         $vfname = "";
         $points = "";
         $cdate = "";
@@ -478,6 +483,9 @@ class Controller_Hawkeye extends Controller
 			            'imgcount' => $wallct,
 			            'parent_gid' => $gid,
 			            'tfm' => $tfm,
+			            'offset_x' => $offset_x,
+			            'offset_y' => $offset_y,
+			            'offset_z' => $offset_z,
 			        	'wkb_geometry' => db::expr("ST_GeomFromText('POINT(".$setlon." ".$setlat.")',4612)") ));
 		            $vrmlobj = $query->execute();
 		            $vrml_id = $vrmlobj[0];
@@ -486,6 +494,9 @@ class Controller_Hawkeye extends Controller
 	        		$query = DB::update($layer);
 		            $query -> set(array( 
 			            'update_ts' => time(),
+			            'offset_x' => $offset_x,
+			            'offset_y' => $offset_y,
+			            'offset_z' => $offset_z,
 			            'imgcount' => $wallct ) );
 		            $vrmlobj = $query->execute();
 	        	}
@@ -506,7 +517,7 @@ class Controller_Hawkeye extends Controller
 					$this -> convertxmltovrml($tengunfile , $dfolder . $vfname, $skip);
 				}
 				else if ( count($csvfile) > 0 ) {
-					$this -> convertcsvtovrml($csvfile , $dfolder . $vfname, $skip, $post["trx"], $post["try"], $post["trz"]);
+					$this -> convertcsvtovrml($csvfile , $dfolder . $vfname, $skip, $offset_x, $offset_y, $offset_z);
 				}
 				else if ( count($vrmlfile) > 0 ) {
 
@@ -565,6 +576,27 @@ class Controller_Hawkeye extends Controller
             }
         }
 
+        // for child set offset
+        $current_gid = 0;
+
+        if( $gid >= 0 ) {
+        	$current_gid = $gid;
+        }
+        else if($vrml_id > 0) {
+        	$current_gid = $vrml_id;
+        }
+        if( $current_gid > 0 ) {
+    		$query = DB::select('*');
+	        $query->from($layer);
+	        $query->where('gid',$current_gid);
+	        $obj = $query->execute()->as_array();
+	        if( count($obj) > 0 ) {
+	        	$offset_x = $obj[0]['offset_x'];
+	        	$offset_y = $obj[0]['offset_y'];
+	        	$offset_z = $obj[0]['offset_z'];
+	        }
+    	}
+
         $views = array();
         $views['result'] = $result;
         $views['vrml_id'] = $vrml_id;
@@ -575,6 +607,12 @@ class Controller_Hawkeye extends Controller
         $views['cdate'] = $cdate;
         $views['points'] = $points;
         $views['tfm'] = $tfm;
+
+        $views['offset_x'] = $offset_x;
+        $views['offset_y'] = $offset_y;
+        $views['offset_z'] = $offset_z;
+
+        
         return Response::forge(View::forge('app/vrmlup', $views));
     }
 

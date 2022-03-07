@@ -76,9 +76,9 @@ function closeWin() {
             </TD>
         </TR>
         <tr><td colspan="2">
-            tx<input type="text" name="trx" value="0" size=4/>
-            tz<input type="text" name="trz" value="0" size=4/>
-            ty<input type="text" name="try" value="0" size=4/>
+            tx<input type="text" name="trx" value="<?= $offset_x; ?>" size=4/>
+            tz<input type="text" name="trz" value="<?= $offset_y; ?>" size=4/>
+            ty<input type="text" name="try" value="<?= $offset_z; ?>" size=4/>
 
         </td></tr>
         <TR>

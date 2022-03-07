@@ -29,6 +29,7 @@ class Controller_Api_City extends Controller_Apibase {
         $layer = $json['layer'];
         $wallid = $json['wallid'];
         $cdate = $json['date'];
+        $edate = $json['enddate'];
         $tname = $json['tname'];
         $designid = $json['designid'];
         if( $designid === "" ) {
@@ -60,6 +61,11 @@ class Controller_Api_City extends Controller_Apibase {
 
         $floors = (int)($ht);
 
+        $end_ts = '0';
+        if( trim($edate) !== "" ) {
+            $end_ts = strtotime($edate);
+        }
+
         $query = DB::insert($layer);
         $query->set(array( 'tname' => $name , 
         	'floornum' => $floors,
@@ -69,6 +75,7 @@ class Controller_Api_City extends Controller_Apibase {
             'create_date' => $cdate,
             'floorht' => '1',
             'create_ts' => strtotime($cdate),
+            'end_ts' => $end_ts,
             'update_ts' => time(),
             'designid' => $designid,
         	'wkb_geometry' => db::expr("ST_GeomFromText('POLYGON(( ".$cstr." ))',4612)") ));
@@ -150,6 +157,8 @@ class Controller_Api_City extends Controller_Apibase {
             $result[$i]['geomstr'] = $geomstr;
             $result[$i]['geom'] = $coord_obj_arr;
 
+            $result[$i]['end_date'] = (($result[$i]['end_ts']+0) == 0) ? "" : date('Y-m-d' , $result[$i]['end_ts']+0);
+
             $obj_arr[] = $result[$i];
         }
 
@@ -173,6 +182,7 @@ class Controller_Api_City extends Controller_Apibase {
         $ht = $json['ht'];
         $ground = $json['ground'];
         $cdate = $json['date'];
+        $edate = $json['enddate'];
         $layer = $json['layer'];
         $wallid = $json['wallid'];
         $tname = $json['tname'];
@@ -187,6 +197,11 @@ class Controller_Api_City extends Controller_Apibase {
 
         if( $wallid === "" ) {
             $wallid = "0";
+        }
+
+        $end_ts = '0';
+        if( trim($edate) !== "" ) {
+            $end_ts = strtotime($edate);
         }
 
         $cstr = "";
@@ -213,6 +228,7 @@ class Controller_Api_City extends Controller_Apibase {
             'tname' => $tname,
             'create_date' => $cdate,
             'create_ts' => strtotime($cdate),
+            'end_ts' => $end_ts,
             'update_ts' => time(),
             'designid' => $designid,
             'wkb_geometry' => db::expr("ST_GeomFromText('POLYGON(( ".$cstr." ))',4612)") ));
@@ -236,11 +252,17 @@ class Controller_Api_City extends Controller_Apibase {
         $id = $json['id'];
         $coords = $json['coords'];
         $cdate = $json['date'];
+        $edate = $json['enddate'];
         $layer = $json['layer'];
         $tname = $json['tname'];
 
         $wrlfile = $json['wrlfile'];
         $tfm = $json['tfm'];
+
+        $end_ts = '0';
+        if( trim($edate) !== "" ) {
+            $end_ts = strtotime($edate);
+        }
 
         $cstr = $coords['x'] . " " . $coords['y'];
 
@@ -250,6 +272,7 @@ class Controller_Api_City extends Controller_Apibase {
             'create_date' => $cdate,
             'create_ts' => strtotime($cdate),
             'update_ts' => time(),
+            'end_ts' => $end_ts,
             'wrl' => $wrlfile,
             'tfm' => $tfm,
             'wkb_geometry' => db::expr("ST_GeomFromText('POINT( ".$cstr." )',4612)") ));

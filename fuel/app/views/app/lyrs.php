@@ -426,6 +426,7 @@ function itemClicked(id,layerid,inclusive) {
 
                     editlayer = json_data['layer'];
                     document.getElementById("editdate").value = objects[0]['create_date'];
+                    document.getElementById("editenddate").value = objects[0]['end_date'];
             		document.getElementById("edittname").value = objects[0]['tname'];
                     document.getElementById("setfavoritebutton").disabled = false;
 
@@ -627,6 +628,7 @@ function saveEditVrml() {
         id: edit_id,
         tname: document.getElementById("edittname").value,
         date: document.getElementById("editdate").value,
+        enddate: document.getElementById("editenddate").value,
         coords: points,
         layer: editlayer,
         wrlfile: document.getElementById("editwrlfile").value,
@@ -668,6 +670,7 @@ function saveEditBuilding() {
 		id: edit_id,
 		tname: document.getElementById("edittname").value,
         date: document.getElementById("editdate").value,
+        enddate: document.getElementById("editenddate").value,
         coords: points,
         ht: bld_ht,
         ground : bld_ground,
@@ -733,6 +736,7 @@ function saveObject() {
         ht: bld_ht,
         ground : bld_ground,
         date: document.getElementById("newdate").value,
+        enddate: document.getElementById("newenddate").value,
         tname: document.getElementById("newtname").value,
         wallid: document.getElementById("newwallidselect").value,
         designid: document.getElementById("new_design_id").value,
@@ -1443,8 +1447,23 @@ html, body {
                 <input type="text" id="newdate" name="newdate" value="" />
             </td>
         </tr>
+        <tr>
+            <td>
+                終了日：
+            </td>
+            <td>
+                <input type="text" id="newdate" name="newenddate" value="" />
+            </td>
+        </tr>
 <script>
     var example = flatpickr('#newdate',{
+      dateFormat: 'Y-m-d',
+      allowInput: true,
+      time_24hr: true,
+      onClose: function() {
+      }
+    });
+    var example = flatpickr('#newenddate',{
       dateFormat: 'Y-m-d',
       allowInput: true,
       time_24hr: true,
@@ -1502,6 +1521,23 @@ html, body {
                 <input type="text" id="editdate" name="editdate" value="" />
 <script>
     var example = flatpickr('#editdate',{
+      dateFormat: 'Y-m-d',
+      allowInput: true,
+      time_24hr: true,
+      onClose: function() {
+      }
+    });
+</script>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                終了日：
+            </td>
+            <td>
+                <input type="text" id="editenddate" name="editenddate" value="" />
+<script>
+    var example = flatpickr('#editenddate',{
       dateFormat: 'Y-m-d',
       allowInput: true,
       time_24hr: true,

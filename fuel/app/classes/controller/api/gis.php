@@ -46,8 +46,11 @@ class Controller_Api_Gis extends Controller_Apibase {
         $query->from($layer_arr[0]);
         
         if( $fromts > 0 && $tots > 0 ) {
-            $query->where('create_ts' , '>=' , $fromts);
             $query->where('create_ts' , '<=' , $tots);
+            $query->and_where_open();
+            $query->where('end_ts' , '>=' , $fromts);
+            $query->or_where('end_ts' , '0');
+            $query->and_where_close();
         }
         
         $query->where('wkb_geometry','&&' ,db::expr(' ST_MakeEnvelope ('.$bbox_arr[0].', '.$bbox_arr[1].','.$bbox_arr[2].', '.$bbox_arr[3].',4612)'));

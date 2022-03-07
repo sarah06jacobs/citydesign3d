@@ -196,6 +196,7 @@ function itemClicked(id,layerid,inclusive) {
                     editlayer = json_data['layer'];
                     document.getElementById("editdate").value = objects[0]['create_date'];
             		document.getElementById("edittname").value = objects[0]['tname'];
+                    document.getElementById("editenddate").value = objects[0]['end_date'];
             	}
             }
             // 成功時処理
@@ -726,7 +727,7 @@ html, body {
 				名前：
 			</td>
 			<td>
-				<input type="text" id="edittname" name="edittname" value="" />
+				<input type="text" id="edittname" name="edittname" value="" disabled="1" />
 			</td>
 		</tr>
         <tr>
@@ -734,16 +735,15 @@ html, body {
                 作成日：
             </td>
             <td>
-                <input type="text" id="editdate" name="editdate" value="" />
-<script>
-    var example = flatpickr('#editdate',{
-      dateFormat: 'Y-m-d',
-      allowInput: true,
-      time_24hr: true,
-      onClose: function() {
-      }
-    });
-</script>
+                <input type="text" id="editdate" name="editdate" value=""  disabled="1" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                終了日：
+            </td>
+            <td>
+                <input type="text" id="editenddate" name="editenddate" value=""  disabled="1" />
             </td>
         </tr>
         <tr>
