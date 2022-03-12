@@ -1903,7 +1903,7 @@ html, body {
         </table>
 	</div>
         <br>
-        <input type="submit" value="CSVダウンロード" />
+        <input type="submit" value="全件CSVダウンロード" />
     </form>
 </div>
 
