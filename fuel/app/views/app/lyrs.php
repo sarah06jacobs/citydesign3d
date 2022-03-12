@@ -143,6 +143,27 @@ function testButton() {
 function init(){
 	openTab('tablink1', 'tabdiv1');
 	openPanel('addobjectdiv', 'panelcontent');
+
+    // set time slider
+    var margin = 12;
+    var cw = 10;
+    var width = 200;
+    var mmin = 0;
+    var mmax = 360;
+    // set month and day to current
+    var d = new Date();
+    var yyyy = d.getFullYear();
+    // get months from year
+    var yearmonths = (yyyy - 2000) * 12;
+    var mm = d.getMonth()+1; // 1 - 12
+    var dd = d.getDate()+1; // 1 - 31
+    var mmstr = d.getMonth() < 9 ? "0" + (d.getMonth() + 1) : (d.getMonth() + 1);
+    var ddstr = d.getDate() < 10 ? "0" + d.getDate() : d.getDate();
+    var totmonths = yearmonths + mm;
+    document.getElementById('timesliderval').value = totmonths;
+    document.getElementById("timeslidertext").value = yyyy + "-" + mmstr + "-" + ddstr;
+    document.getElementById('timesliderpuck').style.left = ((document.getElementById('timesliderval').value-mmin)*width/(mmax-mmin)-margin-cw/2) + "px";
+    updateTimeSliderText();
 }
 
 
@@ -1158,6 +1179,67 @@ function changeOaza(obj) {
     });
 }
 
+function updateTimeSliderText() {
+    var v = document.getElementById("timeslidertext").value;
+
+    // validate date
+    var dateArray = v.split("-");
+    if(dateArray.length == 3) {
+        var yr = dateArray[0]-0;
+        var mn = dateArray[1]-0;
+        var d = dateArray[2]-0;
+
+        if( yr >= 2000 && yr <= 2050 && mn >= 1 && mn <= 12 && d >= 1 && d <= 31 ) {
+            updateTimeData( v );
+
+            var totmonths = ((yr-2000)*12)+mn;
+
+            var margin = 12;
+            var cw = 10;
+            var width = 200;
+            var mmin = 0;
+            var mmax = 360;
+            document.getElementById('timesliderval').value = totmonths;
+            document.getElementById('timesliderpuck').style.left = ((document.getElementById('timesliderval').value-mmin)*width/(mmax-mmin)-margin-cw/2) + "px";
+        }
+
+    }
+}
+
+function updateTimeSlider() {
+    var v = document.getElementById("timesliderval").value;
+    
+    var fromdate = new Date(2000, v, 1);
+
+    var fyear = fromdate.getFullYear();
+    var fmonth = fromdate.getMonth() - -1;
+    var fmstr = fmonth + "";
+    if( fmonth < 10 ) {
+        fmstr = "0" + fmstr;
+    }
+
+    var from_date_str = fyear + "-" + fmstr + "-01";
+    document.getElementById("timeslidertext").value = from_date_str;
+
+    updateTimeData( from_date_str );
+}
+
+function updateTimeData( from_date_str ) {
+    if( date_filter_from !== from_date_str) {
+        date_filter_from = from_date_str;
+        pm_filter_from = getTimeStamp(from_date_str);
+        
+        var dragonfly = parent.frames["dragonfmap"].dragonfly;
+        dragonfly.setShapeLayerProperty("tatemono_1","CGIREQUEST", "/api/gis/getlayer?pool=hawk&fromts="+pm_filter_from);
+        dragonfly.setShapeLayerProperty("tatemono_1","RELOADLAYER", "1");
+        dragonfly.setShapeLayerProperty("tatemono_2","CGIREQUEST", "/api/gis/getlayer?pool=hawk&fromts="+pm_filter_from);
+        dragonfly.setShapeLayerProperty("tatemono_2","RELOADLAYER", "1");
+
+        editlayer = "";
+        stopEdit();
+    }
+}
+
 var date_filter_from = "";
 var date_filter_to = "";
 function setDataRange(  ) {
@@ -1192,14 +1274,13 @@ function setDataRange(  ) {
         dragonfly.setShapeLayerProperty("tatemono_2","CGIREQUEST", "/api/gis/getlayer?pool=hawk");
         dragonfly.setShapeLayerProperty("tatemono_2","RELOADLAYER", "1");
     }
-
-    function getTimeStamp(myDate) {
-        myDate = myDate.split("-");
-        var newDate = new Date( myDate[0], myDate[1] - 1, myDate[2]);
-        return (newDate.getTime()/1000);
-    }
 }
 
+function getTimeStamp(myDate) {
+    myDate = myDate.split("-");
+    var newDate = new Date( myDate[0], myDate[1] - 1, myDate[2]);
+    return (newDate.getTime()/1000);
+}
 </script>
 
 <script>
@@ -1235,6 +1316,43 @@ dragslider=function(d,container,width,min,max,val){
             d.onmousemove=null;d.ontouchmove=null;  
             document.onmousemove=null; document.onmouseup=null;
             updateTFM();
+        }
+        document.onmousemove=d.onmousemove; document.onmouseup=d.onmouseup;
+        d.ontouchend=d.onmouseup;
+}
+
+
+dragtime=function(d,container,width,min,max,val){
+        var oldx=strippx(d.style.left);
+        var dragging=false;
+        var ox,posx,x;
+        
+        var margin=12; //cursor margin
+        var cw=10; //cursor width
+        
+        if (self.event&&event.touches) event.preventDefault();
+        
+        d.onmousemove=function(e){
+            if (e) x=e.screenX; else x=event.screenX;
+            if (self.event&&event.touches) x=e.touches[0].screenX;
+            
+            if (!dragging){ox=x;dragging=true;return;}
+            
+            posx=oldx+x-ox;
+            if (posx<0-margin-cw/2) posx=0-margin-cw/2;
+            if (posx>width-margin-cw/2) posx=width-margin-cw/2;
+            d.style.left=posx+'px'; 
+            gid(container).value=Math.round((posx+margin+cw/2)*(max-min)/width)+min;
+            //updateTFM();
+            updateTimeSlider();     
+        }
+        d.ontouchmove=d.onmousemove;
+        
+        d.onmouseup=function(){
+            d.onmousemove=null;d.ontouchmove=null;  
+            document.onmousemove=null; document.onmouseup=null;
+            //updateTFM();
+            updateTimeSlider();   
         }
         document.onmousemove=d.onmousemove; document.onmouseup=d.onmouseup;
         d.ontouchend=d.onmouseup;
@@ -1366,54 +1484,29 @@ html, body {
 
 <table>
     <tr>
-        <td> 表示範囲：タイム
+        <td> オブジェクト表示日付
         </td>
     </tr>
     <tr>
         <td>
- <script>
-  $( function() {
-    $( "#slider-range" ).slider({
-      range: true,
-      min: 0,
-      max: 300,
-      values: [ 0, 300 ],
-      slide: function( event, ui ) {
 
-        var fromdate = new Date(2000, (ui.values[ 0 ]), 1);
-        var untildate = new Date(2000, (ui.values[ 1 ]), 1);
 
-        var fyear = fromdate.getFullYear();
-        var fmonth = fromdate.getMonth() - -1;
-        var fmstr = fmonth + "";
-        if( fmonth < 10 ) {
-            fmstr = "0" + fmstr;
-        }
-
-        var tyear = untildate.getFullYear();
-        var tmonth = untildate.getMonth() - -1;
-        var tmstr = tmonth + "";
-        if( tmonth < 10 ) {
-            tmstr = "0" + tmstr;
-        }
-
-        document.getElementById("frombld").value = fyear + "-" + fmstr + "-01 to " + tyear + "-" + tmstr + "-01";
-      }
-    });
-    $( "#slider-range" ).mouseup(function()
-        {
-            setDataRange();
-        });
-  } );
-  </script>
-
-<div id="slider-range"></div>
-
+<div style="position:relative;width:200px;padding-bottom:20px;">
+        <div style="border-left:solid 1px #b0b0b0;border-top:solid 1px #b0b0b0;margin-top:5px;font-size:1px;height:3px;">
+            <div style="border-top:solid 2px #e7eaea;"></div>
+        </div>
+        <div id="timesliderpuck" ontouchstart="dragtime(this,'timesliderval',200,0,360,0);" 
+        onmousedown="dragtime(this,'timesliderval',200,0,360,0);" 
+        style="position:absolute;top:-15px;left:0px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
+    </div> 
+            
         </td>
     </tr>
     <tr>
         <td> 
-            <input type="text" name="frombld" id="frombld" value="2000-01-01 to 2025-01-01"  style="width:200px;"/>
+            <input type="text" style="width:200px;" id="timeslidertext" value="2000-01-01"/>
+            <input type="button" value="適応" onclick="updateTimeSliderText();" />
+            <input type="hidden" id="timesliderval" value="22" onchange="updateTimeSlider();" />
         </td>
     </tr>
 </table>
@@ -1452,7 +1545,7 @@ html, body {
                 終了日：
             </td>
             <td>
-                <input type="text" id="newdate" name="newenddate" value="" />
+                <input type="text" id="newenddate" name="newenddate" value="" />
             </td>
         </tr>
 <script>

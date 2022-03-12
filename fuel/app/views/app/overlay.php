@@ -232,6 +232,10 @@ SRID 4612
 	BWALLFLNUM floornum
 	BWALLFLHT floorht
 	BWALLATTRIBUTE wallid
+  <? if (Config::get('groundRoofTex1') == 1) { ?>
+  BROOFTEXTURE ON
+  <? } ?>
+  
   BWALLFLGROUND flground
 	BWALLCOUNT <?= $wallcount; ?>
 
@@ -257,6 +261,10 @@ SRID 4612
 	TILEWIDTH 30000
 	STROKE 173 173 185
 	MAXSCALE 10000
+  <? if (Config::get('groundRoofTex2') == 1) { ?>
+  BROOFTEXTURE ON
+  <? } ?>
+
 	TRAIL 9
 	MINSCALE 0
 	BWALLS /assets/walls/dm2_

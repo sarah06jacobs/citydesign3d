@@ -27,7 +27,7 @@ class Controller_Api_Gis extends Controller_Apibase {
         $bbox = isset($post['bbox']) ? $post['bbox'] : "139.7,35.6,139.8,35.7";
         
         $fromts = isset($post['fromts']) ? $post['fromts']+0 : 0;
-        $tots = isset($post['tots']) ? $post['tots']+0 : 0;
+        //$tots = isset($post['tots']) ? $post['tots']+0 : 0;
         $geomtype = isset($post['gty']) ? $post['gty'] : "POLYGON";
         //$bbox = "139.7,35.6,139.8,35.7";
 
@@ -45,8 +45,8 @@ class Controller_Api_Gis extends Controller_Apibase {
         $query = DB::select('*' , db::expr("ST_AsGeoJSON(wkb_geometry) gjson"));
         $query->from($layer_arr[0]);
         
-        if( $fromts > 0 && $tots > 0 ) {
-            $query->where('create_ts' , '<=' , $tots);
+        if( $fromts > 0 ) {
+            $query->where('create_ts' , '<=' , $fromts);
             $query->and_where_open();
             $query->where('end_ts' , '>=' , $fromts);
             $query->or_where('end_ts' , '0');
@@ -103,7 +103,7 @@ class Controller_Api_Gis extends Controller_Apibase {
                     $out_content_size = $out_content_size + 8;
                 }
                 for( $k=0;$k<$att_count; $k++ ) {
-                    $shpbin[] = $this -> pack_str( $result[$j][$layer_arr[$k+1]] , $ATTRIBUTE_LENGTH );
+                    $shpbin[] = $this -> pack_str( mb_convert_encoding($result[$j][$layer_arr[$k+1]],"sjis","utf-8") , $ATTRIBUTE_LENGTH );
                     $out_content_size = $out_content_size + $ATTRIBUTE_LENGTH;
                 }
             }

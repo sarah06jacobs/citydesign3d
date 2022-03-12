@@ -24,6 +24,9 @@ return array(
 	'top_lift' => 10000,
 
 
+	'groundRoofTex1' => 0,
+	'groundRoofTex2' => 0,
+
 	'object_favorite_alt' => 500,
 
 	/**
