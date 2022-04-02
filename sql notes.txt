@@ -1,4 +1,6 @@
-CREATE TABLE tatemono_1 ( 
+SELECT tname ST_XMin(wkb_geometry),ST_YMin(wkb_geometry),ST_XMax(wkb_geometry),ST_YMax(wkb_geometry) FROM public.tatemono_2;
+
+CREATE TABLE tatemono_2_ts ( 
   gid serial NOT NULL, 
   tname varchar(255),
   ttype INTEGER DEFAULT 0,
@@ -6,12 +8,44 @@ CREATE TABLE tatemono_1 (
   floorht INTEGER DEFAULT 3,
   designid INTEGER DEFAULT 0,
   wallid INTEGER DEFAULT 0,
+  create_ts bigint DEFAULT 0,
+  update_ts bigint DEFAULT 0,
+  flground double precision,
+  parent_gid integer,
+  end_ts bigint,
   create_date date not null default CURRENT_DATE
 );
 
-SELECT AddGeometryColumn('tatemono_1', 'wkb_geometry', 4612, 'POLYGON', 2 );
+SELECT AddGeometryColumn('tatemono_2_ts', 'wkb_geometry', 4612, 'POLYGON', 2 );
 
-CREATE INDEX tatemono_1_geom_idx ON tatemono_1 USING gist (wkb_geometry);
+CREATE INDEX tatemono_2_ts_geom_idx ON tatemono_2_ts USING gist (wkb_geometry);
+
+
+CREATE TABLE tatemono_v_ts
+(
+    gid integer NOT NULL DEFAULT nextval('tatemono_v_gid_seq'::regclass),
+    tname character varying(255) COLLATE pg_catalog."default",
+    wrl character varying(128) COLLATE pg_catalog."default",
+    tfm character varying(512) COLLATE pg_catalog."default",
+    anim character varying(255) COLLATE pg_catalog."default",
+    create_date date NOT NULL DEFAULT CURRENT_DATE,
+    create_ts bigint DEFAULT 0,
+    update_ts bigint DEFAULT 0,
+    imgcount integer,
+    filetype integer,
+    parent_gid integer,
+    end_ts bigint,
+    offset_x integer,
+    offset_y integer,
+    offset_z integer
+);
+
+SELECT AddGeometryColumn('tatemono_v_ts', 'wkb_geometry', 4612, 'POINT', 2 );
+
+CREATE INDEX tatemono_v_ts_geom_idx ON tatemono_v_ts USING gist (wkb_geometry);
+
+
+
 
 
 INSERT INTO tatemono_1 (tname,floornum,wkb_geometry) VALUES ('test1', 10,ST_GeomFromText('POLYGON((139.76 35.68,139.76 35.686,139.766 35.686,139.766 35.68,139.76 35.68))',4612));
@@ -34,7 +68,7 @@ CREATE TABLE tatemono_v (
   update_ts bigint DEFAULT 0
 );
 
-SELECT AddGeometryColumn('tatemono_v ', 'wkb_geometry', 4612, 'POINT', 2 );
+SELECT AddGeometryColumn('tatemono_v', 'wkb_geometry', 4612, 'POINT', 2 );
 
 CREATE INDEX tatemono_v_geom_idx ON tatemono_v USING gist (wkb_geometry);
 

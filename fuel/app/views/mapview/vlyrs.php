@@ -22,9 +22,11 @@ var edit_id = -1;
 var clickmode = 0;
 var editlayer = "";
 
-var layer_map = { lyr_1000: "tatemono_1" ,
+var layer_map = { 
                 lyr_1001: "tatemono_2" ,
-                lyr_2000: "tatemono_v"
+                lyr_1002: "tatemono_2_ts" ,
+                lyr_2000: "tatemono_v" ,
+                lyr_2001: "tatemono_v_ts" ,
             };
 
 var step = 100;
@@ -115,7 +117,7 @@ function setMapStatus(lid){
 	["top_line","aza_polygon", "oaza_polygon"] ,
 	["middle_road_line","city_road_0","city_road_1","city_road_2"] ,
 	["middle_railway","city_railway"],
-	["tatemono_1" , "tatemono_2", "tatemono_v"] ];
+	["tatemono_2", "tatemono_v", "tatemono_2_ts", "tatemono_v_ts"] ];
 
 	for(i=0;i<lyrswitch[lid].length;i++) {
 		parent.frames["dragonfmap"].dragonfly.setShapeLayerProperty(lyrswitch[lid][i],"status",setstr);
@@ -124,14 +126,16 @@ function setMapStatus(lid){
     if( lid == 0 ) {
         // building labels
         if( lobj.checked ) {
-            dragonfly.setShapeLayerProperty("tatemono_1","LABELVISIBLE","ON");
             dragonfly.setShapeLayerProperty("tatemono_2","LABELVISIBLE","ON");
             dragonfly.setShapeLayerProperty("tatemono_v","LABELVISIBLE","ON");
+            dragonfly.setShapeLayerProperty("tatemono_2_ts","LABELVISIBLE","ON");
+            dragonfly.setShapeLayerProperty("tatemono_v_ts","LABELVISIBLE","ON");
         }
         else {
-            dragonfly.setShapeLayerProperty("tatemono_1","LABELVISIBLE","OFF");
             dragonfly.setShapeLayerProperty("tatemono_2","LABELVISIBLE","OFF");
             dragonfly.setShapeLayerProperty("tatemono_v","LABELVISIBLE","OFF");
+            dragonfly.setShapeLayerProperty("tatemono_2_ts","LABELVISIBLE","OFF");
+            dragonfly.setShapeLayerProperty("tatemono_v_ts","LABELVISIBLE","OFF");
         }
     }
 }
@@ -531,10 +535,10 @@ function updateTimeData( from_date_str ) {
         pm_filter_from = getTimeStamp(from_date_str);
         
         var dragonfly = parent.frames["dragonfmap"].dragonfly;
-        dragonfly.setShapeLayerProperty("tatemono_1","CGIREQUEST", "/api/gis/getlayer?pool=hawk&fromts="+pm_filter_from);
-        dragonfly.setShapeLayerProperty("tatemono_1","RELOADLAYER", "1");
-        dragonfly.setShapeLayerProperty("tatemono_2","CGIREQUEST", "/api/gis/getlayer?pool=hawk&fromts="+pm_filter_from);
-        dragonfly.setShapeLayerProperty("tatemono_2","RELOADLAYER", "1");
+        dragonfly.setShapeLayerProperty("tatemono_2_ts","CGIREQUEST", "/api/gis/getlayer?pool=hawk&fromts=0");
+        dragonfly.setShapeLayerProperty("tatemono_2_ts","RELOADLAYER", "1");
+        dragonfly.setShapeLayerProperty("tatemono_v_ts","CGIREQUEST", "/api/gis/getlayer?pool=hawk&gty=POINT&fromts=0");
+        dragonfly.setShapeLayerProperty("tatemono_v_ts","RELOADLAYER", "1");
 
         editlayer = "";
         stopEdit();
@@ -543,41 +547,6 @@ function updateTimeData( from_date_str ) {
 
 var date_filter_from = "";
 var date_filter_to = "";
-function setDataRange(  ) {
-    var dragonfly = parent.frames["dragonfmap"].dragonfly;
-    var dstr = document.getElementById("frombld").value;
-    
-    var dateArray = dstr.split("to");
-    if( dateArray.length > 1 ) {
-        var fromts = dateArray[0].trim();
-        var tots = dateArray[1].trim();
-        //CGIREQUEST /api/gis/getlayer?pool=hawk
-        if( date_filter_from !== fromts || date_filter_to !== tots ) {
-            date_filter_from = fromts;
-            date_filter_to = tots;
-            pm_filter_from = getTimeStamp(fromts);
-            pm_filter_to = getTimeStamp(tots);
-            
-            dragonfly.setShapeLayerProperty("tatemono_1","CGIREQUEST", "/api/gis/getlayer?pool=hawk&fromts="+pm_filter_from+"&tots="+pm_filter_to);
-            dragonfly.setShapeLayerProperty("tatemono_1","RELOADLAYER", "1");
-            dragonfly.setShapeLayerProperty("tatemono_2","CGIREQUEST", "/api/gis/getlayer?pool=hawk&fromts="+pm_filter_from+"&tots="+pm_filter_to);
-            dragonfly.setShapeLayerProperty("tatemono_2","RELOADLAYER", "1");
-
-            editlayer = "";
-            stopEdit();
-        }
-    }
-    else {
-        date_filter_from = "";
-        date_filter_to = "";
-        
-        dragonfly.setShapeLayerProperty("tatemono_1","CGIREQUEST", "/api/gis/getlayer?pool=hawk");
-        dragonfly.setShapeLayerProperty("tatemono_1","RELOADLAYER", "1");
-        dragonfly.setShapeLayerProperty("tatemono_2","CGIREQUEST", "/api/gis/getlayer?pool=hawk");
-        dragonfly.setShapeLayerProperty("tatemono_2","RELOADLAYER", "1");
-    }
-
-}
 
 function getTimeStamp(myDate) {
     myDate = myDate.split("-");

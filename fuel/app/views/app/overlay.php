@@ -213,42 +213,6 @@ SRID 4612
   END
 
   LAYER
-	NAME tatemono_1
-	LAYERID 1000
-	TYPE BUILDING
-	DISPLAY3D ON
-  DEPTH ON
-	CGIREQUEST /api/gis/getlayer?pool=hawk
-	STATUS ON
-	DATA tatemono_1:floornum:floorht:wallid:designid:flground:tname
-	SRID 4612
-	TILEWIDTH 30000
-	STROKE 173 173 185
-	MAXSCALE 10000
-	TRAIL 9
-	MINSCALE 0
-  SHADOWS ON
-	BWALLS /assets/walls/dm2_
-	BWALLFLNUM floornum
-	BWALLFLHT floorht
-	BWALLATTRIBUTE wallid
-  <? if (Config::get('groundRoofTex1') == 1) { ?>
-  BROOFTEXTURE ON
-  <? } ?>
-  
-  BWALLFLGROUND flground
-	BWALLCOUNT <?= $wallcount; ?>
-
-	BWALLTEXW <?= $walltexw; ?>
-  MAXLABELS 200
-  LABELATTRIBUTE tname
-  LABELSCALE 50
-  LABELVISIBLE OFF
-  FONTTEXTCOLOR 255 255 0 255
-  FONTOUTLINECOLOR 20 20 20 255
-  END
-
-  LAYER
 	NAME tatemono_2
 	LAYERID 1001
   DEPTH ON
@@ -290,6 +254,47 @@ SRID 4612
   END
 
   LAYER
+  NAME tatemono_2_ts
+  LAYERID 1002
+  DEPTH ON
+  TYPE BUILDING
+  DISPLAY3D ON
+  CGIREQUEST /api/gis/getlayer?pool=hawk
+  STATUS ON
+  DATA tatemono_2_ts:floornum:floorht:wallid:designid:flground:tname
+  SRID 4612
+  TILEWIDTH 30000
+  STROKE 173 173 185
+  MAXSCALE 10000
+  <? if (Config::get('groundRoofTex2') == 1) { ?>
+  BROOFTEXTURE ON
+  <? } ?>
+
+  TRAIL 9
+  MINSCALE 0
+  BWALLS /assets/walls/dm2_
+  BWALLFLNUM floornum
+  BWALLFLHT floorht
+  BWALLATTRIBUTE wallid
+  BWALLFLGROUND flground
+  BWALLCOUNT 1
+  BWALLTEXW <?= $walltexw; ?>
+  
+  SHADOWS ON
+  DESIGNATTRIBUTE designid
+  DESIGNFOLDER /assets/design
+  DESIGNSERVLET /api/gis/getdesign?design_id=
+  DESIGNOBJECTMAX 200
+  DESIGNTEXTUREMAX 2000
+  MAXLABELS 200
+  LABELATTRIBUTE tname
+  LABELSCALE 50
+  LABELVISIBLE OFF
+  FONTTEXTCOLOR 255 255 0 255
+  FONTOUTLINECOLOR 20 20 20 255
+  END
+
+  LAYER
   NAME tatemono_v
   LAYERID 2000
   DEPTH ON
@@ -305,6 +310,33 @@ SRID 4612
   SYMBOLFILETYPE VRML
   SYMBOLATTDESC NAME
   DATA tatemono_v:wrl:tfm:tname
+  TRANSFORMATTRIBUTE tfm
+  SYMBOLATTRIBUTE wrl
+  MAXLABELS 200
+  LABELATTRIBUTE tname
+    FONTTEXTCOLOR 255 255 255 255
+    FONTOUTLINECOLOR 20 20 20 255
+    LABELSCALE 50
+    LABELVISIBLE OFF
+  CGIREQUEST /api/gis/getlayer?pool=hawk&gty=POINT
+  END
+
+  LAYER
+  NAME tatemono_v_ts
+  LAYERID 2001
+  DEPTH ON
+  TRAIL 5
+  SRID 4612
+  DISPLAY3D ON
+  STATUS ON
+  TYPE POINT
+  MAXSCALE 10000
+  TILEWIDTH 20000
+  MINSCALE 0
+  SYMBOLS /cgi-bin/DFCgi.exe?vrml=
+  SYMBOLFILETYPE VRML
+  SYMBOLATTDESC NAME
+  DATA tatemono_v_ts:wrl:tfm:tname
   TRANSFORMATTRIBUTE tfm
   SYMBOLATTRIBUTE wrl
   MAXLABELS 200

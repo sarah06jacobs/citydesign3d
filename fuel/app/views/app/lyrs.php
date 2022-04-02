@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="/css/flatpick.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script language="javascript">
 
@@ -22,9 +22,11 @@ var edit_id = -1;
 var clickmode = 0;
 var editlayer = "";
 
-var layer_map = { lyr_1000: "tatemono_1" ,
+var layer_map = { 
                 lyr_1001: "tatemono_2" ,
-                lyr_2000: "tatemono_v"
+                lyr_1002: "tatemono_2_ts" ,
+                lyr_2000: "tatemono_v" ,
+                lyr_2001: "tatemono_v_ts" ,
             };
 
 var step = 100;
@@ -33,7 +35,7 @@ var vrmlobj_file = "";
 var vrmlobj_tfm = "";
 var editType = 1; // 1 - building, 2- vrml
 var panelOpen = 1;
-var panelWidth = 270;
+var panelWidth = 320;
 function togglePanel() {
     if( panelOpen == 1 ) {
         document.getElementById("contenttop").style.display = "none";
@@ -63,10 +65,10 @@ function togglePanel() {
         timer=setInterval(
         function()
         {
-          if(panelWidth>=270){
+          if(panelWidth>=320){
               clearTimeout(timer);
-              panelWidth = 270;
-              parent.frames["topframe"].setAttribute('cols','270,*');
+              panelWidth = 320;
+              parent.frames["topframe"].setAttribute('cols','320,*');
           }
           else  {
             panelWidth += 30;
@@ -111,7 +113,7 @@ function setMapStatus(lid){
 	["top_line","aza_polygon", "oaza_polygon"] ,
 	["middle_road_line","city_road_0","city_road_1","city_road_2"] ,
 	["middle_railway","city_railway"],
-	["tatemono_1" , "tatemono_2", "tatemono_v"] ];
+	["tatemono_2", "tatemono_v", "tatemono_2_ts", "tatemono_v_ts"] ];
 
 	for(i=0;i<lyrswitch[lid].length;i++) {
 		parent.frames["dragonfmap"].dragonfly.setShapeLayerProperty(lyrswitch[lid][i],"status",setstr);
@@ -121,14 +123,16 @@ function setMapStatus(lid){
     if( lid == 0 ) {
         // building labels
         if( lobj.checked ) {
-            dragonfly.setShapeLayerProperty("tatemono_1","LABELVISIBLE","ON");
             dragonfly.setShapeLayerProperty("tatemono_2","LABELVISIBLE","ON");
             dragonfly.setShapeLayerProperty("tatemono_v","LABELVISIBLE","ON");
+            dragonfly.setShapeLayerProperty("tatemono_2_ts","LABELVISIBLE","ON");
+            dragonfly.setShapeLayerProperty("tatemono_v_ts","LABELVISIBLE","ON");
         }
         else {
-            dragonfly.setShapeLayerProperty("tatemono_1","LABELVISIBLE","OFF");
             dragonfly.setShapeLayerProperty("tatemono_2","LABELVISIBLE","OFF");
             dragonfly.setShapeLayerProperty("tatemono_v","LABELVISIBLE","OFF");
+            dragonfly.setShapeLayerProperty("tatemono_2_ts","LABELVISIBLE","OFF");
+            dragonfly.setShapeLayerProperty("tatemono_v_ts","LABELVISIBLE","OFF");
         }
     }
 }
@@ -147,7 +151,7 @@ function init(){
     // set time slider
     var margin = 12;
     var cw = 10;
-    var width = 200;
+    var width = 280;
     var mmin = 0;
     var mmax = 360;
     // set month and day to current
@@ -327,24 +331,24 @@ function updateTFMSliders()
     document.getElementById('vrmlmovezpuck').style.left = ((document.getElementById('vrmlzmove').value-mmin)*width/(mmax-mmin)-margin-cw/2) + "px";
 }
 
-function changeVrml() {
+function changeVrml(lyrname) {
     var vid = vrmlobj_id;
     stopEdit();
     let params = "scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=600,height=500,left=100,top=100";
-    window.open('vrmlup?vrmlid='+vid , 'design',params);
+    window.open('vrmlup?vrmlid='+vid + '&layer=' + editlayer , 'design',params);
 }
 
-function uploadVrml() {
+function uploadVrml(lyrname) {
     let params = "scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=600,height=500,left=100,top=100";
-    window.open('vrmlup?vrmlid=-1' , 'design',params);
+    window.open('vrmlup?vrmlid=-1&layer=' + lyrname , 'design',params);
 
     //setVrml(6 , 'obj_6.wrl', 'tatemono_v', 'bld', '2022-01-01', '');
 }
 
-function addVrmlChild() {
+function addVrmlChild(lyrname) {
     if( vrmlobj_id >= 0 ) {
         let params = "scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=600,height=500,left=100,top=100";
-        window.open('vrmlup?vrmlid=-1&gid='+vrmlobj_id , 'design',params);
+        window.open('vrmlup?vrmlid=-1&gid='+vrmlobj_id + '&layer=' + editlayer, 'design',params);
     }
     else {
         alert("VRML OBJECT 選択してください。");
@@ -463,7 +467,7 @@ function itemClicked(id,layerid,inclusive) {
                             openPanel('editbldpanel1' , 'editpanelcontent');
                             document.getElementById('editbldgrounddiv').style.display = "block";
                         }
-                        else if( editlayer == "tatemono_2" ) {
+                        else if( editlayer == "tatemono_2" || editlayer == "tatemono_2_ts" ) {
                             openPanel('editbldpanel2' , 'editpanelcontent');
                             document.getElementById('editbldgrounddiv').style.display = "block";
                         }
@@ -473,7 +477,7 @@ function itemClicked(id,layerid,inclusive) {
                     }
                     else {
                         // vrml
-                        if( editlayer == "tatemono_v" ) {
+                        if( editlayer == "tatemono_v" || editlayer == "tatemono_v_ts" ) {
 
                             var coord = { x: objects[0]['geom'][0], z: 0, y: objects[0]['geom'][1] };
                             points = coord;
@@ -839,7 +843,7 @@ function createNewDesign() {
 
 function editDesign(editid) {
 	let params = "scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=600,height=500,left=100,top=100";
-    window.open('design?design_id=' + document.getElementById(editid).value + '&layer=tatemono_2' , 'design', params);
+    window.open('design?design_id=' + document.getElementById(editid).value + '&layer=' + editlayer , 'design', params);
 }
 
 function changePref(obj) {
@@ -965,16 +969,16 @@ function reloadPlaces(list) {
 
         var row = table.insertRow(i);
         var cell1 = row.insertCell(0);
-        cell1.setAttribute("style" ,"width:160px;outline-color:lightgrey;outline-style: solid;outline-width: 1px;");
+        cell1.setAttribute("style" ,"width:210px;outline-color:lightgrey;outline-style: solid;outline-width: 1px;");
         var span = document.createElement("span");
         span.id = "place" + obj['places_id'];
-        span.setAttribute("style" ,"width:160px;height:30px;margin-left: 2px;margin-top: 2px;display: inline-block;padding: 3px;");
+        span.setAttribute("style" ,"width:210px;height:30px;margin-left: 2px;margin-top: 2px;display: inline-block;padding: 3px;");
         span.setAttribute("onclick","gotoPlace("+obj['lon']+","+obj['lat']+","  + obj['center_lon']+","+obj['center_lat']+ "," +obj['alt']+","+obj['pitch']+","+obj['dir']+","+obj['out']+");");
         span.innerHTML = " " + obj['pname'] + " ";
         cell1.appendChild(span);
 
         var cell2 = row.insertCell(1);
-        cell2.setAttribute("style" ,"width:30px;text-align: center;");
+        cell2.setAttribute("style" ,"width:40px;text-align: center;");
         var at = document.createElement("a");
         at.setAttribute("onclick","placeToCB('"+obj['url']+"');");
         at.setAttribute("style" ,"color:green;text-decoration: none;");
@@ -1196,7 +1200,7 @@ function updateTimeSliderText() {
 
             var margin = 12;
             var cw = 10;
-            var width = 200;
+            var width = 280;
             var mmin = 0;
             var mmax = 360;
             document.getElementById('timesliderval').value = totmonths;
@@ -1204,6 +1208,15 @@ function updateTimeSliderText() {
         }
 
     }
+}
+
+function clearTimeSliderText() {
+    var dragonfly = parent.frames["dragonfmap"].dragonfly;
+    dragonfly.setShapeLayerProperty("tatemono_2_ts","CGIREQUEST", "/api/gis/getlayer?pool=hawk&fromts=0");
+    dragonfly.setShapeLayerProperty("tatemono_2_ts","RELOADLAYER", "1");
+    dragonfly.setShapeLayerProperty("tatemono_v_ts","CGIREQUEST", "/api/gis/getlayer?pool=hawk&gty=POINT&fromts=0");
+    dragonfly.setShapeLayerProperty("tatemono_v_ts","RELOADLAYER", "1");
+    document.getElementById("timeslidertext").value = "";
 }
 
 function updateTimeSlider() {
@@ -1230,10 +1243,10 @@ function updateTimeData( from_date_str ) {
         pm_filter_from = getTimeStamp(from_date_str);
         
         var dragonfly = parent.frames["dragonfmap"].dragonfly;
-        dragonfly.setShapeLayerProperty("tatemono_1","CGIREQUEST", "/api/gis/getlayer?pool=hawk&fromts="+pm_filter_from);
-        dragonfly.setShapeLayerProperty("tatemono_1","RELOADLAYER", "1");
-        dragonfly.setShapeLayerProperty("tatemono_2","CGIREQUEST", "/api/gis/getlayer?pool=hawk&fromts="+pm_filter_from);
-        dragonfly.setShapeLayerProperty("tatemono_2","RELOADLAYER", "1");
+        dragonfly.setShapeLayerProperty("tatemono_2_ts","CGIREQUEST", "/api/gis/getlayer?pool=hawk&fromts="+pm_filter_from);
+        dragonfly.setShapeLayerProperty("tatemono_2_ts","RELOADLAYER", "1");
+        dragonfly.setShapeLayerProperty("tatemono_v_ts","CGIREQUEST", "/api/gis/getlayer?pool=hawk&gty=POINT&fromts="+pm_filter_from);
+        dragonfly.setShapeLayerProperty("tatemono_v_ts","RELOADLAYER", "1");
 
         editlayer = "";
         stopEdit();
@@ -1242,39 +1255,7 @@ function updateTimeData( from_date_str ) {
 
 var date_filter_from = "";
 var date_filter_to = "";
-function setDataRange(  ) {
-    var dragonfly = parent.frames["dragonfmap"].dragonfly;
-    var dstr = document.getElementById("frombld").value;
-    var dateArray = dstr.split("to");
-    if( dateArray.length > 1 ) {
-        var fromts = dateArray[0].trim();
-        var tots = dateArray[1].trim();
-        //CGIREQUEST /api/gis/getlayer?pool=hawk
-        if( date_filter_from !== fromts || date_filter_to !== tots ) {
-            date_filter_from = fromts;
-            date_filter_to = tots;
-            pm_filter_from = getTimeStamp(fromts);
-            pm_filter_to = getTimeStamp(tots);
-            
-            dragonfly.setShapeLayerProperty("tatemono_1","CGIREQUEST", "/api/gis/getlayer?pool=hawk&fromts="+pm_filter_from+"&tots="+pm_filter_to);
-            dragonfly.setShapeLayerProperty("tatemono_1","RELOADLAYER", "1");
-            dragonfly.setShapeLayerProperty("tatemono_2","CGIREQUEST", "/api/gis/getlayer?pool=hawk&fromts="+pm_filter_from+"&tots="+pm_filter_to);
-            dragonfly.setShapeLayerProperty("tatemono_2","RELOADLAYER", "1");
 
-            editlayer = "";
-            stopEdit();
-        }
-    }
-    else {
-        date_filter_from = "";
-        date_filter_to = "";
-        
-        dragonfly.setShapeLayerProperty("tatemono_1","CGIREQUEST", "/api/gis/getlayer?pool=hawk");
-        dragonfly.setShapeLayerProperty("tatemono_1","RELOADLAYER", "1");
-        dragonfly.setShapeLayerProperty("tatemono_2","CGIREQUEST", "/api/gis/getlayer?pool=hawk");
-        dragonfly.setShapeLayerProperty("tatemono_2","RELOADLAYER", "1");
-    }
-}
 
 function getTimeStamp(myDate) {
     myDate = myDate.split("-");
@@ -1429,7 +1410,6 @@ html, body {
 </style>
 </HEAD>
 <BODY leftmargin="1" rightmargin="1" topmargin="1" bottommargin="1" onload="init();">
-
 <div class="content" id="contenttop">
 
 <div class="tab">
@@ -1491,12 +1471,12 @@ html, body {
         <td>
 
 
-<div style="position:relative;width:200px;padding-bottom:20px;">
+<div style="position:relative;width:280px;padding-bottom:20px;">
         <div style="border-left:solid 1px #b0b0b0;border-top:solid 1px #b0b0b0;margin-top:5px;font-size:1px;height:3px;">
             <div style="border-top:solid 2px #e7eaea;"></div>
         </div>
         <div id="timesliderpuck" ontouchstart="dragtime(this,'timesliderval',200,0,360,0);" 
-        onmousedown="dragtime(this,'timesliderval',200,0,360,0);" 
+        onmousedown="dragtime(this,'timesliderval',280,0,360,0);" 
         style="position:absolute;top:-15px;left:0px;width:40px;height:30px;font-size:1px;background:transparent url(/img/slider.gif) no-repeat center center;"></div>
     </div> 
             
@@ -1504,8 +1484,9 @@ html, body {
     </tr>
     <tr>
         <td> 
-            <input type="text" style="width:200px;" id="timeslidertext" value="2000-01-01"/>
+            <input type="text" style="width:230px;" id="timeslidertext" value="2000-01-01"/>
             <input type="button" value="適応" onclick="updateTimeSliderText();" />
+            <input type="button" value="クリア" onclick="clearTimeSliderText();" />
             <input type="hidden" id="timesliderval" value="22" onchange="updateTimeSlider();" />
         </td>
     </tr>
@@ -1514,9 +1495,11 @@ html, body {
 <table>
 		<tr>
 		<td colspan="9999">
-		<input type="button" onclick="newGeom('tatemono_1')" value="一般建物作成" /><br>
-        <input type="button" onclick="newGeom('tatemono_2')" value="壁テキスチャー登録建物作成" /><br>
-        <input type="button" onclick="uploadVrml()" value="VRMLオブジェクト登録" /><br>
+        <input type="button" onclick="newGeom('tatemono_2')" value="建物作成" /><br>
+        <input type="button" onclick="newGeom('tatemono_2_ts')" value="機関対象建物作成" /><br>
+        <br>
+        <input type="button" onclick="uploadVrml('tatemono_v')" value="VRMLオブジェクト登録" /><br>
+        <input type="button" onclick="uploadVrml('tatemono_v_ts')" value="機関対象建VRMLオブジェクト登録" /><br>
 	</td>
 </tr>
 </table>
@@ -1529,7 +1512,7 @@ html, body {
 				名前：
 			</td>
 			<td>
-				<input type="text" id="newtname" name="newtname" value="" />
+				<input type="text" id="newtname" name="newtname" value="" style="width:250px;" />
 			</td>
 		</tr>
         <tr>
@@ -1537,7 +1520,7 @@ html, body {
                 作成日：
             </td>
             <td>
-                <input type="text" id="newdate" name="newdate" value="" />
+                <input type="text" id="newdate" name="newdate" value="" style="width:250px;" />
             </td>
         </tr>
         <tr>
@@ -1545,7 +1528,7 @@ html, body {
                 終了日：
             </td>
             <td>
-                <input type="text" id="newenddate" name="newenddate" value="" />
+                <input type="text" id="newenddate" name="newenddate" value="" style="width:250px;" />
             </td>
         </tr>
 <script>
@@ -1603,7 +1586,7 @@ html, body {
 				名前：
 			</td>
 			<td>
-				<input type="text" id="edittname" name="edittname" value="" />
+				<input type="text" id="edittname" name="edittname" value="" style="width:250px;" />
 			</td>
 		</tr>
         <tr>
@@ -1611,7 +1594,7 @@ html, body {
                 作成日：
             </td>
             <td>
-                <input type="text" id="editdate" name="editdate" value="" />
+                <input type="text" id="editdate" name="editdate" value="" style="width:250px;" />
 <script>
     var example = flatpickr('#editdate',{
       dateFormat: 'Y-m-d',
@@ -1628,7 +1611,7 @@ html, body {
                 終了日：
             </td>
             <td>
-                <input type="text" id="editenddate" name="editenddate" value="" />
+                <input type="text" id="editenddate" name="editenddate" value="" style="width:250px;" />
 <script>
     var example = flatpickr('#editenddate',{
       dateFormat: 'Y-m-d',
@@ -1874,25 +1857,25 @@ html, body {
     <hr />
     <h4>
     お気に入り場所登録</h4>
-    <input type="textbox" value="" id="newplacename" style="width:150px">
+    <input type="textbox" value="" id="newplacename" style="width:250px">
     <input type="button" id="addPlaceButton" onclick="addPlace();" value="登録"><br>
     <br>
     <form id="placescsvform" action="placescsv" method="post">
     filter:<br>
-    <input type="textbox" value="" id="searchplacename" style="width:200px" onkeyup="filterPlaces();"> 
+    <input type="textbox" value="" id="searchplacename" style="width:280px" onkeyup="filterPlaces();"> 
     <br>
-    <div id="placeslist" style="overflow-y:scroll;height:430px;width:250px;">
+    <div id="placeslist" style="overflow-y:scroll;height:430px;width:310px;">
         <br />
-        <table id="placestable" name="placestable" style="width:230px;">
+        <table id="placestable" name="placestable" style="width:290px;">
             <? foreach ($places as $place) { ?>
             <tr>
-                <td style="width:160px;outline-color:lightgrey;outline-style: solid;outline-width: 1px;">
+                <td style="width:210px;outline-color:lightgrey;outline-style: solid;outline-width: 1px;">
 
-                <span id="place<?= $place['places_id'] ?>" style="width:160px;height:30px;margin-left: 2px;margin-top: 2px;display: inline-block;padding: 3px;" 
+                <span id="place<?= $place['places_id'] ?>" style="width:210px;height:30px;margin-left: 2px;margin-top: 2px;display: inline-block;padding: 3px;" 
             onclick="gotoPlace(<?= $place['lon']; ?>,<?= $place['lat']; ?>,<?= $place['center_lon']; ?>,<?= $place['center_lat']; ?>,<?= $place['alt']; ?>,<?= $place['pitch']; ?>,<?= $place['dir']; ?>, <?= $place['out']; ?>);"> <?= $place['pname'] ?> </span>
 
                 </td>
-                <td style="width:30px;text-align: center;">
+                <td style="width:40px;text-align: center;">
                     <a style="color:green;text-decoration: none;" onclick="placeToCB('<?= $place['url']; ?>');">url</a>
                 </td>
                 <td style="width:40px;text-align: center;">
