@@ -744,6 +744,12 @@ function resetForms() {
 	document.getElementById("edittname").value = "";
 	document.getElementById("editwrlfile").value = "";
 
+    document.getElementById("newenddate").value = "";
+    document.getElementById("editenddate").value = "";
+
+    document.getElementById("newdate").value = "";
+    document.getElementById("editdate").value = "";
+
     document.getElementById('vrmlscale').value = 100;
     document.getElementById('vrmlxrot').value = 0;
     document.getElementById('vrmlyrot').value = 0;
@@ -1496,10 +1502,10 @@ html, body {
 		<tr>
 		<td colspan="9999">
         <input type="button" onclick="newGeom('tatemono_2')" value="建物作成" /><br>
-        <input type="button" onclick="newGeom('tatemono_2_ts')" value="機関対象建物作成" /><br>
+        <input type="button" onclick="newGeom('tatemono_2_ts')" value="期間対象建物作成" /><br>
         <br>
         <input type="button" onclick="uploadVrml('tatemono_v')" value="VRMLオブジェクト登録" /><br>
-        <input type="button" onclick="uploadVrml('tatemono_v_ts')" value="機関対象建VRMLオブジェクト登録" /><br>
+        <input type="button" onclick="uploadVrml('tatemono_v_ts')" value="期間対象建VRMLオブジェクト登録" /><br>
 	</td>
 </tr>
 </table>
