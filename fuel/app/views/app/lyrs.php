@@ -1505,7 +1505,7 @@ html, body {
         <input type="button" onclick="newGeom('tatemono_2_ts')" value="期間対象建物作成" /><br>
         <br>
         <input type="button" onclick="uploadVrml('tatemono_v')" value="VRMLオブジェクト登録" /><br>
-        <input type="button" onclick="uploadVrml('tatemono_v_ts')" value="期間対象建VRMLオブジェクト登録" /><br>
+        <input type="button" onclick="uploadVrml('tatemono_v_ts')" value="期間対象VRMLオブジェクト登録" /><br>
 	</td>
 </tr>
 </table>
