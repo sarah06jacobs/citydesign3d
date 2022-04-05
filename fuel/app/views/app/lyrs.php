@@ -331,11 +331,12 @@ function updateTFMSliders()
     document.getElementById('vrmlmovezpuck').style.left = ((document.getElementById('vrmlzmove').value-mmin)*width/(mmax-mmin)-margin-cw/2) + "px";
 }
 
-function changeVrml(lyrname) {
+function changeVrml() {
+    var vlyr = editlayer;
     var vid = vrmlobj_id;
     stopEdit();
     let params = "scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=600,height=500,left=100,top=100";
-    window.open('vrmlup?vrmlid='+vid + '&layer=' + editlayer , 'design',params);
+    window.open('vrmlup?vrmlid='+vid + '&layer=' + vlyr , 'design',params);
 }
 
 function uploadVrml(lyrname) {
