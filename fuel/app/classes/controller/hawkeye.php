@@ -418,6 +418,7 @@ class Controller_Hawkeye extends Controller
         $cdate = "";
         $tfm = "";
         $tname = "upload0";
+        $url = "";
 
         if ($action === "upload") {
         	$dfolder = DOCROOT.'/maps/shape/vrml/';
@@ -447,6 +448,7 @@ class Controller_Hawkeye extends Controller
 			            $tfm = $result[0]["tfm"];
 			            $cdate = $result[0]["create_date"];
 			            $tname = $result[0]["tname"];
+			            $url = $result[0]["url"];
 		            }
 		            else {
 		            	$vrml_id = -1;
@@ -457,6 +459,7 @@ class Controller_Hawkeye extends Controller
                 	$setlon = "100.0";
                 	$setlat = "5.0";
                 	$tname = "vrml object";
+                	$url = "";
                 	$tfm = "";
                 	if( $gid >= 0 ) {
                 		$query = DB::select('*', db::expr("ST_AsGeoJSON(wkb_geometry) gjson"));
@@ -477,6 +480,7 @@ class Controller_Hawkeye extends Controller
 	              	$cdate = date('Y-m-d H:i');
 	                $query = DB::insert($layer);
 		            $query -> set(array( 'tname' => $tname ,
+		            	'url' => '',
 			            'create_date' => $cdate,
 			            'create_ts' => strtotime($cdate),
 			            'update_ts' => time(),
@@ -607,6 +611,7 @@ class Controller_Hawkeye extends Controller
         $views['cdate'] = $cdate;
         $views['points'] = $points;
         $views['tfm'] = $tfm;
+        $views['url'] = $url;
 
         $views['offset_x'] = $offset_x;
         $views['offset_y'] = $offset_y;

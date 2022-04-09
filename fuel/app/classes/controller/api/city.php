@@ -31,6 +31,7 @@ class Controller_Api_City extends Controller_Apibase {
         $cdate = $json['date'];
         $edate = $json['enddate'];
         $tname = $json['tname'];
+        $url = $json['url'];
         $designid = $json['designid'];
         if( $designid === "" ) {
             $designid = "-1";
@@ -72,6 +73,7 @@ class Controller_Api_City extends Controller_Apibase {
             'flground' => $ground,
             'wallid' => $wallid,
             'tname' => $tname,
+            'url' => $url,
             'create_date' => $cdate,
             'floorht' => '1',
             'create_ts' => strtotime($cdate),
@@ -186,6 +188,7 @@ class Controller_Api_City extends Controller_Apibase {
         $layer = $json['layer'];
         $wallid = $json['wallid'];
         $tname = $json['tname'];
+        $url = $json['url'];
         $designid = $json['designid'];
 
         if( $designid === "" ) {
@@ -226,6 +229,7 @@ class Controller_Api_City extends Controller_Apibase {
             'flground' => $ground,
             'wallid' => $wallid,
             'tname' => $tname,
+            'url' => $url,
             'create_date' => $cdate,
             'create_ts' => strtotime($cdate),
             'end_ts' => $end_ts,
@@ -255,6 +259,7 @@ class Controller_Api_City extends Controller_Apibase {
         $edate = $json['enddate'];
         $layer = $json['layer'];
         $tname = $json['tname'];
+        $url = $json['url'];
 
         $wrlfile = $json['wrlfile'];
         $tfm = $json['tfm'];
@@ -269,6 +274,7 @@ class Controller_Api_City extends Controller_Apibase {
         $query = DB::update($layer);
         $query->set(array(
             'tname' => $tname,
+            'url' => $url,
             'create_date' => $cdate,
             'create_ts' => strtotime($cdate),
             'update_ts' => time(),

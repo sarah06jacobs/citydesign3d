@@ -11,7 +11,7 @@
 
             <? if (($gid+0) < 0) { ?>
 
-        opener.setVrml('<?= $vrml_id; ?>' , '<?= $vfname; ?>' , '<?= $layer; ?>' , '<?= $tname; ?>', '<?= $cdate; ?>', '<?= $points; ?>' ,  '<?= $tfm; ?>');
+        opener.setVrml('<?= $vrml_id; ?>' , '<?= $vfname; ?>' , '<?= $layer; ?>' , '<?= $tname; ?>','<?= $url; ?>', '<?= $cdate; ?>', '<?= $points; ?>' ,  '<?= $tfm; ?>');
         opener.document.getElementById("setfavoritebutton").disabled = true;
         window.close();
             <? } else { ?>

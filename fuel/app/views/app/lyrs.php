@@ -244,7 +244,7 @@ function setVrmlChild(vrmlid, layer) {
 }
 
 
-function setVrml(objid , vrmlfile, layer, tname, cdate, point_str, tfm) {
+function setVrml(objid , vrmlfile, layer, tname, url, cdate, point_str, tfm) {
     vrmlobj_id = objid;
     edit_id = objid;
     vrmlobj_file = vrmlfile;
@@ -274,6 +274,7 @@ function setVrml(objid , vrmlfile, layer, tname, cdate, point_str, tfm) {
 
     document.getElementById("editwrlfile").value = vrmlobj_file;
     document.getElementById("edittname").value = tname;
+    document.getElementById("editurl").value = url;
     document.getElementById("editdate").value = cdate;
 
     openPanel('editbldpanelv' , 'editpanelcontent');
@@ -336,12 +337,12 @@ function changeVrml() {
     var vid = vrmlobj_id;
     stopEdit();
     let params = "scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=600,height=500,left=100,top=100";
-    window.open('vrmlup?vrmlid='+vid + '&layer=' + vlyr , 'design',params);
+    window.open('vrmlup?vrmlid='+vid + '&layer=' + vlyr , 'vrml',params);
 }
 
 function uploadVrml(lyrname) {
     let params = "scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=600,height=500,left=100,top=100";
-    window.open('vrmlup?vrmlid=-1&layer=' + lyrname , 'design',params);
+    window.open('vrmlup?vrmlid=-1&layer=' + lyrname , 'vrml',params);
 
     //setVrml(6 , 'obj_6.wrl', 'tatemono_v', 'bld', '2022-01-01', '');
 }
@@ -349,7 +350,7 @@ function uploadVrml(lyrname) {
 function addVrmlChild(lyrname) {
     if( vrmlobj_id >= 0 ) {
         let params = "scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=600,height=500,left=100,top=100";
-        window.open('vrmlup?vrmlid=-1&gid='+vrmlobj_id + '&layer=' + editlayer, 'design',params);
+        window.open('vrmlup?vrmlid=-1&gid='+vrmlobj_id + '&layer=' + editlayer, 'vrml',params);
     }
     else {
         alert("VRML OBJECT 選択してください。");
@@ -453,7 +454,7 @@ function itemClicked(id,layerid,inclusive) {
                     editlayer = json_data['layer'];
                     document.getElementById("editdate").value = objects[0]['create_date'];
                     document.getElementById("editenddate").value = objects[0]['end_date'];
-            		document.getElementById("edittname").value = objects[0]['tname'];
+            		document.getElementById("editurl").value = objects[0]['url'];
                     document.getElementById("setfavoritebutton").disabled = false;
 
                     if ( layerid < 2000 ) {
@@ -487,10 +488,14 @@ function itemClicked(id,layerid,inclusive) {
                             var geomstr = objects[0]['geomstr'];
                             var garr = geomstr.split(";");
 
-                            setVrml(objects[0]['gid'] , objects[0]['wrl'], editlayer, objects[0]['tname'], objects[0]['create_date'], garr[1] , objects[0]['tfm']);
+                            setVrml(objects[0]['gid'] , objects[0]['wrl'], editlayer, objects[0]['tname'],objects[0]['url'], objects[0]['create_date'], garr[1] , objects[0]['tfm']);
                             document.getElementById('editbldgrounddiv').style.display = "none";
                         }
                     }
+
+                    if (objects[0]['url'] != '') {
+                        openObjectUrl(objects[0]['url']);
+                    } 
             	}
             }
             // 成功時処理
@@ -653,6 +658,7 @@ function saveEditVrml() {
     var data = {
         id: edit_id,
         tname: document.getElementById("edittname").value,
+        url: document.getElementById("editurl").value,
         date: document.getElementById("editdate").value,
         enddate: document.getElementById("editenddate").value,
         coords: points,
@@ -695,6 +701,7 @@ function saveEditBuilding() {
 	var data = {
 		id: edit_id,
 		tname: document.getElementById("edittname").value,
+        url: document.getElementById("editurl").value,
         date: document.getElementById("editdate").value,
         enddate: document.getElementById("editenddate").value,
         coords: points,
@@ -743,6 +750,8 @@ function resetForms() {
 	document.getElementById("edit_design_id").value = "";
 	document.getElementById("newtname").value = "";
 	document.getElementById("edittname").value = "";
+    document.getElementById("newurl").value = "";
+    document.getElementById("editurl").value = "";
 	document.getElementById("editwrlfile").value = "";
 
     document.getElementById("newenddate").value = "";
@@ -770,6 +779,7 @@ function saveObject() {
         date: document.getElementById("newdate").value,
         enddate: document.getElementById("newenddate").value,
         tname: document.getElementById("newtname").value,
+        url: document.getElementById("newurl").value,
         wallid: document.getElementById("newwallidselect").value,
         designid: document.getElementById("new_design_id").value,
         layer: editlayer
@@ -837,6 +847,12 @@ function stopEdit() {
     vrmlobj_tfm = "";
     editType = 1;
 	resetForms();
+}
+
+function openObjectUrl(url) {
+    if( url && url.length > 4 ) {
+        window.open(url , 'object' , "location=yes");
+    }
 }
 
 function changeWallImg(obj, imgid) {
@@ -1524,6 +1540,14 @@ html, body {
 		</tr>
         <tr>
             <td>
+                リンク：
+            </td>
+            <td>
+                <input type="text" id="newurl" name="newurl" value="" style="width:250px;" />
+            </td>
+        </tr>
+        <tr>
+            <td>
                 作成日：
             </td>
             <td>
@@ -1596,6 +1620,14 @@ html, body {
 				<input type="text" id="edittname" name="edittname" value="" style="width:250px;" />
 			</td>
 		</tr>
+        <tr>
+            <td>
+                リンク：
+            </td>
+            <td>
+                <input type="text" id="editurl" name="editurl" value="" style="width:250px;" />
+            </td>
+        </tr>
         <tr>
             <td>
                 作成日：

@@ -221,7 +221,12 @@ function itemClicked(id,layerid,inclusive) {
                     editlayer = json_data['layer'];
                     document.getElementById("editdate").value = objects[0]['create_date'];
             		document.getElementById("edittname").value = objects[0]['tname'];
+                    document.getElementById("editurl").value = objects[0]['url'];
                     document.getElementById("editenddate").value = objects[0]['end_date'];
+
+                    if (objects[0]['url'] != '') {
+                        openObjectUrl(objects[0]['url']);
+                    }
             	}
             }
             // 成功時処理
@@ -238,6 +243,12 @@ function itemClicked(id,layerid,inclusive) {
 
 function mapOutputCoords(outx,  alt, outy, li, si, pi, isadd, iscw) {
 	
+}
+
+function openObjectUrl(url) {
+    if( url && url.length > 4 ) {
+        window.open(url , 'object' , "location=yes");
+    }
 }
 
 function changePref(obj) {
@@ -792,6 +803,14 @@ html, body {
 				<input type="text" id="edittname" name="edittname" value="" disabled="1" />
 			</td>
 		</tr>
+        <tr>
+            <td>
+                名前：
+            </td>
+            <td>
+                <input type="text" id="editurl" name="editurl" value="" disabled="1" />
+            </td>
+        </tr>
         <tr>
             <td>
                 作成日：
