@@ -247,7 +247,7 @@ function mapOutputCoords(outx,  alt, outy, li, si, pi, isadd, iscw) {
 
 function openObjectUrl(url) {
     if( url && url.length > 4 ) {
-        window.open(url , 'object' , "location=yes");
+        window.open(url , 'object' , "location=yes,scrollbars=yes,resizable=yes");
     }
 }
 
@@ -805,7 +805,7 @@ html, body {
 		</tr>
         <tr>
             <td>
-                名前：
+                リンク：
             </td>
             <td>
                 <input type="text" id="editurl" name="editurl" value="" disabled="1" />

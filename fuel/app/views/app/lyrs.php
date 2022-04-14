@@ -452,6 +452,7 @@ function itemClicked(id,layerid,inclusive) {
             		openPanel('editobjectdiv', 'panelcontent');
 
                     editlayer = json_data['layer'];
+                    document.getElementById("edittname").value = objects[0]['tname'];
                     document.getElementById("editdate").value = objects[0]['create_date'];
                     document.getElementById("editenddate").value = objects[0]['end_date'];
             		document.getElementById("editurl").value = objects[0]['url'];
@@ -851,7 +852,7 @@ function stopEdit() {
 
 function openObjectUrl(url) {
     if( url && url.length > 4 ) {
-        window.open(url , 'object' , "location=yes");
+        window.open(url , 'object' , "location=yes,scrollbars=yes,resizable=yes");
     }
 }
 
